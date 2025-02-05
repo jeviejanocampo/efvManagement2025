@@ -1,9 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .highlighted {
+    background-color: gray !important; /* Change background color to gray */
+    color: white !important; /* Change font color to white */
+}
+</style>
+<body>
 @extends('staff.dashboard.StaffMain')
 
 @section('content')
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Card 1 -->
-        <div class="bg-white text-gray-900 p-6 rounded-2xl hover:bg-gray-900 hover:text-white transition duration-300">
+        <div class="card bg-white text-gray-900 p-6 rounded-2xl hover:bg-gray-900 hover:text-white transition duration-300" onclick="highlightCard(this)">
             <div class="flex items-center space-x-4">
                 <div class="p-3 bg-gray-100 rounded-full">
                     <!-- Icon (example: user icon) -->
@@ -19,7 +33,7 @@
         </div>
         
         <!-- Card 2 -->
-        <div class="bg-white text-gray-900 p-6 rounded-2xl hover:bg-gray-900 hover:text-white transition duration-300">
+        <div class="card bg-white text-gray-900 p-6 rounded-2xl hover:bg-gray-900 hover:text-white transition duration-300" onclick="highlightCard(this)">
             <div class="flex items-center space-x-4">
                 <div class="p-3 bg-gray-100 rounded-full">
                     <!-- Icon (example: folder icon) -->
@@ -35,7 +49,7 @@
         </div>
 
         <!-- QR Code Card -->
-        <div class="bg-white text-gray-900 p-6 rounded-2xl hover:bg-gray-900 hover:text-white transition duration-300">
+        <div class="card bg-white text-gray-900 p-6 rounded-2xl hover:bg-gray-900 hover:text-white transition duration-300" onclick="highlightCard(this)">
             <div class="flex items-center space-x-4">
                 <div class="p-3 bg-gray-100 rounded-full">
                     <!-- Icon for QR Code -->
@@ -47,13 +61,12 @@
                     <h3 class="text-lg font-semibold">Generated QR Code</h3>
                     <p class="text-sm">Scan the QR code below:</p>
                     <!-- Display QR Code -->
-
                 </div>
             </div>
         </div>
 
         <!-- Card 4 -->
-        <div class="bg-white text-gray-900 p-6 rounded-2xl hover:bg-gray-900 hover:text-white transition duration-300">
+        <div class="card bg-white text-gray-900 p-6 rounded-2xl hover:bg-gray-900 hover:text-white transition duration-300" onclick="highlightCard(this)">
             <div class="flex items-center space-x-4">
                 <div class="p-3 bg-gray-100 rounded-full">
                     <!-- Icon (example: bell icon) -->
@@ -68,5 +81,15 @@
             </div>
         </div>
     </div>
-    
+
+    <script>
+        function highlightCard(card) {
+            // Remove the 'highlighted' class from all cards
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('highlighted'));
+            // Add the 'highlighted' class to the clicked card
+            card.classList.add('highlighted');
+        }
+    </script>
 @endsection
+</body>
+</html>

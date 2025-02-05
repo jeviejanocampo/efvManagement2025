@@ -23,9 +23,8 @@ Route::get('/dashboard', function () {
     return view('staff.content.staffDashboard');
 })->name('dashboardView');
 
-Route::get('/staff/orders', function () {
-    return view('staff.content.staffOrders');
-})->name('ordersView');
+Route::get('/staff/overview', [OrderController::class, 'staffOrderOverview'])->name('overView');
+
 
 Route::get('/staff/signup', [StaffController::class, 'showSignupForm'])->name('staff.signup.form');
 
@@ -47,3 +46,7 @@ Route::get('/staff/order-details/{order_id}', [OrderController::class, 'show'])-
 Route::get('/qrcode', [QRCodeController::class, 'showForm'])->name('qr.form');
 
 Route::post('/generate-qr', [QRCodeController::class, 'generate'])->name('generate.qr');
+
+
+// Route for staff order details (passing order_id)
+Route::get('/staff/overview/details/{order_id}', [OrderController::class, 'details'])->name('overViewDetails');

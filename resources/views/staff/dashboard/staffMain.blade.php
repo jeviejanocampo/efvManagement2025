@@ -30,18 +30,19 @@
                     </svg>
                     Dashboard
                 </a>
-                <a href="{{ route('ordersView') }}" class="flex items-center text-gray-300 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
-                    </svg>
-                    Orders
-                </a>
-                <a href="{{ route('ordersView') }}" class="flex items-center text-gray-300 hover:text-white">
+                <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
                     Overview Orders
                 </a>
+                <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
+                    </svg>
+                    Orders Queue
+                </a>
+                
                 <a href="#" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16" />
@@ -63,7 +64,7 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col ml-0 md:ml-64">
             <!-- Header -->
-            <header class="bg-gray-900 text-white py-4 px-6 flex justify-between items-center shadow-md">
+            <header class="bg-gray-900 text-white py-2 px-4 flex justify-between items-center shadow-md fixed top-0 w-full z-20">
                 <div class="flex items-center space-x-4">
                     <!-- Hamburger for Small Screens -->
                     <button class="md:hidden focus:outline-none" onclick="toggleSidebar()">
@@ -89,7 +90,7 @@
             </header>
 
             <!-- Dynamic Content -->
-            <main class="p-4 sm:p-6">
+            <main class="p-4 sm: pt-14">
                 @yield('content')
             </main>
         </div>
