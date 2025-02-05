@@ -34,18 +34,20 @@
             </div>
         </div>
 
-        <!-- Card 3 -->
+        <!-- QR Code Card -->
         <div class="bg-white text-gray-900 p-6 rounded-2xl hover:bg-gray-900 hover:text-white transition duration-300">
             <div class="flex items-center space-x-4">
                 <div class="p-3 bg-gray-100 rounded-full">
-                    <!-- Icon (example: chart icon) -->
+                    <!-- Icon for QR Code -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 11V7a1 1 0 011-1h4a1 1 0 011 1v4M4 4v16M20 20v-8M8 8v8M12 12v8" />
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold">Content Name 3</h3>
-                    <p class="text-sm">789</p>
+                    <h3 class="text-lg font-semibold">Generated QR Code</h3>
+                    <p class="text-sm">Scan the QR code below:</p>
+                    <!-- Display QR Code -->
+
                 </div>
             </div>
         </div>

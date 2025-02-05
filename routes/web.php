@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\QRCodeController;
+use App\Http\Controllers\OrderController;
 
 
 Route::get('/', function () {
@@ -34,3 +36,14 @@ Route::post('/staff/login', [StaffController::class, 'StaffLogin'])->name('staff
 Route::get('/staff/dashboard', function () {
     return view('staff.dashboard.staffMain');
 })->name('staff.dashboard');
+
+Route::get('/orders/fetch', [OrderController::class, 'fetchOrders'])->name('orders.fetch');
+
+// Make sure this route exists
+Route::get('/staff/order-details/{order_id}', [OrderController::class, 'show'])->name('orders.show');
+
+
+
+Route::get('/qrcode', [QRCodeController::class, 'showForm'])->name('qr.form');
+
+Route::post('/generate-qr', [QRCodeController::class, 'generate'])->name('generate.qr');
