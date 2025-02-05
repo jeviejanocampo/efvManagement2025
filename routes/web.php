@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ActivityLogController;
 
 
 Route::get('/', function () {
@@ -18,10 +19,15 @@ Route::get('/staff/signup', function () {
     return view('staff.staffSignup');
 });
 
+Route::get('/staff/queue', function () {
+    return view('staff.content.staffOrders');
+})->name('staffQueue');
 
 Route::get('/dashboard', function () {
     return view('staff.content.staffDashboard');
 })->name('dashboardView');
+
+
 
 Route::get('/staff/overview', [OrderController::class, 'staffOrderOverview'])->name('overView');
 
@@ -50,3 +56,16 @@ Route::post('/generate-qr', [QRCodeController::class, 'generate'])->name('genera
 
 // Route for staff order details (passing order_id)
 Route::get('/staff/overview/details/{order_id}', [OrderController::class, 'details'])->name('overViewDetails');
+
+Route::post('/orders/update-status/{order_id}', [OrderController::class, 'updateStatus']);
+
+
+Route::post('/orders/update-product-status/{orderDetailId}', [OrderController::class, 'updateProductStatus']);
+
+
+Route::get('/users/{user}', function ($userId) {
+    $user = \App\Models\Customer::find($userId);
+    return response()->json($user);
+});
+
+Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('logs');

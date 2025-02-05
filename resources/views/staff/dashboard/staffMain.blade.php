@@ -14,47 +14,47 @@
     </style>
 </head>
 <body class="bg-gray-200">
-
     <div class="flex h-screen">
+        
         <!-- Sidebar -->
         <div id="sidebar" class="bg-gray-900 text-white w-64 space-y-6 py-7 px-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40">
-        <!-- Logo -->
-            <div class="text-2xl font-bold">
+        <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
+        <div class="text-2xl font-bold">
                 <a href="#" class="text-white">Staff Panel</a>
             </div>
             <!-- Navigation -->
             <nav class="space-y-4">
-                <a href="{{ route('dashboardView') }}" class="flex items-center text-gray-300 hover:text-white">
+                <!-- <a href="{{ route('dashboardView') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
                     Dashboard
-                </a>
+                </a> -->
                 <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
                     Overview Orders
                 </a>
-                <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white">
+                <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
                     Orders Queue
                 </a>
                 
-                <a href="#" class="flex items-center text-gray-300 hover:text-white">
+                <a href="{{ route('logs') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16" />
                     </svg>
-                    Products
+                    Activity Log
                 </a>
-                <a href="#" class="flex items-center text-gray-300 hover:text-white">
+                <!-- <a href="#" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h7M7 16h6M5 20h10" />
                     </svg>
                     Customers
-                </a>
+                </a> -->
             </nav>
         </div>
 
@@ -64,7 +64,7 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col ml-0 md:ml-64">
             <!-- Header -->
-            <header class="bg-gray-900 text-white py-2 px-4 flex justify-between items-center shadow-md fixed top-0 w-full z-20">
+            <header class="bg-gray-900 text-white py-2 px-4 flex justify-between items-center shadow-md  top-0 w-full">
                 <div class="flex items-center space-x-4">
                     <!-- Hamburger for Small Screens -->
                     <button class="md:hidden focus:outline-none" onclick="toggleSidebar()">
@@ -90,7 +90,7 @@
             </header>
 
             <!-- Dynamic Content -->
-            <main class="p-10 sm: pt-14">
+            <main class="p-10 sm: pt-7">
                 @yield('content')
             </main>
         </div>

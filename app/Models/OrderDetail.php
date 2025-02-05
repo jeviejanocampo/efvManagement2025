@@ -12,6 +12,9 @@ class OrderDetail extends Model
     // Define the table name (optional, Laravel automatically assumes table name based on model name)
     protected $table = 'order_details';
 
+    protected $primaryKey = 'order_detail_id'; // Update this to match your table's primary key
+
+
     // Define the fillable attributes
     protected $fillable = [
         'order_id',

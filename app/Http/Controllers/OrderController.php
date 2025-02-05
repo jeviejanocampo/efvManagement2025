@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
+use Illuminate\Http\Request;
 use App\Models\OrderDetail;  
 use App\Models\Models;  
+use App\Models\ActivityLog;  
 use Carbon\Carbon;
+
 
 class OrderController extends Controller
 {
@@ -56,6 +60,80 @@ class OrderController extends Controller
         return view('staff.content.staffOverviewDetails', compact('order', 'orderDetails'));
     }
 
+    public function updateStatus($order_id, Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'status' => 'required|in:pending,Ready to Pickup,In Process,Completed,Cancelled',
+        ]);
+    
+        // Find the order by order_id
+        $order = Order::find($order_id);
+    
+        // Check if the order exists
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found.',
+            ]);
+        }
+    
+        // Update the order status
+        $order->status = $request->input('status');
+        $order->save();
+    
+        // Get the role of the user
+        $user = Auth::user();  // Get the currently authenticated user
+        $role = $user->role;   // Get the role of the user
+    
+        // Log the activity (user_id, role, and activity)
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => $role, // Insert the user's role
+            'activity' => "Updated order #$order_id status to {$order->status}",
+        ]);
+    
+        // Return response
+        return response()->json([
+            'success' => true,
+            'message' => 'Order status updated successfully.',
+        ]);
+    }
+    
+    public function updateProductStatus(Request $request, $orderDetailId)
+    {
+        // Check if the order detail exists
+        $orderDetail = OrderDetail::find($orderDetailId);
+    
+        if (!$orderDetail) {
+            // If the order detail does not exist, return a 404 response
+            return response()->json(['message' => 'Order Detail not found.'], 404);
+        }
+    
+        // Validate the status update
+        $validStatuses = ['pending', 'Ready to Pickup', 'In Process', 'Completed', 'Cancelled'];
+        if (!in_array($request->status, $validStatuses)) {
+            return response()->json(['message' => 'Invalid status.'], 400);
+        }
+    
+        // Update the product status
+        $orderDetail->product_status = $request->status;
+        $orderDetail->save();
+    
+        // Get the role of the user
+        $user = Auth::user();  // Get the currently authenticated user
+        $role = $user->role;   // Get the role of the user
+    
+        // Log the activity (user_id, role, and activity)
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => $role, // Insert the user's role
+            'activity' => "Updated product status for order detail #$orderDetailId to {$orderDetail->product_status}",
+        ]);
+    
+        return response()->json(['message' => 'Product status updated successfully.', 'success' => true]);
+    }
+    
     
     
 

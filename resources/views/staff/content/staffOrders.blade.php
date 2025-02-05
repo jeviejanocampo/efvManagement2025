@@ -10,7 +10,7 @@
     @extends('staff.dashboard.StaffMain')
 
     @section('content')
-        <div class="container mx-auto px-4 py-6">
+        <div class="container mx-auto px-4 py-1">
             <!-- Table with orders -->
             <table id="orders-table" class="table-auto w-full border-collapse border border-gray-300">
                 <thead class="bg-white">

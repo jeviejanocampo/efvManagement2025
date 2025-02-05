@@ -55,6 +55,9 @@ class StaffController extends Controller
                 // Store user in session
                 Auth::login($user);
 
+                // Optionally, you can pass the user ID to the session
+                session(['user_id' => $user->id]);
+
                 // Redirect to dashboard with success message
                 return redirect()->route('staff.dashboard')->with('success', 'Successfully logged in!');
             } else {
@@ -66,5 +69,6 @@ class StaffController extends Controller
             return back()->with('error', 'Incorrect email or password!');
         }
     }
+
 
 }
