@@ -9,9 +9,9 @@
 @extends('staff.dashboard.StaffMain')
 @section('content')
 
-<div class="container mx-auto p-4">
+<div class="container mx-auto p-4 bg-white rounded-xl">
 
-    <div style="text-align: center; margin-bottom: 20px; font-size: 26px; font-weight: 500; color: #333;">
+    <div style="text-align: center; margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
         Overview
     </div>
 
@@ -68,7 +68,7 @@
             </thead>
             <tbody id="order-table">
                 @foreach ($orders as $order)
-                    <tr class="border border-gray-300 transition-transform duration-300 hover:bg-white">
+                    <tr class="border border-gray-300 transition-transform duration-300 hover:bg-gray-100">
                         <td class="border border-gray-300 px-4 py-2">{{ $order->order_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->user_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>

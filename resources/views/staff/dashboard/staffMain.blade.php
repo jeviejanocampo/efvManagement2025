@@ -90,7 +90,7 @@
             </header>
 
             <!-- Dynamic Content -->
-            <main class="p-4 sm: pt-14">
+            <main class="p-10 sm: pt-14">
                 @yield('content')
             </main>
         </div>
