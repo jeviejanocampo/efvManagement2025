@@ -25,8 +25,8 @@ class Order extends Model
         'pickup_date',
         'pickup_location',
         'payment_method',
+        'scan_status',  
         'status',
-        'scan_status',
         'overall_status',
         'created_at',
         'updated_at'

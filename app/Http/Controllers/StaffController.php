@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 
 class StaffController extends Controller
@@ -69,6 +71,44 @@ class StaffController extends Controller
             return back()->with('error', 'Incorrect email or password!');
         }
     }
+
+    public function Scannerlogin(Request $request)
+    {
+        // Validate the incoming data
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        // Attempt to find the user by email
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        // If authentication is successful, you can return user data or a token if using API authentication
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => $user,
+        ]);
+    }
+
+
+    public function updateScanStatus(Request $request)
+    {
+        $request->validate([
+            'order_ids' => 'required|array',
+            'order_ids.*' => 'exists:orders,order_id',
+        ]);
+    
+        // Update scan_status to "yes"
+        Order::whereIn('order_id', $request->order_ids)
+            ->update(['scan_status' => 'yes', 'updated_at' => now()]);
+    
+        return response()->json(['message' => 'Scan statuses updated successfully!'], 200);
+    }
+    
 
 
 }

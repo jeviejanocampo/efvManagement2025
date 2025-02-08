@@ -25,10 +25,20 @@ class OrderController extends Controller
     
     public function show($order_id)
     {
-        // Fetch the order using the order_id
-        $order = Order::findOrFail($order_id); // Replace this with your model's logic to fetch the order by ID
+       $order = Order::find($order_id); // Fetch the order by ID
+        if (!$order) {
+            abort(404, 'Order not found'); // Handle invalid order ID
+        }
     
-        return view('staff.content.staffOrderDetails', compact('order'));
+        // Fetch the order details based on the order_id
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+    
+        // Fetch images for each order detail's model_id
+        foreach ($orderDetails as $detail) {
+            $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
+        }
+    
+        return view('staff.content.staffOrderDetails', compact('order', 'orderDetails'));
     }
 
     public function staffOrderOverview()
@@ -66,10 +76,10 @@ class OrderController extends Controller
         $request->validate([
             'status' => 'required|in:pending,Ready to Pickup,In Process,Completed,Cancelled',
         ]);
-    
+
         // Find the order by order_id
         $order = Order::find($order_id);
-    
+
         // Check if the order exists
         if (!$order) {
             return response()->json([
@@ -77,22 +87,28 @@ class OrderController extends Controller
                 'message' => 'Order not found.',
             ]);
         }
-    
+
         // Update the order status
         $order->status = $request->input('status');
-        $order->save();
-    
+
+        // If status is "Completed", set scan_status to "Completed" as well
+        if ($order->status === 'Completed') {
+            $order->scan_status = 'Completed';
+        }
+
+        $order->save(); // Save the updated order
+
         // Get the role of the user
         $user = Auth::user();  // Get the currently authenticated user
         $role = $user->role;   // Get the role of the user
-    
+
         // Log the activity (user_id, role, and activity)
         ActivityLog::create([
             'user_id' => Auth::id(),
             'role' => $role, // Insert the user's role
             'activity' => "Updated order #$order_id status to {$order->status}",
         ]);
-    
+
         // Return response
         return response()->json([
             'success' => true,
@@ -104,35 +120,48 @@ class OrderController extends Controller
     {
         // Check if the order detail exists
         $orderDetail = OrderDetail::find($orderDetailId);
-    
+
         if (!$orderDetail) {
-            // If the order detail does not exist, return a 404 response
             return response()->json(['message' => 'Order Detail not found.'], 404);
         }
-    
+
         // Validate the status update
         $validStatuses = ['pending', 'Ready to Pickup', 'In Process', 'Completed', 'Cancelled'];
         if (!in_array($request->status, $validStatuses)) {
             return response()->json(['message' => 'Invalid status.'], 400);
         }
-    
+
+        // Get the order associated with this order detail
+        $order = Order::find($orderDetail->order_id);
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+
+        // If status is "Cancelled", subtract the total_price of the product from the order total
+        if ($request->status === 'Cancelled') {
+            $order->total_price -= $orderDetail->total_price;
+            $order->save();
+        }
+
         // Update the product status
         $orderDetail->product_status = $request->status;
         $orderDetail->save();
-    
+
         // Get the role of the user
-        $user = Auth::user();  // Get the currently authenticated user
-        $role = $user->role;   // Get the role of the user
-    
-        // Log the activity (user_id, role, and activity)
+        $user = Auth::user();
+        $role = $user->role;
+
+        // Log the activity
         ActivityLog::create([
             'user_id' => Auth::id(),
-            'role' => $role, // Insert the user's role
+            'role' => $role,
             'activity' => "Updated product status for order detail #$orderDetailId to {$orderDetail->product_status}",
         ]);
-    
+
         return response()->json(['message' => 'Product status updated successfully.', 'success' => true]);
     }
+
     
     
     

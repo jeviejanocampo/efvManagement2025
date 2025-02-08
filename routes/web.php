@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\OrderController;
@@ -69,3 +70,15 @@ Route::get('/users/{user}', function ($userId) {
 });
 
 Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('logs');
+
+
+Route::post('/scanner-login', [StaffController::class, 'Scannerlogin']);
+
+
+Route::get('/csrf-token', function (Request $request) {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
+
+
+Route::post('/scan-qr', [StaffController::class, 'updateScanStatus']);
+

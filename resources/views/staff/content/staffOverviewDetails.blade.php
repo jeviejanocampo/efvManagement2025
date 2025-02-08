@@ -3,10 +3,21 @@
 @section('content') 
 
 <div class="p-4 rounded-xl">
-    <a href="{{ url()->previous() }}" 
+    <a href="{{ url('staff/overview') }}" 
         class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-white-200 mb-5 custom-arrow">
         Back
     </a>
+
+    <div style="margin-top: 12px">
+        @if($order->status === 'Cancelled')
+         <p class="text-white bg-red-500 px-5 py-2 rounded-md text-center font-bold text-lg">CANCELLED </p>
+         @elseif($order->status === 'Completed')
+         <p class="text-white bg-green-500 px-5 py-2 rounded-md text-center font-bold text-lg">ORDER COMPLETED </p>
+         @else
+         <p></p>
+        @endif
+    </div>
+
 
     <!-- Order Status Dropdown -->
     <div class="flex justify-between items-center mt-4 bg-white p-4 rounded-md">
@@ -15,7 +26,7 @@
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
         <!-- Label and Dropdown for Edit Status for the whole order -->
         <div class="flex items-center">
-            <label for="order_status" class="mr-3 text-md">Edit Status:</label>
+            <!-- <label for="order_status" class="mr-3 text-md">Edit Status:</label> -->
             <select class="bg-gray-100 text-black-200 px-5 py-2 rounded-md" name="order_status" id="order_status" onchange="updateOrderStatus({{ $order->order_id }})">
                 <option value="pending">Pending</option>
                 <option value="Ready to Pickup">Ready to Pickup</option>
@@ -33,18 +44,28 @@
                 <strong>Status: </strong>
                 <span class="
                     rounded-lg 
-                    @if($order->status === 'pending')
-                        text-yellow-700
+                    @if($order->status === 'Pending')
+                        bg-yellow-500
+                        text-white
+                        m-1
                     @elseif($order->status === 'In Process')
-                        text-orange-700
+                         bg-orange-500
+                        text-white
+                        m-1
                     @elseif($order->status === 'Ready to Pickup')
-                        text-blue-700
+                        bg-green-500
+                        text-white
+                        m-1
                     @elseif($order->status === 'Completed')
-                        text-green-700
+                        bg-green-500
+                        text-white
+                        m-1
                     @elseif($order->status === 'Cancelled')
                         text-red-700
+                        m-1
                     @else
                         text-gray-700
+                        m-1
                     @endif
                     px-2 py-1
                 ">
@@ -76,14 +97,18 @@
                     <tr class="border border-white  ">
                     <td class=" px-5 py-1">
                         <!-- Add badge based on product status -->
-                        @if($detail->product_status === 'pending')
-                            <span class="bg-red-500 text-white px-5 py-1 rounded-full text-sm">Reserved</span>
-                        @elseif($detail->product_status === 'pre-order')
-                            <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Pre Ordered</span>
+                        @if($order->status !== 'Completed' && $order->status !== 'Cancelled')
+                            @if($detail->product_status === 'pending')
+                                <span class="bg-red-500 text-white px-5 py-1 rounded-full text-sm">Reserved</span>
+                            @elseif($detail->product_status === 'pre-order')
+                                <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Pre Ordered</span>
                             @elseif($detail->product_status === 'Ready to Pickup')
-                            <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Ready to Pickup</span>
-                        @else
-                            <span class="px-5 py-1 text-sm">N/A</span>
+                                <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Ready to Pickup (Not yet paid)</span>
+                            @elseif($detail->product_status === 'Cancelled')
+                                <span class="bg-gray-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Cancelled</span>
+                            @else
+                                <span class="bg-black text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Unknown</span>
+                            @endif
                         @endif
                         <span style="display: none">{{ $detail->order_detail_id }}</span>
                     </td>
@@ -104,11 +129,12 @@
                         <!-- Conditional for Edit Status Dropdown -->
                         @if($detail->product_status !== 'pending') 
                         <div class="mt-2">
-                            <label for="edit_status_{{ $detail->order_detail_id }}" class="text-sm mr-2">Edit Status:</label>
+                            <!-- <label for="edit_status_{{ $detail->order_detail_id }}" class="text-sm mr-2">Edit Status:</label> -->
                             <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
                                 <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
                                 <option value="In Process" {{ $detail->product_status === 'Process' ? 'selected' : '' }}>In Process</option>
                                 <option value="Ready to Pickup" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
+                                <option value="Cancelled" {{ $detail->product_status === 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
                             </select>
                         </div>
                     @else
@@ -121,11 +147,19 @@
         </table>
     </div>
 
-    <div class ="bg-white p-4 mt-6 rounded-md">
-        <p style="font-size: 20px; font-weight: bold">
-            Total To Pay: ₱ 
-            {{ number_format($orderDetails->sum('total_price'), 2) }}
-        </p> 
+    <div class="bg-white p-4 mt-6 rounded-md">
+        @if($order->status === 'Completed')
+            <p>
+            </p>
+        @elseif($order->status === 'Cancelled')
+            <p>
+            </p>
+        @else
+            <p style="font-size: 20px; font-weight: bold">
+                Total To Pay: ₱ 
+                {{ $order->total_price }}
+            </p> 
+        @endif
     </div>
 
     <!-- User Details Modal -->

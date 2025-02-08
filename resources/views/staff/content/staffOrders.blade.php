@@ -10,9 +10,10 @@
     @extends('staff.dashboard.StaffMain')
 
     @section('content')
+    <div class ="bg-white p-4 mt-6 rounded-md">
         <div class="container mx-auto px-4 py-1">
             <!-- Table with orders -->
-            <table id="orders-table" class="table-auto w-full border-collapse border border-gray-300">
+            <table id="orders-table" class="table-auto w-full">
                 <thead class="bg-white">
                     <tr>  
                         <th class="px-4 py-2 text-left border-b border-gray-300">Order ID</th>
@@ -25,45 +26,54 @@
                 </tbody>
             </table>
         </div>
+    </div>
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
-            // Function to fetch orders and update the table
-            function fetchOrders() {
-                $.ajax({
-                    url: '{{ route("orders.fetch") }}', // URL for fetching orders
-                    method: 'GET',
-                    success: function(data) {
-                        if (data.length > 0) {
-                            // Remove all rows before adding new ones
-                            $('#orders-list').empty();
+    // Function to fetch orders and update the table
+    function fetchOrders() {
+        $.ajax({
+            url: '{{ route("orders.fetch") }}', // URL for fetching orders
+            method: 'GET',
+            success: function(data) {
+                $('#orders-list').empty(); // Clear previous content
 
-                            // Append new orders to the table
-                            data.forEach(function(order) {
-                                // Define the button visibility based on scan_status
-                                let buttonHtml = order.scan_status === 'yes' 
-                                    ? `<button onclick="window.location.href='{{ route('orders.show', ':order_id') }}'.replace(':order_id', ${order.order_id})" class="bg-gray-900 text-white py-2 px-4 rounded hover:bg-gray-700 transition-all duration-300">Click Me</button>`
-                                    : '';
+                if (data.length > 0) {
+                    // Append new orders to the table
+                    data.forEach(function(order) {
+                        let buttonHtml = order.scan_status === 'yes' 
+                            ? `<button onclick="window.location.href='{{ route('orders.show', ':order_id') }}'.replace(':order_id', ${order.order_id})" class="bg-gray-900 text-white py-2 px-4 rounded hover:bg-gray-700 transition-all duration-300">Click Me</button>`
+                            : '';
 
-                                $('#orders-list').append(`
-                                    <tr>
-                                        <td class="px-4 py-2 border-b border-gray-300">${order.order_id}</td>
-                                        <td class="px-4 py-2 border-b border-gray-300">${order.scan_status}</td>
-                                        <td class="px-4 py-2 border-b border-gray-300">${buttonHtml}</td>
-                                    </tr>
-                                `);
-                            });
-                        }
-                    },
-                    error: function(error) {
-                        console.log('Error fetching orders:', error);
-                    }
-                });
+                        $('#orders-list').append(`
+                            <tr>
+                                <td class="px-4 py-2">${order.order_id}</td>
+                                <td class="px-4 py-2">${order.scan_status}</td>
+                                <td class="px-4 py-2">${buttonHtml}</td>
+                            </tr>
+                        `);
+                    });
+                } else {
+                    // If no orders, show "No Scanned Order" message
+                    $('#orders-list').append(`
+                        <tr>
+                            <td colspan="3" class="text-center text-gray-500 py-10 text-lg font-semibold">
+                                No Scanned Order
+                            </td>
+                        </tr>
+                    `);
+                }
+            },
+            error: function(error) {
+                console.log('Error fetching orders:', error);
             }
+        });
+    }
 
-            // Fetch orders every 5 seconds (polling)
-            setInterval(fetchOrders, 5000); // Polling every 5 seconds
-        </script>
+    // Fetch orders every 5 seconds (polling)
+    setInterval(fetchOrders, 5000); // Polling every 5 seconds
+</script>
+
     @endsection
 </body>
 </html>
