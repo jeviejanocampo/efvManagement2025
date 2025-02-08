@@ -16,9 +16,18 @@ Route::get('/staff/login', function () {
     return view('staff.staffLogin');
 });
 
+Route::get('/stock-clerk/login', function () {
+    return view('stockclerk.stockClerkLogin');
+});
+
 Route::get('/staff/signup', function () {
     return view('staff.staffSignup');
 });
+Route::get('/stock-clerk/signup', function () {
+    return view('stockclerk.stockClerkSignup');
+});
+
+Route::get('/stockclerk/signup', [StaffController::class, 'showStockSignupForm'])->name('staff.signup.form');
 
 Route::get('/staff/queue', function () {
     return view('staff.content.staffOrders');
@@ -37,11 +46,22 @@ Route::get('/staff/signup', [StaffController::class, 'showSignupForm'])->name('s
 
 Route::post('/staff/signup', [StaffController::class, 'signup'])->name('staff.signup.submit');
 
+Route::post('/stock-clerk/signup', [StaffController::class, 'Clerksignup'])->name('stock-clerk.signup.submit');
+
+Route::get('/stock-/signup', [StaffController::class, 'showStockSignupForm'])->name('stockclerk.signup.form');
+
 Route::post('/staff/login', [StaffController::class, 'StaffLogin'])->name('staff.login.submit');
+
+Route::post('/stock-clerk/login', [StaffController::class, 'StockClerkLogin'])->name('stockclerk.login.submit');
 
 Route::get('/staff/dashboard', function () {
     return view('staff.dashboard.staffMain');
 })->name('staff.dashboard');
+
+Route::get('/stock-clerk/dashboard', function () {
+    return view('stockclerk.dashboard.stockClerkDashboard');
+})->name('stockclerk.dashboard');
+
 
 Route::get('/orders/fetch', [OrderController::class, 'fetchOrders'])->name('orders.fetch');
 
