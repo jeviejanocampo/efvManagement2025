@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ActivityLogController;
 
 
@@ -37,6 +38,9 @@ Route::get('/dashboard', function () {
     return view('staff.content.staffDashboard');
 })->name('dashboardView');
 
+Route::get('/stock/products-view', function () {
+    return view('stockclerk.content.ProductsView');
+})->name('dashboardView');
 
 
 Route::get('/staff/overview', [OrderController::class, 'staffOrderOverview'])->name('overView');
@@ -102,3 +106,41 @@ Route::get('/csrf-token', function (Request $request) {
 
 Route::post('/scan-qr', [StaffController::class, 'updateScanStatus']);
 
+
+Route::get('/products', [ProductController::class, 'index'])->name('productsView');
+
+Route::get('/add-product', [ProductController::class, 'create'])->name('add.product');
+
+Route::get('/add-details-product/{model_id}', [ProductController::class, 'addDetails'])->name('addDetails');
+
+
+Route::post('/products/store', [ProductController::class, 'store'])->name('products.store');
+
+
+Route::delete('/product/delete/{id}', [ProductController::class, 'destroyModel'])->name('delete.product');
+
+Route::post('/add-details-product/store', [ProductController::class, 'addProductDetails'])->name('add.details.store');
+
+Route::get('/view-details/{model_id}', [ProductController::class, 'viewDetailsofProduct'])->name('viewDetails');
+
+Route::post('/update-product/{model_id}', [ProductController::class, 'updateProduct'])->name('updateProduct');
+
+Route::get('/product/{model_id}/details', [ProductController::class, 'viewModelDetails'])->name('viewModelDetails');
+
+Route::put('/models/update/{model_id}', [ProductController::class, 'updateModel'])->name('updateModel');
+
+Route::post('/update-model-status/{model_id}', [ProductController::class, 'updateStatus'])->name('update.model.status');
+
+Route::get('/view-variants/{model_id}', [ProductController::class, 'indexVariant'])->name('variantsView');
+
+Route::get('/add-variant/{model_id}', [ProductController::class, 'IndexAddVariant'])->name('add.variant');
+
+Route::post('/store-variant/{model_id}', [ProductController::class, 'StoreVariant'])->name('store.variant');
+
+Route::get('/edit-variant/{model_id}/{variant_id}', [ProductController::class, 'editVariant'])->name('edit.variant');
+
+Route::delete('/variant/delete/{id}', [ProductController::class, 'deleteVariant'])->name('delete.variant');
+
+Route::put('/update-variant/{model_id}/{variant_id}', [ProductController::class, 'updateVariant'])->name('update.variant');
+
+Route::put('/update-variant-status/{variant_id}', [ProductController::class, 'updateVariantStatus']);

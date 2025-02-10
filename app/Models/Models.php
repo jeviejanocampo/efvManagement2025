@@ -9,12 +9,28 @@ class Models extends Model
 {
     use HasFactory;
 
-    // If your table is named 'models' and it doesn't follow the default naming convention
+    // Define the table name
     protected $table = 'models';
 
-    // Define the fillable columns (optional if you plan to insert data)
-    protected $fillable = ['model_id', 'model_img'];
+    // Define the primary key
+    protected $primaryKey = 'model_id';
 
-    // Disable timestamps if your table does not have created_at and updated_at columns
-    public $timestamps = false;
+    // Allow mass assignment for these fields
+    protected $fillable = [
+        'model_name',
+        'model_img',
+        'price',
+        'brand_id',
+        'w_variant',
+        'status',
+    ];
+
+    // Enable timestamps if your table has created_at and updated_at columns
+    public $timestamps = true;
+
+    // Relationship: Each model belongs to a brand
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id', 'brand_id');
+    }
 }
