@@ -11,13 +11,14 @@
     }
     td {
         font-size: 13px;
+        style="text-align: center"
     }
 </style>
 
 <div class="container mx-auto p-4 bg-white rounded-xl">
 
     <div style="text-align: center; margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
-        Overview
+        Products Overview
     </div>
 
     <div class="flex justify-between items-center mb-4 space-x-4">
@@ -50,8 +51,8 @@
         <div class="w-full sm:w-1/4">
             <select id="status-filter" class="w-full px-2 py-1 border border-gray-300 rounded-lg">
                 <option value="">All Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option value="active">active</option>
+                <option value="inactive">inactive</option>
             </select>
         </div>
 
@@ -94,12 +95,12 @@
                         <td class="border border-gray-300 px-2 py-1">
                             {{ $product->brand->category->category_name ?? 'N/A' }}
                         </td>
-                        <td class="border border-gray-300 px-2 py-1">
+                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">
                             {{ $product->brand->brand_name ?? 'N/A' }}
                         </td>
-                        <td class="border border-gray-300 px-2 py-1">{{ $product->model_name }}</td>
+                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
                         <td class="border border-gray-300 px-2 py-1">{{ $product->price }}</td>
-                        <td class="border border-gray-300 px-2 py-1">{{ $product->w_variant }}</td>
+                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->w_variant }}</td>
 
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @php
@@ -129,14 +130,14 @@
                         </td>
 
                         <td class="border border-gray-300 px-2 py-1 text-center">
-                            <span class="px-2 py-1 text-white text-xs font-semibold rounded cursor-pointer update-status" 
+                            <span class="px-2 py-1 text-white text-xs font-semibold rounded cursor-pointer update-status 
+                                        {{ $product->status == 'active' ? 'bg-green-600' : 'bg-red-500' }}" 
                                 data-id="{{ $product->model_id }}" 
-                                data-status="{{ $product->status }}"
-                                style="background-color: 
-                                        {{ $product->status == 'Active' ? '#16a34a' : ($product->status == 'Inactive' ? '#ef4444' : '#16a34a') }}">
+                                data-status="{{ $product->status }}">
                                 {{ $product->status }}
                             </span>
                         </td>
+
 
                        <!-- Status Update Modal -->
                         <div id="statusModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
@@ -161,7 +162,7 @@
 
 
 
-                        <td class="border border-gray-300 px-2 py-1">
+                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">
                         <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}" class="text-blue-500">Edit</a> |
                         <a href="#" class="text-red-500 delete-product" data-id="{{ $product->model_id }}">Delete</a>
                             </td>

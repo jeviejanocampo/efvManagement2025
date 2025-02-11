@@ -7,11 +7,20 @@ use Illuminate\Http\Request;
 
 class ActivityLogController extends Controller
 {
-    public function index()
+        public function index()
     {
-        // Fetch all activity logs
-        $activityLogs = ActivityLog::all(); // You can apply pagination if needed
+        // Fetch all activity logs in descending order by created_at
+        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->get(); 
 
         return view('staff.content.activityLogs', compact('activityLogs'));
     }
+
+    public function Stockindex()
+    {
+        // Fetch all activity logs in descending order by created_at
+        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->get(); 
+
+        return view('stockclerk.content.StockClerkActivityLogs', compact('activityLogs'));
+    }
+
 }

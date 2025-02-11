@@ -28,11 +28,31 @@
             <input type="text" name="product_name" id="product_name" class="w-full px-3 py-2 border rounded-lg">
         </div>
 
-        <!-- Variant Image -->
+        <!-- Variant Image with Preview -->
         <div class="mb-4">
             <label class="block text-gray-700 font-semibold">Variant Image:</label>
             <input type="file" name="variant_image" id="variant_image" class="w-full px-3 py-2 border rounded-lg">
+            <div class="mt-2">
+                <img id="imagePreview" src="#" alt="Image Preview" class="hidden w-32 h-32 object-cover border rounded-lg">
+            </div>
         </div>
+
+        <!-- JavaScript for Image Preview -->
+        <script>
+            document.getElementById('variant_image').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('imagePreview');
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden'); // Show preview
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+
 
         <!-- Part ID -->
         <div class="mb-4">

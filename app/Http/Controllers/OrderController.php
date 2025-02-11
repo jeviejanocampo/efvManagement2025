@@ -52,6 +52,18 @@ class OrderController extends Controller
         return view('staff.content.staffOrderOverview', compact('orders'));
     }
 
+    public function stockOrderOverview()
+    {
+        // Fetch all orders, customize as needed (e.g., pagination or filters)
+        $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
+            ->orderBy('created_at', 'desc') // Sort by most recent
+            ->get();
+
+        // Return the view with the orders data
+        return view('stockclerk.content.stockOrderOverview', compact('orders'));
+    }
+
+
     public function details($order_id)
     {
         $order = Order::find($order_id); // Fetch the order by ID
@@ -68,6 +80,24 @@ class OrderController extends Controller
         }
     
         return view('staff.content.staffOverviewDetails', compact('order', 'orderDetails'));
+    }
+
+    public function stockDetails($order_id)
+    {
+        $order = Order::find($order_id); // Fetch the order by ID
+        if (!$order) {
+            abort(404, 'Order not found'); // Handle invalid order ID
+        }
+    
+        // Fetch the order details based on the order_id
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+    
+        // Fetch images for each order detail's model_id
+        foreach ($orderDetails as $detail) {
+            $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
+        }
+    
+        return view('stockclerk.content.stockOverviewDetails', compact('order', 'orderDetails'));
     }
 
     public function updateStatus($order_id, Request $request)

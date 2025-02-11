@@ -30,8 +30,28 @@
         <!-- Upload Image -->
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Upload Image</label>
-            <input type="file" name="model_img" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" required>
+            <input type="file" name="model_img" id="imageUpload" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" required>
+            <div class="mt-2">
+                <img id="imagePreview" src="#" alt="Image Preview" class="hidden w-32 h-32 object-cover border rounded-lg">
+            </div>
         </div>
+
+        <!-- JavaScript for Image Preview -->
+        <script>
+            document.getElementById('imageUpload').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('imagePreview');
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden'); // Show preview
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+
 
         <!-- SRP -->
         <div class="mb-4">
@@ -45,10 +65,11 @@
             <select name="brand_id" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" required>
                 <option value="">Choose a brand</option>
                 @foreach ($brands as $brand)
-                    <option value="{{ $brand->brand_id }}">{{ $brand->brand_id }}</option>
+                    <option value="{{ $brand->brand_id }}">{{ $brand->brand_name }}</option>
                 @endforeach
             </select>
         </div>
+
 
         <!-- Description -->
         <div class="mb-4">

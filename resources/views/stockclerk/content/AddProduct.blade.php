@@ -37,15 +37,17 @@
         <input type="number" name="price" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" required>
     </div>
 
-    <div class="mb-4">
+     <!-- Select Brand -->
+     <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700">Select Brand</label>
         <select name="brand_id" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" required>
             <option value="">Choose a brand</option>
             @foreach ($brands as $brand)
-            <option value="{{ $brand->brand_id }}">{{ $brand->brand_id }}</option>
+                <option value="{{ $brand->brand_id }}">{{ $brand->brand_name }}</option>
             @endforeach
         </select>
     </div>
+
 
     <!-- With Variant -->
     <div class="mb-4">

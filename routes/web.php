@@ -82,6 +82,11 @@ Route::post('/generate-qr', [QRCodeController::class, 'generate'])->name('genera
 // Route for staff order details (passing order_id)
 Route::get('/staff/overview/details/{order_id}', [OrderController::class, 'details'])->name('overViewDetails');
 
+Route::get('/stockclerk/overview/details/{order_id}', [OrderController::class, 'stockDetails'])->name('stockclerkoverViewDetails');
+
+Route::get('/stockclerk/overview', [OrderController::class, 'stockOrderOverview'])->name('stockoverView');
+
+
 Route::post('/orders/update-status/{order_id}', [OrderController::class, 'updateStatus']);
 
 
@@ -94,6 +99,9 @@ Route::get('/users/{user}', function ($userId) {
 });
 
 Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('logs');
+
+Route::get('/stock-activity-logs', [ActivityLogController::class, 'Stockindex'])->name('Stocklogs');
+
 
 
 Route::post('/scanner-login', [StaffController::class, 'Scannerlogin']);
