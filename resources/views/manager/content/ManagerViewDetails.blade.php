@@ -1,4 +1,4 @@
-@extends('stockclerk.dashboard.stockClerkDashboard')
+@extends('manager.dashboard.managerDashboard')
 
 @section('content')
 <div class="container mx-auto p-6 bg-white rounded-xl shadow-md">
@@ -18,11 +18,11 @@
         </button>
     </div>
 
-    <p style="font-size: 16px; margin-top: 4px">To add stocks just simply click edit</p>
+    <p style="font-size: 16px; margin-top: 4px; margin-bottom: 8px">To add stocks just simply click edit</p>
 
 
     <!-- Product Form -->
-    <form id="editForm" action="{{ route('updateProduct', ['model_id' => $product->model_id]) }}" 
+    <form id="editForm" action="{{ route('manager.updateProduct', ['model_id' => $product->model_id]) }}" 
         method="POST" enctype="multipart/form-data" class="hidden">
         @csrf
 

@@ -1,4 +1,4 @@
-@extends('stockclerk.dashboard.stockClerkDashboard')
+@extends('manager.dashboard.managerDashboard')
 @section('content')
 
 @php
@@ -62,7 +62,7 @@
     </div>
 
     <div>
-        <a href="{{ route('add.product') }}">
+        <a href="{{ route('manager.add.product') }}">
             <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
                 Add Product
             </button>
@@ -124,12 +124,12 @@
                                 $hasDetails = Products::where('model_id', $product->model_id)->exists();
                             @endphp
                             @if ($hasDetails)
-                                <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}" 
+                                <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}" 
                                 class="px-2 py-1 text-white text-xs font-semibold rounded bg-green-500">
                                     View Details
                                 </a>
                             @else
-                                <a href="{{ route('addDetails', ['model_id' => $product->model_id]) }}" 
+                                <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}" 
                                 class="px-1 py-1 text-white font-semibold rounded bg-red-500" style="font-size:10px">
                                     No Details | Click to add
                                 </a>
@@ -140,7 +140,7 @@
 
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
-                                <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
+                                <a href="{{ route('manager.variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
                             @else
                                 <span class="text-gray-500">No Variant</span>
                             @endif
@@ -157,7 +157,7 @@
 
 
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">
-                        <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}" class="text-blue-500">Edit</a> |
+                        <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}" class="text-blue-500">Edit</a> |
                         <a href="#" class="text-red-500 delete-product" data-id="{{ $product->model_id }}">Delete</a>
                             </td>
                     </tr>

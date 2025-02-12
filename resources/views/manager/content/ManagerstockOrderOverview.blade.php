@@ -8,14 +8,10 @@
 <style>
     td {
         font-size: 13px;
-        text-align: 'center'
-    }
-    th{
-        text-align: 'center'
     }
 </style>
 <body>
-@extends('staff.dashboard.StaffMain')
+@extends('manager.dashboard.managerDashboard')
 @section('content')
 
 <div class="container mx-auto p-4 bg-white rounded-xl">
@@ -98,8 +94,8 @@
                         </span>
                         </td>
                         <td class="border border-gray-300 px-4 py-2">
-                            <a href="{{ route('overViewDetails', ['order_id' => $order->order_id]) }}" 
-                               class="text-blue-600 hover:underline">view</a>
+                            <p style="text-align:center"><a href="{{ route('manageroverViewDetails', ['order_id' => $order->order_id]) }}" 
+                               class="text-blue-600 hover:underline">view</a></p>
                         </td>
                     </tr>
                 @endforeach

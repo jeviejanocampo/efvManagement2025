@@ -23,4 +23,12 @@ class ActivityLogController extends Controller
         return view('stockclerk.content.StockClerkActivityLogs', compact('activityLogs'));
     }
 
+    public function ManagerStockindex()
+    {
+        // Fetch all activity logs in descending order by created_at
+        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->get(); 
+
+        return view('manager.content.ManagerStockClerkActivityLogs', compact('activityLogs'));
+    }
+
 }

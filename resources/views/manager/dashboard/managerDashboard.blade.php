@@ -21,30 +21,30 @@
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
                 <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-25 h-25">
-                <p style="text-align: center; margin-top: 6px"><a href="#" class="text-white" >Staff Panel</a></p>
+                <p style="margin-top: 8px"><a href="#" class="text-white">Manager Panel</a></p>
             </div>
             <!-- Navigation -->
             <nav class="space-y-4">
-                <!-- <a href="{{ route('dashboardView') }}" class="flex items-center text-gray-300 hover:text-white">
+                <a href="{{ route('ManagerstockoverView') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
-                    Dashboard
-                </a> -->
-                <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
-                    </svg>
-                    Overview Reserved and Pre-Orders
+                    Reserve and Pre-Orders
                 </a>
-                <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white">
+                <a href="{{ route('ManagerproductsView') }}" class="flex items-center text-gray-300 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
+                    </svg>
+                    Products
+                </a>
+                <!-- <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
                     Orders Queue
-                </a>
+                </a> -->
                 
-                <a href="{{ route('logs') }}" class="flex items-center text-gray-300 hover:text-white">
+                <a href="{{ route('manager.Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16" />
                     </svg>
@@ -75,6 +75,7 @@
                     </button>
                     <h1 class="text-lg md:text-xl font-semibold">EFV Auto Parts Management System</h1>
                 </div>
+
                 <div class="relative flex items-center space-x-4">
                         <!-- Greeting -->
                         <div class="text-white">
@@ -94,9 +95,10 @@
 
                         <!-- Dropdown -->
                         <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg shadow-md hidden opacity-0 transform scale-95 transition-all duration-200">
-                            <a href="/stock-clerk/login" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
+                            <a href="/manager/login" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
                         </div>
                     </div>
+
             </header>
 
             <!-- Dynamic Content -->

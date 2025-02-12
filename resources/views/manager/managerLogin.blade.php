@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Clerk Login</title>
+    <title>Manager Login</title>
     <!-- Import Lato Font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,8 +24,8 @@
 
         <!-- Right Side -->
         <div class="w-1/20 p-6">
-            <h2 class="text-2xl font-bold mb-4">Stock Clerk Login</h2>
-            <form action="{{ route('stockclerk.login.submit') }}" method="POST">
+            <h2 class="text-2xl font-bold mb-4">Manager Login</h2>
+            <form action="{{ route('manager.login.submit') }}" method="POST">
                 @csrf
                 <div class="mb-4">
                     <label for="email" class="block text-gray-700 mb-2">Email</label>
@@ -52,7 +52,7 @@
                 </script>
             @endif
             <div class="mt-6 text-center">
-                <p class="text-sm text-gray-600">Don't have an account? <a href="/stock-clerk/signup" class="text-gray-900 font-semibold hover:underline">Create Account</a></p>
+                <p class="text-sm text-gray-600">Don't have an account? <a href="/manager/signup" class="text-gray-900 font-semibold hover:underline">Create Account</a></p>
             </div>
         </div>
     </div>

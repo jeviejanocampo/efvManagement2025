@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Models; 
+use Illuminate\Support\Facades\Auth;
+use App\Models\ActivityLog; 
 use App\Models\Products; 
 use App\Models\Brand;
 use App\Models\Variant; 
@@ -12,28 +14,56 @@ use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
+
     public function index()
     {
-        // Fetch models with related brand and category
         $products = Models::with(['brand.category'])->get();
-
-        return view('stockclerk.content.ProductsView', compact('products'));
+        $brands = Brand::pluck('brand_name'); 
+        $statuses = Products::distinct()->pluck('status');
+    
+        return view('stockclerk.content.ProductsView', compact('products', 'brands', 'statuses'));
     }
 
+    public function Managerindex()
+    {
+        $products = Models::with(['brand.category'])->get();
+        $brands = Brand::pluck('brand_name'); 
+        $statuses = Products::distinct()->pluck('status');
+    
+        return view('manager.content.managerProductsView', compact('products', 'brands', 'statuses'));
+    }
+    
     public function create()
     {
         $brands = Brand::all(); // Fetch all brands from the database
         return view('stockclerk.content.addProduct', compact('brands'));
     }
 
+    public function Managercreate()
+    {
+        $brands = Brand::all(); // Fetch all brands from the database
+        return view('manager.content.ManageraddProduct', compact('brands'));
+    }
+
     public function addDetails($model_id)
     {
         // Fetch the model name based on model_id
         $model = \App\Models\Models::where('model_id', $model_id)->first();
-    
+
         // Fetch available brands
         $brands = \App\Models\Brand::all();
-    
+
+        // Get the role of the authenticated user
+        $user = Auth::user();
+        $role = $user->role; // Get the role of the user
+
+        // Log the activity
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => $role, // Insert the user's role
+            'activity' => "Accessed Add Details page for Model #$model_id ({$model->model_name})",
+        ]);
+
         return view('stockclerk.content.addDetails', [
             'model_id' => $model_id, 
             'price' => $model ? $model->price : '',
@@ -41,6 +71,34 @@ class ProductController extends Controller
             'brands' => $brands
         ]);
     }
+
+    public function ManageraddDetails($model_id)
+    {
+        // Fetch the model name based on model_id
+        $model = \App\Models\Models::where('model_id', $model_id)->first();
+
+        // Fetch available brands
+        $brands = \App\Models\Brand::all();
+
+        // Get the role of the authenticated user
+        $user = Auth::user();
+        $role = $user->role; // Get the role of the user
+
+        // Log the activity
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => $role, // Insert the user's role
+            'activity' => "Accessed Add Details page for Model #$model_id ({$model->model_name})",
+        ]);
+
+        return view('manager.content.ManageraddDetails', [
+            'model_id' => $model_id, 
+            'price' => $model ? $model->price : '',
+            'model_name' => $model ? $model->model_name : '', 
+            'brands' => $brands
+        ]);
+    }
+
     
 
     public function store(Request $request)
@@ -65,7 +123,7 @@ class ProductController extends Controller
                 $imageName = time() . '_' . $image->getClientOriginalName();
     
                 // Move the image to the public folder
-                $image->move(public_path('product-images/'), $imageName);
+                $image->move(public_path('product-images//'), $imageName);
             }
     
             // Store the product in the database
@@ -77,8 +135,65 @@ class ProductController extends Controller
                 'w_variant' => $request->w_variant,
                 'status' => $request->status,
             ]);
+
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role, // Get user's role
+                'activity' => "Added a new product: {$request->model_name} (Brand ID: {$request->brand_id})",
+            ]);
+
     
             return "<script>alert('Product successfully inserted!'); window.location.href='" . route('productsView') . "';</script>";
+    
+        } catch (\Exception $e) {
+            return "<script>alert('Error: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
+        }
+    }
+
+
+    public function Managerstore(Request $request)
+    {
+        try {
+            $request->validate([
+                'model_name' => 'required|string|max:255',
+                'model_img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048', 
+                'price' => 'required|numeric',
+                'brand_id' => 'required|integer|exists:brands,brand_id',
+                'w_variant' => 'required|string',
+                'status' => 'required|string',
+            ]);
+    
+            // Default image if no file is uploaded
+            $imageName = 'default.png';
+    
+            if ($request->hasFile('model_img')) {
+                $image = $request->file('model_img');
+    
+                // Generate a unique filename to prevent overwriting existing files
+                $imageName = time() . '_' . $image->getClientOriginalName();
+    
+                // Move the image to the public folder
+                $image->move(public_path('product-images//'), $imageName);
+            }
+    
+            // Store the product in the database
+            $product = Models::create([
+                'model_name' => $request->model_name,
+                'model_img' => $imageName,
+                'price' => $request->price,
+                'brand_id' => $request->brand_id,
+                'w_variant' => $request->w_variant,
+                'status' => $request->status,
+            ]);
+
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role, // Get user's role
+                'activity' => "Added a new product: {$request->model_name} (Brand ID: {$request->brand_id})",
+            ]);
+
+    
+            return "<script>alert('Product successfully inserted!'); window.location.href='" . route('ManagerproductsView') . "';</script>";
     
         } catch (\Exception $e) {
             return "<script>alert('Error: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
@@ -103,6 +218,13 @@ class ProductController extends Controller
 
         $product->delete();
 
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role,
+            'activity' => "Deleted a product: {$product->model_name} (Model ID: {$product->model_id})",
+        ]);
+
+
         return response()->json(['success' => true, 'message' => 'Product deleted successfully!']);
     }
 
@@ -124,7 +246,7 @@ class ProductController extends Controller
             if ($request->hasFile('model_img')) {
                 $image = $request->file('model_img');
                 $imageName = $image->getClientOriginalName(); // Keep original filename
-                $image->move(public_path('assets/product-images'), $imageName);
+                $image->move(public_path('product-images/'), $imageName);
             }
 
         // Insert product details into the products table
@@ -141,7 +263,58 @@ class ProductController extends Controller
             'status' => $request->status,
         ]);
 
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Added a new product: {$request->model_name} (Model ID: {$request->model_id})",
+        ]);
+
+
         return "<script>alert('Product details added successfully!'); window.location.href='" . route('productsView') . "';</script>";
+    }
+
+    public function ManageraddProductDetails(Request $request)
+    {
+        $request->validate([
+            'model_id' => 'required|integer|exists:models,model_id',
+            'model_img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048', 
+            'price' => 'required|numeric',
+            'brand_id' => 'required|integer|exists:brands,brand_id',
+            'description' => 'required|string',
+            'm_part_id' => 'required|string',
+            'stocks_quantity' => 'required|integer',
+            'status' => 'required|string|in:active,inactive,on_order',
+        ]);
+
+        // Handle image upload
+        $imageName = 'default.png';
+            if ($request->hasFile('model_img')) {
+                $image = $request->file('model_img');
+                $imageName = $image->getClientOriginalName(); // Keep original filename
+                $image->move(public_path('product-images/'), $imageName);
+            }
+
+        // Insert product details into the products table
+        \App\Models\Products::create([
+            'model_id' => $request->model_id,
+            'brand_id' => $request->brand_id,
+            'model_name' => $request->model_name,
+            'brand_name' => \App\Models\Brand::where('brand_id', $request->brand_id)->value('brand_name'),
+            'price' => $request->price,
+            'description' => $request->description,
+            'm_part_id' => $request->m_part_id,
+            'model_img' => $imageName,
+            'stocks_quantity' => $request->stocks_quantity,
+            'status' => $request->status,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Added a new product: {$request->model_name} (Model ID: {$request->model_id})",
+        ]);
+
+        return "<script>alert('Product details added successfully!'); window.location.href='" . route('ManagerproductsView') . "';</script>";
     }
 
 
@@ -154,6 +327,18 @@ class ProductController extends Controller
         }
 
         return view('stockclerk.content.ViewDetails', compact('product', 'model_id'));
+    }
+    
+
+    public function ManagerviewDetailsofProduct($model_id)
+    {
+        $product = Products::where('model_id', $model_id)->firstOrFail();
+
+        if (!$product) {
+            return redirect()->back()->with('error', 'Product not found!');
+        }
+
+        return view('manager.content.ManagerViewDetails', compact('product', 'model_id'));
     }
 
     public function updateProduct(Request $request, $model_id)
@@ -178,7 +363,7 @@ class ProductController extends Controller
             if ($request->hasFile('model_img')) {
                 $image = $request->file('model_img');
                 $imageName = $image->getClientOriginalName(); // Keep original filename
-                $image->move(public_path('assets/product-images'), $imageName);
+                $image->move(public_path('product-images/'), $imageName);
                 $product->model_img = $imageName; // Update model_img field in database
             }
     
@@ -196,6 +381,13 @@ class ProductController extends Controller
             // Save updated product
             $product->save();
     
+            // ✅ INSERTING ACTIVITY LOG (ONLY THIS PART IS ADDED)
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role, // Get user's role
+                'activity' => "Updated product #$model_id details",
+            ]);
+    
             // Return success alert and reload the page
             return "<script>alert('Product updated successfully!'); window.location.href='" . route('viewDetails', ['model_id' => $model_id]) . "';</script>";
     
@@ -204,6 +396,61 @@ class ProductController extends Controller
         }
     }
 
+    public function ManagerupdateProduct(Request $request, $model_id)
+    {
+        try {
+            // Validate the input
+            $request->validate([
+                'model_name' => 'required|string|max:255',
+                'brand_name' => 'required|string|max:255',
+                'price' => 'required|numeric',
+                'description' => 'nullable|string',
+                'm_part_id' => 'nullable|string',
+                'stocks_quantity' => 'required|integer',
+                'status' => 'required|string',
+                'model_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048' // Image validation
+            ]);
+    
+            // Find the product by model_id
+            $product = Products::where('model_id', $model_id)->firstOrFail();
+    
+            // Handle image upload
+            if ($request->hasFile('model_img')) {
+                $image = $request->file('model_img');
+                $imageName = $image->getClientOriginalName(); // Keep original filename
+                $image->move(public_path('product-images/'), $imageName);
+                $product->model_img = $imageName; // Update model_img field in database
+            }
+    
+            // Update the product details
+            $product->update([
+                'model_name' => $request->model_name,
+                'brand_name' => $request->brand_name,
+                'price' => $request->price,
+                'description' => $request->description,
+                'm_part_id' => $request->m_part_id,
+                'stocks_quantity' => $request->stocks_quantity,
+                'status' => $request->status,
+            ]);
+    
+            // Save updated product
+            $product->save();
+    
+            // ✅ INSERTING ACTIVITY LOG (ONLY THIS PART IS ADDED)
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role, // Get user's role
+                'activity' => "Updated product #$model_id details",
+            ]);
+    
+            // Return success alert and reload the page
+            return "<script>alert('Product updated successfully!'); window.location.href='" . route('manager.viewDetails', ['model_id' => $model_id]) . "';</script>";
+    
+        } catch (\Exception $e) {
+            return "<script>alert('Error: " . $e->getMessage() . "'); window.history.back();</script>";
+        }
+    }
+    
     public function viewModelDetails($model_id)
     {
         try {
@@ -212,6 +459,19 @@ class ProductController extends Controller
 
             // Return the view with the model details
             return view('stockclerk.content.viewModelDetails', compact('model'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Model not found!');
+        }
+    }
+
+    public function ManagerviewModelDetails($model_id)
+    {
+        try {
+            // Find the model by model_id
+            $model = Models::where('model_id', $model_id)->firstOrFail();
+
+            // Return the view with the model details
+            return view('manager.content.ManagerviewModelDetails', compact('model'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Model not found!');
         }
@@ -240,11 +500,19 @@ class ProductController extends Controller
             if ($request->hasFile('model_img')) {
                 $image = $request->file('model_img');
                 $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('product-images'), $imageName);
+                $image->move(public_path('product-images/'), $imageName);
                 $model->model_img = $imageName;
             }
 
             $model->save();
+
+            // ✅ Insert activity log after saving the updated model
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role, // Get user's role
+                'activity' => "Updated model #$model_id details",
+            ]);
+
 
             return redirect()->route('viewModelDetails', ['model_id' => $model_id])
                 ->with('success', 'Model updated successfully!');
@@ -252,6 +520,51 @@ class ProductController extends Controller
             return back()->with('error', 'Update failed: ' . $e->getMessage());
         }
     }
+
+    public function ManagerupdateModel(Request $request, $model_id)
+    {
+        try {
+            // Validate request
+            $request->validate([
+                'model_name' => 'required|string|max:255',
+                'price' => 'required|numeric',
+                'status' => 'required|string',
+                'model_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Validate image
+            ]);
+
+            // Find model by ID
+            $model = Models::findOrFail($model_id);
+
+            // Update fields
+            $model->model_name = $request->model_name;
+            $model->price = $request->price;
+            $model->status = $request->status;
+
+            // Handle image upload if provided
+            if ($request->hasFile('model_img')) {
+                $image = $request->file('model_img');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('product-images/'), $imageName);
+                $model->model_img = $imageName;
+            }
+
+            $model->save();
+
+            // ✅ Insert activity log after saving the updated model
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role, // Get user's role
+                'activity' => "Updated model #$model_id details",
+            ]);
+
+
+            return redirect()->route('manager.viewModelDetails', ['model_id' => $model_id])
+                ->with('success', 'Model updated successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Update failed: ' . $e->getMessage());
+        }
+    }
+
 
     
     public function updateStatus(Request $request, $model_id)
@@ -279,6 +592,12 @@ class ProductController extends Controller
     
             Log::info("Status updated successfully!");
     
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role, // Get user's role
+                'activity' => "Updated model #$model_id status to {$model->status}",
+            ]);
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Status updated successfully!',
@@ -292,6 +611,7 @@ class ProductController extends Controller
             ]);
         }
     }
+    
     
     public function indexVariant($model_id)
     {
@@ -307,6 +627,20 @@ class ProductController extends Controller
         return view('stockclerk.content.viewVariants', compact('variants', 'model_id', 'model'));
     }
 
+    public function ManagerindexVariant($model_id)
+    {
+        // Fetch the variants related to the model_id
+        $variants = Variant::where('model_id', $model_id)->get();
+
+        $model = Models::where('model_id', $model_id)->first();
+
+        if (!$model) {
+            return redirect()->back()->with('error', 'Model not found.');
+        }
+
+        return view('manager.content.ManagerviewVariants', compact('variants', 'model_id', 'model'));
+    }
+
     public function IndexAddVariant($model_id)
     {
         $model = Models::where('model_id', $model_id)->first();
@@ -316,6 +650,17 @@ class ProductController extends Controller
         }
 
         return view('stockclerk.content.addVariant', compact('model', 'model_id'));
+    }
+
+    public function ManagerIndexAddVariant($model_id)
+    {
+        $model = Models::where('model_id', $model_id)->first();
+
+        if (!$model) {
+            return redirect()->back()->with('error', 'Model not found.');
+        }
+
+        return view('manager.content.ManageraddVariant', compact('model', 'model_id'));
     }
 
     public function StoreVariant(Request $request, $model_id)
@@ -335,7 +680,7 @@ class ProductController extends Controller
         // Handle Image Upload
         if ($request->hasFile('variant_image')) {
             $originalName = $request->file('variant_image')->getClientOriginalName(); // Get original filename
-            $request->file('variant_image')->move(public_path('product-images'), $originalName);
+            $request->file('variant_image')->move(public_path('product-images/'), $originalName);
             $variantImagePath = $originalName; // Store only the filename
         } else {
             return redirect()->back()->with('error', 'Image upload failed.');
@@ -355,7 +700,61 @@ class ProductController extends Controller
             'status' => $request->status,
         ]);
 
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Added new variant '{$request->product_name}' for model #$model_id",
+        ]);
+
+
         return redirect()->route('add.variant', ['model_id' => $model_id])->with('success', 'Variant added successfully.');
+    }
+
+    public function ManagerStoreVariant(Request $request, $model_id)
+    {
+        // Validate form inputs
+        $request->validate([
+            'product_name' => 'required|string|max:255',
+            'variant_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'part_id' => 'required|string|max:100',
+            'price' => 'required|numeric|min:0',
+            'specification' => 'nullable|string',
+            'description' => 'nullable|string',
+            'stocks_quantity' => 'required|integer|min:0',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        // Handle Image Upload
+        if ($request->hasFile('variant_image')) {
+            $originalName = $request->file('variant_image')->getClientOriginalName(); // Get original filename
+            $request->file('variant_image')->move(public_path('product-images/'), $originalName);
+            $variantImagePath = $originalName; // Store only the filename
+        } else {
+            return redirect()->back()->with('error', 'Image upload failed.');
+        }
+
+
+        // Create the variant record
+        Variant::create([
+            'model_id' => $model_id,
+            'product_name' => $request->product_name,
+            'variant_image' => $variantImagePath,
+            'part_id' => $request->part_id,
+            'price' => $request->price,
+            'specification' => $request->specification,
+            'description' => $request->description,
+            'stocks_quantity' => $request->stocks_quantity,
+            'status' => $request->status,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Added new variant '{$request->product_name}' for model #$model_id",
+        ]);
+
+
+        return redirect()->route('manager.add.variant', ['model_id' => $model_id])->with('success', 'Variant added successfully.');
     }
 
     
@@ -369,8 +768,38 @@ class ProductController extends Controller
     
         // Store the previous URL in session
         session(['previous_url' => url()->previous()]);
+
+        // ✅ Log activity when a user accesses the edit variant page
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Accessed edit page for variant #$variant_id of model #$model_id",
+        ]);
+
     
         return view('stockclerk.content.editVariant', compact('variant', 'model_id', 'variant_id'));
+    }
+
+    public function ManagereditVariant($model_id, $variant_id, Request $request)
+    {
+        $variant = Variant::where('model_id', $model_id)->where('variant_id', $variant_id)->first();
+    
+        if (!$variant) {
+            return redirect()->back()->with('error', 'Variant not found.');
+        }
+    
+        // Store the previous URL in session
+        session(['previous_url' => url()->previous()]);
+
+        // ✅ Log activity when a user accesses the edit variant page
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Accessed edit page for variant #$variant_id of model #$model_id",
+        ]);
+
+    
+        return view('manager.content.ManagerEditVariant', compact('variant', 'model_id', 'variant_id'));
     }
     
     
@@ -382,8 +811,33 @@ class ProductController extends Controller
             return redirect()->back()->with('error', 'Variant not found.');
         }
 
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Deleted variant #$id",
+        ]);
+
         $variant->delete();
         return redirect()->back()->with('success', 'Variant deleted successfully.');
+    
+    }
+
+    public function ManagerdeleteVariant($id)
+    {
+        $variant = Variant::find($id);
+        if (!$variant) {
+            return redirect()->back()->with('error', 'Variant not found.');
+        }
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Deleted variant #$id",
+        ]);
+
+        $variant->delete();
+        return redirect()->back()->with('success', 'Variant deleted successfully.');
+    
     }
 
     public function updateVariant(Request $request, $model_id, $variant_id)
@@ -409,7 +863,7 @@ class ProductController extends Controller
         // Handle Image Upload
         if ($request->hasFile('variant_image')) {
             $imageName = $request->file('variant_image')->getClientOriginalName(); // Get original file name only
-            $request->file('variant_image')->move(public_path('product-images'), $imageName);
+            $request->file('variant_image')->move(public_path('product-images/'), $imageName);
             $variant->variant_image = $imageName;
         }
     
@@ -421,6 +875,13 @@ class ProductController extends Controller
         $variant->description = $request->description;
         $variant->stocks_quantity = $request->stocks_quantity;
         $variant->status = $request->status;
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Updated variant #$variant_id of model #$model_id",
+        ]);
+
     
         if ($variant->save()) {
             return redirect()->route('variantsView', ['model_id' => $model_id])->with('success', 'Variant updated successfully.');
@@ -442,6 +903,13 @@ class ProductController extends Controller
         }
 
         $variant->status = $request->status;
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Updated status of variant #$variant_id to {$request->status}",
+        ]);
+
 
         if ($variant->save()) {
             return response()->json(['success' => true, 'message' => 'Status updated successfully.']);

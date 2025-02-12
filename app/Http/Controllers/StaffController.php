@@ -89,7 +89,7 @@ class StaffController extends Controller
                 session(['user_id' => $user->id]);
 
                 // Redirect to dashboard with success message
-                return redirect()->route('stockclerk.dashboard')->with('success', 'Successfully logged in!');
+                return redirect()->route('staffQueue')->with('success', 'Successfully logged in!');
             } else {
                 // Role mismatch error
                 return back()->with('error', 'Access denied! Only staff can log in.');
@@ -120,10 +120,41 @@ class StaffController extends Controller
                 session(['user_id' => $user->id]);
 
                 // Redirect to dashboard with success message
-                return redirect()->route('stockclerk.dashboard')->with('success', 'Successfully logged in!');
+                return redirect()->route('productsView')->with('success', 'Successfully logged in!');
             } else {
                 // Role mismatch error
-                return back()->with('error', 'Access denied! Only staff can log in.');
+                return back()->with('error', 'Access denied! Only Stock clerks can log in.');
+            }
+        } else {
+            // Redirect back with an error message
+            return back()->with('error', 'Incorrect email or password!');
+        }
+    }
+
+    public function ManagerLogin(Request $request)
+    {
+        // Validate the login form input
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:8',
+        ]);
+
+        // Attempt to log the user in
+        $user = User::where('email', $credentials['email'])->first();
+
+        if ($user && Hash::check($credentials['password'], $user->password)) {
+            if ($user->role === 'manager') {
+                // Store user in session
+                Auth::login($user);
+
+                // Optionally, you can pass the user ID to the session
+                session(['user_id' => $user->id]);
+
+                // Redirect to dashboard with success message
+                return redirect()->route('managerproductsView')->with('success', 'Successfully logged in!');
+            } else {
+                // Role mismatch error
+                return back()->with('error', 'Access denied! Only Stock clerks can log in.');
             }
         } else {
             // Redirect back with an error message

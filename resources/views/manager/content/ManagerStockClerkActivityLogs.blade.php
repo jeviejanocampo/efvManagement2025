@@ -1,4 +1,4 @@
-@extends('staff.dashboard.StaffMain')
+@extends('manager.dashboard.managerDashboard')
 
 @section('content')
 
@@ -49,7 +49,7 @@
                 </tr>
             </thead>
             <tbody id="activityLogsTable">
-                <!-- @foreach($activityLogs as $log)
+            @foreach($activityLogs as $log)
                     <tr class="border-b log-row" data-id="{{ $log->id }}" data-role="{{ $log->role }}" data-activity="{{ $log->activity }}" data-created="{{ $log->created_at }}">
                         <td class="px-4 py-2 text-sm">{{ $log->id }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->user_id }}</td>
@@ -57,18 +57,7 @@
                         <td class="px-4 py-2 text-sm">{{ $log->activity }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->created_at }}</td>
                     </tr>
-                @endforeach -->
-                @foreach($activityLogs as $log)
-                    @if($log->role === 'staff')
-                        <tr class="border-b log-row" data-id="{{ $log->id }}" data-role="{{ $log->role }}" data-activity="{{ $log->activity }}" data-created="{{ $log->created_at }}">
-                            <td class="px-4 py-2 text-sm">{{ $log->id }}</td>
-                            <td class="px-4 py-2 text-sm">{{ $log->user_id }}</td>
-                            <td class="px-4 py-2 text-sm">{{ $log->role }}</td>
-                            <td class="px-4 py-2 text-sm">{{ $log->activity }}</td>
-                            <td class="px-4 py-2 text-sm">{{ $log->created_at }}</td>
-                        </tr>
-                    @endif
-                @endforeach
+            @endforeach
             </tbody>
         </table>
     </div>
