@@ -7,6 +7,7 @@ use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\SalesController;
 
 
 Route::get('/', function () {
@@ -120,16 +121,15 @@ Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('log
 
 Route::get('/stock-activity-logs', [ActivityLogController::class, 'Stockindex'])->name('Stocklogs');
 
+Route::get('/manager-salesreport', [ActivityLogController::class, 'SalesReportIndex'])->name('manager.salesreport');
+
 Route::get('/manager-stock-activity-logs', [ActivityLogController::class, 'ManagerStockindex'])->name('manager.Stocklogs');
 
-
 Route::post('/scanner-login', [StaffController::class, 'Scannerlogin']);
-
 
 Route::get('/csrf-token', function (Request $request) {
     return response()->json(['csrf_token' => csrf_token()]);
 });
-
 
 Route::post('/scan-qr', [StaffController::class, 'updateScanStatus']);
 
