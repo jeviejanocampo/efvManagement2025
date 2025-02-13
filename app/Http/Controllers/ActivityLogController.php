@@ -7,6 +7,8 @@ use App\Models\OrderDetail;
 use Carbon\Carbon;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Exports\SalesReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ActivityLogController extends Controller
 {
@@ -109,5 +111,58 @@ class ActivityLogController extends Controller
             'percentagePerWeek',
             'months'
         ));
+    }
+
+    public function GenerateIndex(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $month = $request->input('month');
+        $year = $request->input('year');
+    
+        $query = OrderDetail::where('product_status', 'Completed');
+    
+        // Apply start date filter
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
         }
+    
+        // Apply end date filter
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+    
+        // Apply month filter
+        if ($month) {
+            $query->whereMonth('created_at', $month);
+        }
+    
+        // Apply year filter
+        if ($year) {
+            $query->whereYear('created_at', $year);
+        }
+    
+        // Fetch filtered results
+        $orderDetails = $query->get();
+    
+        // Calculate totals
+        $salesAmount = $orderDetails->sum('total_price');
+        $salesTotal = $orderDetails->count();
+    
+        return view('manager.content.ManagerGenerateReport', compact('orderDetails', 'salesAmount', 'salesTotal'));
+    }
+    
+    public function exportSalesReport(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        return Excel::download(
+            new SalesReportExport($startDate, $endDate), 
+            'sales_report.xlsx'
+        );
+    }
+
+    
+
 }

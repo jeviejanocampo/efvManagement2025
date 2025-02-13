@@ -9,9 +9,11 @@
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Sales Overview</h1>
         
         <!-- Generate Report Button -->
-        <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+        <a href="{{ route('manager.generateReport') }}" 
+        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
             Generate Report
-        </button>
+        </a>
+
     </div>
 
     <!-- Full-Width Line Chart Section -->

@@ -212,3 +212,7 @@ Route::delete('/variant/delete/{id}', [ProductController::class, 'ManagerdeleteV
 Route::put('/update-variant/{model_id}/{variant_id}', [ProductController::class, 'updateVariant'])->name('update.variant');
 
 Route::put('/update-variant-status/{variant_id}', [ProductController::class, 'updateVariantStatus']);
+
+Route::get('/manager/generate-report', [ActivityLogController::class, 'GenerateIndex'])->name('manager.generateReport');
+
+Route::get('/manager/export-sales-report', [ActivityLogController::class, 'exportSalesReport'])->name('manager.exportSalesReport');
