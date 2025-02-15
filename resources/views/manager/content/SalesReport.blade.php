@@ -1,36 +1,87 @@
 @extends('manager.dashboard.managerDashboard')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="bg-white p-6 rounded-md">
+    <div class="bg-white p-6 rounded-md mb-6">
 
-    <div class="flex items-center justify-between mb-6">
-        <!-- Sales Overview Title -->
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Sales Overview</h1>
-        
-        <!-- Generate Report Button -->
-        <a href="{{ route('manager.generateReport') }}" 
-        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
-            Generate Report
-        </a>
+        <div class="flex items-center justify-between mb-6">
+            <!-- Sales Overview Title -->
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Sales Overview</h1>
+            
+            <!-- Generate Report Button -->
+            <a href="{{ route('manager.generateReport') }}" 
+            class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition duration-300">
+                Generate Report
+            </a>
+
+        </div>
+
+        <!-- <div class="w-full bg-white rounded-md shadow-sm dark:bg-gray-800 p-2">
+            <form id="dateRangeForm" class="flex items-center space-x-2">
+                <label for="startDate" class="text-gray-700 dark:text-gray-300 text-sm font-medium">Start:</label>
+                <input type="date" id="startDate" name="start_date" class="p-1 border rounded-md text-sm">
+                <label for="endDate" class="text-gray-700 dark:text-gray-300 text-sm font-medium">End:</label>
+                <input type="date" id="endDate" name="end_date" class="p-1 border rounded-md text-sm">
+                <button type="submit" class="bg-blue-600 text-white px-2 py-1 text-sm rounded-md hover:bg-blue-700">
+                    Filter
+                </button>
+            </form>
+        </div> -->
+
+
+        <div class="relative h-64 w-full">
+        <h3 class="text-lg font-semibold mb-4">Monthly Sales</h3>
+            <form id="dateRangeForm" class="flex items-center space-x-2">
+                <label for="startDate" class="text-gray-700 dark:text-gray-300 text-sm font-medium">Start:</label>
+                <input type="date" id="startDate" name="start_date" class="mt-1 block border-gray-300 rounded-md shadow-sm 
+                 focus:ring-blue-500 focus:border-blue-500 sm:text-sm  border rounded">
+                <label for="endDate" class="text-gray-700 dark:text-gray-300 text-sm font-medium">End:</label>
+                <input type="date" id="endDate" name="end_date" class="mt-1 block border-gray-300 rounded-md 
+                 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm  border rounded">
+                <button type="submit" class="bg-blue-600 text-white px-2 py-1 text-sm rounded-md hover:bg-blue-700">
+                    Filter
+                </button>
+            </form>
+            <canvas id="salesLineChart"></canvas>
+        </div>
+        <br>
 
     </div>
 
-    <!-- Full-Width Line Chart Section -->
-    <div class="w-full bg-white rounded-md shadow-sm dark:bg-gray-800 p-4">
-        <h5>Sales Data (Last 6 Months)</h5>
-        <div class="w-full h-92">
-            <canvas id="salesLineChart"></canvas>
+    <div class="bg-white p-6 rounded-md">
+        <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-4">Daily Sales</h3>
+            <form id="dateRangeForm" class="flex items-center space-x-2">
+                        <label for="startDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="date" id="startDate" name="start_date" 
+                            value="{{ request('start_date', now()->subDays(29)->toDateString()) }}"
+                            class="mt-1 block border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm  border rounded">
+                        <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="date" id="endDate" name="end_date" 
+                            value="{{ request('end_date', now()->toDateString()) }}"
+                            class="mt-1 block border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm  border rounded">
+                    <button type="submit" 
+                        class="bg-blue-600 text-white px-2 py-1 text-sm rounded-md hover:bg-blue-700">
+                        Filter
+                    </button>
+                </form>
+            </div>
+
+            <div class="relative h-64 w-full">
+        
+
+            <div class="relative h-64 w-full">
+                <canvas id="dailySalesLineChart"></canvas>
+            </div>
+
         </div>
     </div>
 
-    <!-- Secondary Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
-        <!-- First Column -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+
         <div class="space-y-4">
-
-        <!-- Total Orders -->
         <div class="bg-white p-4 rounded-md shadow-md flex items-center relative">
             <h1 class="absolute top-2 left-4 text-xl font-bold z-10 px-2">Total Orders</h1>
             <br>
@@ -39,7 +90,7 @@
             </div>
             <div class="w-1/3 pl-4">
                 <h5 class="font-semibold mb-2">Order Breakdown</h5>
-                <ul class="space-y-2 text-sm">
+                <ul class="space-y-2 text-sm ml-6">
                     <li><span class="text-green-600 font-bold">Completed:</span> {{ $orderStatuses['Completed'] }} orders</li>
                     <li><span class="text-yellow-600 font-bold">Pending:</span> {{ $orderStatuses['Pending'] }} orders</li>
                     <li><span class="text-red-600 font-bold">Cancelled:</span> {{ $orderStatuses['Cancelled'] }} orders</li>
@@ -50,66 +101,126 @@
 
 
         <div class="bg-white p-4 rounded-md shadow-md flex items-center relative">
-            <h1 class="absolute top-2 left-4 text-xl font-bold z-10 px-2">Total Sales</h1>
+            <h1 class="absolute top-2 left-2 text-xl font-bold z-10 px-2">Total Sales</h1>
             <br>
             <div class="w-2/3 h-64">
                 <canvas id="totalSalesChart"></canvas>
-            </div>
-            <div class="w-1/3 pl-4">
-                <h5 class="font-semibold mb-2">Sales Breakdown</h5>
-                <ul class="space-y-2 text-sm">
+        </div>
+
+
+        <div class="w-1/3 pl-4">
+            <h5 class="font-semibold mb-2">Sales Breakdown</h5>
+                <ul class="space-y-2 text-sm ml-2">
+                    <!-- Total Sales -->
                     <li><span class="text-blue-600 font-bold">Total Sales:</span> ₱{{ number_format($totalSales, 2) }}</li>
+                    
+                    <!-- Weekly Breakdown Header -->
                     <li><span class="text-purple-600 font-bold">Weekly Breakdown:</span></li>
+                    
+                    <!-- Weekly Breakdown: Totals and Percentages -->
                     <ul class="ml-4 space-y-1">
                         @foreach ($percentagePerWeek as $week => $percentage)
                             <li>
-                                Week of {{ $week }}: <span class="text-orange-600 font-bold">{{ number_format($percentage, 2) }}%</span>
+                                Week of {{ $week }}: 
+                                <span class="text-orange-600 font-bold">₱{{ number_format($weeklySales[$week], 2) }}</span>
+                                ({{ number_format($percentage, 2) }}%)
                             </li>
                         @endforeach
                     </ul>
                 </ul>
+                </div>
             </div>
         </div>
 
-
-
-        </div>
-
-        <!-- Second Column -->
-        <div class="bg-white p-4 rounded-md shadow-md mt-6">
+        <div class="bg-white p-4 rounded-md shadow-md">
             <h1 style="font-size: 24px; font-weight: Bold">Top Selling</h1>
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr>
-                        <th class="border-b py-2 px-4">Product</th>
-                        <th class="border-b py-2 px-4">Sales per Pieces</th>
-                        <th class="border-b py-2 px-4">Sales</th>
+                        <th class="border-b py-1 px-4"></th>
+                        <th class="border-b py-1 px-4">Product</th>
+                        <th class="border-b py-1 px-4">Sales per Pieces</th>
+                        <th class="border-b py-1 px-4">Sales</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($salesData as $data)
                         <tr>
-                            <td class="border-b py-2 px-4">{{ $data['product_name'] }}</td>
-                            <td class="border-b py-2 px-4">{{ $data['quantity'] }}</td>
-                            <td class="border-b py-2 px-4">₱{{ number_format($data['sales'], 2) }}</td>
+                            <td class="border-b py-1 px-4">
+                                <img src="{{ asset('product-images/' . $data['model_img']) }}" alt="Product Image" class="w-16 h-16 object-cover rounded">
+                            </td>
+                            <td class="border-b py-1 px-4">{{ $data['product_name'] }}</td>
+                            <td class="border-b py-1 px-4">{{ $data['quantity'] }}</td>
+                            <td class="border-b py-1 px-4">₱{{ number_format($data['sales'], 2) }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center py-4 text-gray-500">No sales data available.</td>
+                            <td colspan="4" class="text-center py-4 text-gray-500">No sales data available.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
+
+            <!-- Pagination links -->
+            <div class="mt-4">
+                {{ $salesData->links() }}
+            </div>
         </div>
+
+
     </div>
 </div>
 
-<!-- Include Chart.js and custom script -->
+<script>
+    const dailySalesLabels = {!! json_encode($days->keys()->map(fn($date) => \Carbon\Carbon::parse($date)->format('M d, Y'))) !!};
+    const dailySalesData = {!! json_encode($days->values()) !!};
+
+    // Render the line chart
+    const ctx = document.getElementById('dailySalesLineChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dailySalesLabels, // Dates as labels
+            datasets: [{
+                label: 'Daily Sales (₱)',
+                data: dailySalesData, // Sales amounts
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 2,
+                tension: 0.4 // Smooth line
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Sales (₱)'
+                    },
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            }
+        }
+    });
+</script>
 <script>
     const salesMonths = @json($months->keys()); // Fetch labels (months)
     const salesData = @json($months->values()); // Fetch data (sales)
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ asset('js/sales-report.js') }}"></script>
 
 @endsection

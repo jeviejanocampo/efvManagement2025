@@ -9,13 +9,10 @@ class OrderDetail extends Model
 {
     use HasFactory;
 
-    // Define the table name (optional, Laravel automatically assumes table name based on model name)
     protected $table = 'order_details';
 
-    protected $primaryKey = 'order_detail_id'; // Update this to match your table's primary key
+    protected $primaryKey = 'order_detail_id';
 
-
-    // Define the fillable attributes
     protected $fillable = [
         'order_id',
         'model_id',
@@ -27,4 +24,10 @@ class OrderDetail extends Model
         'total_price',
         'product_status',
     ];
+
+    // Define relationship to Models
+    public function model()
+    {
+        return $this->belongsTo(Models::class, 'model_id', 'model_id');
+    }
 }

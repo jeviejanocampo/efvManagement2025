@@ -136,8 +136,6 @@
                             @endif
                         </td>
 
-
-
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
                                 <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>

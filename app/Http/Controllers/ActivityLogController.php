@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Exports\SalesReportExport;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ActivityLogController extends Controller
@@ -36,27 +37,39 @@ class ActivityLogController extends Controller
         return view('manager.content.ManagerStockClerkActivityLogs', compact('activityLogs'));
     }
 
-    public function SalesReportIndex()
+    public function SalesReportIndex(Request $request)
     {
         // Fetch all activity logs in descending order by created_at
         $activityLogs = ActivityLog::orderBy('created_at', 'desc')->get();
     
-        // Fetch data from the order_details table where product_status is 'Completed'
-        $salesData = OrderDetail::where('product_status', 'Completed')
-            ->select('product_name', 'quantity', 'price')
-            ->get()
-            ->groupBy('product_name')
-            ->map(function ($groupedDetails) {
-                // Compute total quantity and sales for each product
-                return [
-                    'product_name' => $groupedDetails->first()->product_name,
-                    'quantity' => $groupedDetails->sum('quantity'),
-                    'sales' => $groupedDetails->sum(function ($detail) {
-                        return $detail->quantity * $detail->price;
-                    }),
-                ];
-            });
-    
+        $salesDataQuery = OrderDetail::where('product_status', 'Completed')
+        ->with('model') // Eager load the related Models
+        ->get()
+        ->groupBy('product_name')
+        ->map(function ($groupedDetails) {
+            return [
+                'product_name' => $groupedDetails->first()->product_name,
+                'quantity' => $groupedDetails->sum('quantity'),
+                'sales' => $groupedDetails->sum(function ($detail) {
+                    return $detail->quantity * $detail->price;
+                }),
+                'model_img' => $groupedDetails->first()->model?->model_img,
+            ];
+        });
+
+        // Paginate the collection
+        $perPage = 5; // Items per page
+        $currentPage = LengthAwarePaginator::resolveCurrentPage(); // Get current page
+        $items = $salesDataQuery->forPage($currentPage, $perPage); // Slice the collection for the current page
+
+        $salesData = new LengthAwarePaginator(
+            $items,
+            $salesDataQuery->count(), // Total items
+            $perPage,
+            $currentPage,
+            ['path' => $request->url()] // Ensure pagination links use the current URL
+        );
+        
         // Fetch order counts based on status from App\Models\Order
         $orderStatuses = [
             'In Process' => Order::where('status', 'In Process')->count(),
@@ -84,34 +97,59 @@ class ActivityLogController extends Controller
         $percentagePerWeek = $weeklySales->map(function ($weeklyTotal) use ($totalSales) {
             return $totalSales > 0 ? ($weeklyTotal / $totalSales) * 100 : 0;
         });
-
+    
+        // Line chart sales data for the last 6 months
         $salesLineData = Order::where('status', 'Completed')
-        ->whereDate('created_at', '>=', now()->subMonths(6)) // Filter orders from the last 6 months
-        ->get()
-        ->groupBy(function ($order) {
-            // Group by month and year (e.g., 'January 2025')
-            return \Carbon\Carbon::parse($order->created_at)->format('F Y');
-        })->map(function ($monthlyOrders) {
-            return $monthlyOrders->sum('total_price'); // Sum the total_price for each month
-        });
-
+            ->whereDate('created_at', '>=', now()->subMonths(6)) // Filter orders from the last 6 months
+            ->get()
+            ->groupBy(function ($order) {
+                // Group by month and year (e.g., 'January 2025')
+                return \Carbon\Carbon::parse($order->created_at)->format('F Y');
+            })->map(function ($monthlyOrders) {
+                return $monthlyOrders->sum('total_price'); // Sum the total_price for each month
+            });
+    
         // Fill missing months with 0 sales
         $months = collect([]);
         for ($i = 5; $i >= 0; $i--) {
             $month = now()->subMonths($i)->format('F Y');
             $months->put($month, $salesLineData->get($month, 0));
         }
+    
+        // Get date range from request, with defaults to last 30 days
+        $startDate = $request->input('start_date', now()->subDays(29)->toDateString());
+        $endDate = $request->input('end_date', now()->toDateString());
 
+        // Daily sales for the selected date range
+        $dailySales = Order::where('status', 'Completed')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy(function ($order) {
+                return \Carbon\Carbon::parse($order->created_at)->format('Y-m-d');
+            })->map(function ($dailyOrders) {
+                return $dailyOrders->sum('total_price');
+            });
+
+        // Fill missing dates with 0 sales
+        $days = collect([]);
+        $period = \Carbon\CarbonPeriod::create($startDate, $endDate);
+        foreach ($period as $date) {
+            $days->put($date->format('Y-m-d'), $dailySales->get($date->format('Y-m-d'), 0));
+        }
+    
         // Pass the data to the view
         return view('manager.content.SalesReport', compact(
             'activityLogs',
             'salesData',
             'orderStatuses',
             'totalSales',
+            'weeklySales', // Include weeklySales for frontend use
             'percentagePerWeek',
-            'months'
+            'months',
+            'days',
+            'salesData'
         ));
-    }
+    }    
 
     public function GenerateIndex(Request $request)
     {

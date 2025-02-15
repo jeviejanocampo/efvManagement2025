@@ -115,7 +115,7 @@
 
             <a href="{{ route('manager.exportSalesReport', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}"
             class="bg-green-600 text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-6">
-             <p style="font-size: 15px"> Export to Excel For Owner</p>
+             <p style="font-size: 15px"> Export to Excel</p>
             </a>
         </form>
 
@@ -129,9 +129,9 @@
         <table class="w-full border-collapse border border-gray-300 text-left">
             <thead>
                 <tr class="bg-gray-100">
-                    <th class="border border-gray-300 px-4 py-2">ID</th>
+                    <th class="border border-gray-300 px-4 py-2"></th>
                     <th class="border border-gray-300 px-4 py-2">PRODUCT NAME</th>
-                    <th class="border border-gray-300 px-4 py-2">PRICE</th>
+                    <th class="border border-gray-300 px-4 py-2">UNIT PRICE</th>
                     <th class="border border-gray-300 px-4 py-2">QUANTITY</th>
                     <th class="border border-gray-300 px-4 py-2">TOTAL</th>
                 </tr>
@@ -185,7 +185,7 @@
         <p>Note: Based on the summary, the sales amount represents the total revenue generated during the selected date range, while the total items sold indicates the overall quantity of products purchased by customers.</p>
         <div class="mt-4 text-right">
             <p>Owner: __________________________</p>
-            <p>Printed By: Manager</p>
+            <p>Printed By: {{ Auth::user()->name ?? 'Guest' }}</p>
         </div>
     </div>
 

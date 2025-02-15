@@ -163,7 +163,7 @@ Route::delete('/product/delete/{id}', [ProductController::class, 'destroyModel']
 
 Route::post('/add-details-product/store', [ProductController::class, 'addProductDetails'])->name('add.details.store');
 
-Route::post('/add-details-product/store', [ProductController::class, 'ManageraddProductDetails'])->name('manager.add.details.store');
+Route::post('/add-details-stocks/store', [ProductController::class, 'ManageraddProductDetails'])->name('manager.add.details.store');
 
 
 Route::get('/view-details/{model_id}', [ProductController::class, 'viewDetailsofProduct'])->name('viewDetails');
@@ -205,7 +205,7 @@ Route::get('/edit-variant/{model_id}/{variant_id}', [ProductController::class, '
 
 Route::get('/manager-edit-variant/{model_id}/{variant_id}', [ProductController::class, 'ManagereditVariant'])->name('manager.edit.variant');
 
-Route::delete('/variant/delete/{id}', [ProductController::class, 'deleteVariant'])->name('delete.variant');
+Route::post('/variant/delete/{id}', [ProductController::class, 'deleteVariant'])->name('delete.variant');
 
 Route::delete('/variant/delete/{id}', [ProductController::class, 'ManagerdeleteVariant'])->name('manager.delete.variant');
 

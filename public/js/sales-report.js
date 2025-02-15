@@ -1,24 +1,35 @@
 // public/js/sales-chart.js
 
-// Wait for DOM content to load
+
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Line Chart: Sales Overview
+
+    
+    let salesLineChart; // Store chart instance globally
+
     const lineCtx = document.getElementById('salesLineChart');
 
-    if (lineCtx) {
-        new Chart(lineCtx, {
+    const dailySalesCtx = document.getElementById('dailySalesLineChart');
+
+
+    // Function to initialize or update the chart
+    function renderLineChart(labels, data) {
+        if (salesLineChart) {
+            salesLineChart.destroy(); // Destroy the previous chart instance
+        }
+        salesLineChart = new Chart(lineCtx, {
             type: 'line',
             data: {
-                labels: salesMonths, // Labels for X-axis (Months)
+                labels: labels, // Dynamic labels for X-axis (Months)
                 datasets: [{
                     label: 'Monthly Sales (₱)',
-                    data: salesData, // Sales data for Y-axis
+                    data: data, // Dynamic sales data for Y-axis
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 2,
                     pointBackgroundColor: 'rgba(54, 162, 235, 1)',
                     tension: 0.4, // Smooth curve
-                    fill: true, // Fill below the line
+                    fill: true // Fill below the line
                 }]
             },
             options: {
@@ -50,6 +61,65 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Initial chart rendering
+    if (lineCtx) {
+        renderLineChart(salesMonths, salesData); // Render with existing dynamic data
+    }
+
+    // Date Range Filter Logic
+    const dateRangeForm = document.getElementById('dateRangeForm');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+
+    // Event listener for input changes to dynamically update the chart
+    [startDateInput, endDateInput].forEach(input => {
+        input.addEventListener('change', () => {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            // Skip if either date is invalid
+            if (!startDate || !endDate || startDate > endDate) {
+                return;
+            }
+
+            // Filter sales data based on the selected date range
+            const filteredLabels = [];
+            const filteredData = [];
+
+            salesMonths.forEach((month, index) => {
+                const currentDate = new Date(month); // Convert label to Date
+                if (currentDate >= startDate && currentDate <= endDate) {
+                    filteredLabels.push(salesMonths[index]); // Keep label
+                    filteredData.push(salesData[index]); // Keep corresponding sales data
+                }
+            });
+
+            // Update the chart with filtered data
+            renderLineChart(filteredLabels, filteredData);
+        });
+    });
+
+    // Clear Filter Logic
+    const clearFilterBtn = document.createElement('button');
+    clearFilterBtn.textContent = 'Clear Filter';
+    clearFilterBtn.className = 'bg-gray-500 text-white px-2 py-1 text-sm rounded-md hover:bg-gray-600 ml-1';
+
+    dateRangeForm.appendChild(clearFilterBtn);
+
+    clearFilterBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default behavior
+        startDateInput.value = ''; // Clear the start date
+        endDateInput.value = ''; // Clear the end date
+
+        // Reset the chart with original data
+        renderLineChart(salesMonths, salesData);
+    });
+
+    
+});
+
+// Wait for DOM content to load
+document.addEventListener('DOMContentLoaded', () => {   
     // Donut Chart: Total Orders
     const ordersCtx = document.getElementById('totalOrdersChart');
     if (ordersCtx) {
