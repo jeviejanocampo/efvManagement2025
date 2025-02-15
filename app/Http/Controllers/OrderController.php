@@ -135,10 +135,10 @@ class OrderController extends Controller
         $request->validate([
             'status' => 'required|in:pending,Ready to Pickup,In Process,Completed,Cancelled',
         ]);
-
+    
         // Find the order by order_id
         $order = Order::find($order_id);
-
+    
         // Check if the order exists
         if (!$order) {
             return response()->json([
@@ -146,34 +146,43 @@ class OrderController extends Controller
                 'message' => 'Order not found.',
             ]);
         }
-
+    
         // Update the order status
         $order->status = $request->input('status');
-
+    
         // If status is "Completed", set scan_status to "Completed" as well
         if ($order->status === 'Completed') {
             $order->scan_status = 'Completed';
+    
+            // Use the OrderDetail model to update product_status
+            $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+    
+            foreach ($orderDetails as $orderDetail) {
+                $orderDetail->product_status = 'Completed';
+                $orderDetail->save(); // Save each updated order detail
+            }
         }
-
+    
         $order->save(); // Save the updated order
-
+    
         // Get the role of the user
         $user = Auth::user();  // Get the currently authenticated user
         $role = $user->role;   // Get the role of the user
-
+    
         // Log the activity (user_id, role, and activity)
         ActivityLog::create([
             'user_id' => Auth::id(),
             'role' => $role, // Insert the user's role
             'activity' => "Updated order #$order_id status to {$order->status}",
         ]);
-
+    
         // Return response
         return response()->json([
             'success' => true,
-            'message' => 'Order status updated successfully.',
+            'message' => 'Order status updated successfully and product statuses.',
         ]);
     }
+    
     
     public function updateProductStatus(Request $request, $orderDetailId)
     {

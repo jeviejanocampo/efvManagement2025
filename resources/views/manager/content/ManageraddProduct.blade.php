@@ -33,7 +33,7 @@
 
     <!-- SRP -->
     <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">SRP</label>
+        <label class="block text-sm font-medium text-gray-700">Unit Price</label>
         <input type="number" name="price" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" required>
     </div>
 

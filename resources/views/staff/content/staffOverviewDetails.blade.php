@@ -127,19 +127,17 @@
                     <td class=" px-5 py-1">₱{{ $detail->total_price }}</td>
                     <td class=" px-5 py-1">
                         <!-- Conditional for Edit Status Dropdown -->
-                        @if($detail->product_status !== 'pending') 
+                        @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending')
                         <div class="mt-2">
-                            <!-- <label for="edit_status_{{ $detail->order_detail_id }}" class="text-sm mr-2">Edit Status:</label> -->
-                            <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
-                                <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="In Process" {{ $detail->product_status === 'Process' ? 'selected' : '' }}>In Process</option>
-                                <option value="Ready to Pickup" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
-                                <option value="Cancelled" {{ $detail->product_status === 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
-                            </select>
-                        </div>
-                    @else
-                        <span class="text-sm text-gray-500" id="status_span_{{ $detail->order_detail_id }}" style="display:none">Status is Pending</span>
-                    @endif
+                                <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
+                                    <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="In Process" {{ $detail->product_status === 'In Process' ? 'selected' : '' }}>In Process</option>
+                                    <option value="Ready to Pickup" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
+                                </select>
+                            </div>
+                        @else
+                            <span class="text-sm text-gray-500" id="status_span_{{ $detail->order_detail_id }}" style="display:none">Status is Pending</span>
+                        @endif
                     </td>
                     </tr>
                 @endforeach

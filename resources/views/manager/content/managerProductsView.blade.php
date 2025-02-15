@@ -78,7 +78,7 @@
                     <!-- <th class="border border-gray-300 px-2 py-1">Category</th> -->
                     <th class="border border-gray-300 px-2 py-1">Brand Name</th>
                     <th class="border border-gray-300 px-2 py-1">Product Name</th>
-                    <th class="border border-gray-300 px-2 py-1">SRP</th>
+                    <th class="border border-gray-300 px-2 py-1">Unit Price</th>
                     <th class="border border-gray-300 px-2 py-1">Quantity</th>
                     <th class="border border-gray-300 px-2 py-1">W/Variant</th>
                     <th class="border border-gray-300 px-2 py-1">Details</th>
