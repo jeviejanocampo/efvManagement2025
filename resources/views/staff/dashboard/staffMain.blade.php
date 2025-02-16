@@ -10,6 +10,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            zoom: 90%;
         }
     </style>
 </head>

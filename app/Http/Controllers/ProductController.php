@@ -24,15 +24,63 @@ class ProductController extends Controller
         return view('stockclerk.content.ProductsView', compact('products', 'brands', 'statuses'));
     }
 
-    public function Managerindex()
-    {
-        $products = Models::with(['brand.category'])->get();
-        $brands = Brand::pluck('brand_name'); 
-        $statuses = Products::distinct()->pluck('status');
+    public function lowUnitsProducts() {
+        // Count the products with stocks_quantity between 0 and 5 from the 'products' table
+        $lowStockProductsCount = Products::whereBetween('stocks_quantity', [0, 5])->count();
     
-        return view('manager.content.managerProductsView', compact('products', 'brands', 'statuses'));
+        // Count the variants with stocks_quantity between 0 and 5 from the 'variants' table
+        $lowStockVariantsCount = Variant::whereBetween('stocks_quantity', [0, 5])->count();
+    
+        // Combine the counts from both tables
+        $lowStockCount = $lowStockProductsCount + $lowStockVariantsCount;
+    
+        // Fetch brands and their categories (assuming relationship exists)
+        $brands = Brand::pluck('brand_name'); 
+    
+        // Fetch products with their related brand and category
+        $products = Models::with(['brand.category'])->paginate(15);
+    
+        // Fetch unique product statuses from the 'products' table
+        $statuses = Products::distinct()->pluck('status');
+        
+        // Pass the counts and other data to the view
+        return view('manager.content.managerLowProductsView', compact('lowStockCount', 'brands', 'products', 'statuses'));
+    }
+
+    public function StockClerklowUnitsProducts() {
+        // Count the products with stocks_quantity between 0 and 5 from the 'products' table
+        $lowStockProductsCount = Products::whereBetween('stocks_quantity', [0, 5])->count();
+    
+        // Count the variants with stocks_quantity between 0 and 5 from the 'variants' table
+        $lowStockVariantsCount = Variant::whereBetween('stocks_quantity', [0, 5])->count();
+    
+        // Combine the counts from both tables
+        $lowStockCount = $lowStockProductsCount + $lowStockVariantsCount;
+    
+        // Fetch brands and their categories (assuming relationship exists)
+        $brands = Brand::pluck('brand_name'); 
+    
+        // Fetch products with their related brand and category
+        $products = Models::with(['brand.category'])->paginate(15);
+    
+        // Fetch unique product statuses from the 'products' table
+        $statuses = Products::distinct()->pluck('status');
+        
+        // Pass the counts and other data to the view
+        return view('stockclerk.content.stockClerkLowProductsView', compact('lowStockCount', 'brands', 'products', 'statuses'));
     }
     
+    
+
+    public function Managerindex()
+    {
+        $products = Models::with(['brand.category'])->paginate(8); 
+        $brands = Brand::pluck('brand_name');
+        $statuses = Products::distinct()->pluck('status');
+        
+        return view('manager.content.managerProductsView', compact('products', 'brands', 'statuses'));
+    }
+
     public function create()
     {
         $brands = Brand::all(); // Fetch all brands from the database

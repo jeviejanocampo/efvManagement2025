@@ -41,11 +41,11 @@
         <table class="min-w-full table-auto border-collapse border border-gray-300">
             <thead class="bg-white">
                 <tr class="border-b">
-                    <th class="px-4 py-2 text-left text-sm font-medium">ID</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">User ID</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">Role</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">Activity</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">Created At</th>
+                    <th class="px-4 py-2  text-sm font-medium">ID</th>
+                    <th class="px-4 py-2  text-sm font-medium">User ID</th>
+                    <th class="px-4 py-2  text-sm font-medium">Role</th>
+                    <th class="px-4 py-2  text-sm font-medium">Activity</th>
+                    <th class="px-4 py-2  text-sm font-medium">Created At</th>
                 </tr>
             </thead>
             <tbody id="activityLogsTable">

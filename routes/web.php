@@ -106,6 +106,10 @@ Route::get('/stockclerk/overview', [OrderController::class, 'stockOrderOverview'
 Route::get('/manager/overview', [OrderController::class, 'ManagerstockOrderOverview'])->name('ManagerstockoverView');
 
 
+Route::get('/manager-low-units', [ProductController::class, 'lowUnitsProducts'])->name('managerLow');
+
+Route::get('/stockclerk-low-units', [ProductController::class, 'StockClerklowUnitsProducts'])->name('stockclerkLow');
+
 Route::post('/orders/update-status/{order_id}', [OrderController::class, 'updateStatus']);
 
 
@@ -138,6 +142,8 @@ Route::get('/products', [ProductController::class, 'index'])->name('productsView
 
 
 Route::get('/manager-products', [ProductController::class, 'Managerindex'])->name('ManagerproductsView');
+
+Route::get('/manager-low-products', [ProductController::class, 'ManagerLowIndex'])->name('ManagerLowProducts');
 
 
 Route::get('/manager-view', [ProductController::class, 'Managerindex'])->name('managerproductsView');

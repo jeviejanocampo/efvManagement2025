@@ -1,9 +1,14 @@
 @extends('manager.dashboard.managerDashboard')
 
 @section('content')
+<style>
+    th {
+        text-align: "cemter",
+    }
+</style>
 
 <div class ="bg-white p-4 rounded-md">
-    <h1 class="text-2xl font-semibold mb-4">Activity Logs</h1>
+    <h1 class="text-2xl font-semibold mb-4">Manager Activity Logs</h1>
     <!-- Filters Section -->
     <div class="flex space-x-4 mb-6">
         <!-- Search Filter -->
@@ -41,11 +46,10 @@
         <table class="min-w-full table-auto border-collapse border border-gray-300">
             <thead class="bg-white">
                 <tr class="border-b">
-                    <th class="px-4 py-2 text-left text-sm font-medium">ID</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">User ID</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">Role</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">Activity</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium">Created At</th>
+                    <th class="px-4 py-2 text-sm font-medium">User ID</th>
+                    <th class="px-4 py-2  text-sm font-medium">Role</th>
+                    <th class="px-4 py-2  text-sm font-medium">Activity</th>
+                    <th class="px-4 py-2  text-sm font-medium">Created At</th>
                 </tr>
             </thead>
             <tbody id="activityLogsTable">

@@ -18,11 +18,10 @@
 <div class="container mx-auto p-4 bg-white rounded-xl">
 
     <div style="text-align: center; margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
-        Products Overview
+         Low Units
     </div>
 
-    <div class="flex justify-between items-center mb-4 space-x-4">
-
+ <div class="flex justify-between items-center mb-4 space-x-4">
         <div class="w-full sm:w-1/2">
             <input 
                 type="text" 
@@ -83,8 +82,7 @@
             Clear
         </button>
     </div>
-
-    </div>
+</div>
 
     <div>
         <a href="{{ route('manager.add.product') }}">
@@ -93,11 +91,6 @@
             </button>
         </a>
     </div>
-
-    <div class="text-gray-500 italic text-sm m-4">
-        Note: Navigate to action to add details for the specific products
-    </div>
-
 
     <div class="overflow-x-auto">
         <table class="table-auto w-full border-collapse border border-gray-300">
@@ -118,7 +111,12 @@
                 </tr>
             </thead>
             <tbody id="order-table">
-                @foreach ($products as $product)
+            @foreach ($products as $product)
+                @php
+                    $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');
+                @endphp
+
+                @if ($stock <= 5)
                     <tr data-category="{{ $product->brand->category->category_name ?? 'N/A' }}"
                         data-brand="{{ $product->brand->brand_name ?? 'N/A' }}"
                         data-name="{{ $product->model_name }}">
@@ -126,46 +124,19 @@
                         <td class="border border-gray-300 px-2 py-1">
                             <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="50">
                         </td>
-                        <!-- <td class="border border-gray-300 px-2 py-1">
-                            {{ $product->brand->category->category_name ?? 'N/A' }}
-                        </td> -->
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">
                             {{ $product->brand->brand_name ?? 'N/A' }}
                         </td>
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
                         <td class="border border-gray-300 px-2 py-1">{{ $product->price }}</td>
                         <td class="border border-gray-300 px-2 py-1 relative">
-                            @php
-                                $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');
-                            @endphp
                             {{ $stock }}
-
                             @if ($stock <= 5 && !request()->routeIs('edit.product'))
                                 <span class="absolute left-8 bg-red-500 text-white font-semibold px-2 py-1 rounded-md" style="font-size:10px">
                                     Low units
                                 </span>
                             @endif
                         </td>
-
-                        <!-- <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->w_variant }}</td> -->
-
-                        <!-- <td class="border border-gray-300 px-2 py-1 text-center">
-                            @php
-                                $hasDetails = Products::where('model_id', $product->model_id)->exists();
-                            @endphp
-                            @if ($hasDetails)
-                                <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}" 
-                                class="px-2 py-1 text-white text-xs font-semibold rounded bg-green-500">
-                                    View Details
-                                </a>
-                            @else
-                                <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}" 
-                                class="px-1 py-1 text-white font-semibold rounded bg-red-500" style="font-size:10px">
-                                    No Details | Click to add
-                                </a>
-                            @endif
-                        </td> -->
-
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
                                 <a href="{{ route('manager.variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
@@ -173,7 +144,6 @@
                                 <span class="text-gray-500">No Variant</span>
                             @endif
                         </td>
-
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             <span class="px-2 py-1 text-white text-xs font-semibold rounded cursor-pointer update-status 
                                         {{ $product->status == 'active' ? 'bg-green-600' : 'bg-red-500' }}" 
@@ -182,31 +152,21 @@
                                 {{ $product->status }}
                             </span>
                         </td>
-
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">
-                        @if ($hasDetails)
                             <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}">
                                 <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-6 h-6 inline mx-1" title="View Details">
                             </a>
-                        @else
-                            <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="No Details" class="w-6 h-6 inline mx-1 opacity-50 cursor-not-allowed" title="No Details | Add Details">
+                            <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
+                                <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-6 h-6 inline mx-1" title="Edit">
                             </a>
-                        @endif
-
-                        <!-- Edit Icon -->
-                        <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
-                            <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-6 h-6 inline mx-1" title="Edit">
-                        </a>
-
-                        <!-- Delete Icon -->
-                        <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
-                            <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-6 h-6 inline mx-1" title="Delete">
-                        </a>
+                            <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
+                                <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-6 h-6 inline mx-1" title="Delete">
+                            </a>
                         </td>
                     </tr>
-                @endforeach
-            </tbody>
+                @endif
+            @endforeach
+        </tbody>
         </table>
     </div>
 </div>
@@ -236,40 +196,6 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const minPriceInput = document.getElementById("min-price");
-    const maxPriceInput = document.getElementById("max-price");
-    const applyPriceFilterButton = document.getElementById("apply-price-filter");
-    const productRows = document.querySelectorAll("#order-table tr");
-
-    applyPriceFilterButton.addEventListener("click", function () {
-        const minPrice = parseFloat(minPriceInput.value) || 0;
-        const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
-
-        productRows.forEach(row => {
-            const priceCell = row.querySelector("td:nth-child(5)");
-            const price = parseFloat(priceCell.textContent);
-
-            if (price >= minPrice && price <= maxPrice) {
-                row.style.display = ""; // Show row
-            } else {
-                row.style.display = "none"; // Hide row
-            }
-        });
-    });
-});
-
-document.getElementById('clear-price').addEventListener('click', () => {
-    document.getElementById('min-price').value = '';
-    document.getElementById('max-price').value = '';
-    
-    // Optionally, refresh your table or apply filters again here
-    console.log('Price range cleared');
-});
-
-
-</script>
 <script>
    document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById("statusModal");

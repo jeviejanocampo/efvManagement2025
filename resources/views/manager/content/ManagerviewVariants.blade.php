@@ -5,7 +5,7 @@
 <div class="container mx-auto p-6 bg-white rounded-xl shadow-md">
     <!-- Back Button -->
     <div class="mb-4">
-    <a href="{{ route('ManagerproductsView') }}" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
+    <a href="{{ url()->previous() }}" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
         ← Back
     </a>
     </div>
@@ -28,7 +28,7 @@
     <div class="overflow-x-auto">
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
-                <tr class="bg-gray-200">
+                <tr>
                     <th class="border border-gray-300 px-2 py-1">Part ID</th>
                     <th class="border border-gray-300 px-2 py-1"></th>
                     <th class="border border-gray-300 px-2 py-1">Product Name</th>

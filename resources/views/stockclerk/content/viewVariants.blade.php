@@ -5,7 +5,7 @@
 <div class="container mx-auto p-6 bg-white rounded-xl shadow-md">
     <!-- Back Button -->
     <div class="mb-4">
-    <a href="{{ route('productsView') }}" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
+    <a href="{{ url()->previous() }}" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
         ← Back
     </a>
     </div>

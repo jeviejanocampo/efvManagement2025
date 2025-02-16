@@ -6,10 +6,13 @@
     <title>Document</title>
 </head>
 <style>
+    body{
+        zoom: 90%;
+    }
     .highlighted {
-    background-color: gray !important; /* Change background color to gray */
-    color: white !important; /* Change font color to white */
-}
+        background-color: gray !important; /* Change background color to gray */
+        color: white !important; /* Change font color to white */
+    }
 </style>
 <body>
 @extends('staff.dashboard.StaffMain')

@@ -75,11 +75,22 @@
     <!-- Order Details Table -->
     <div class ="bg-white p-4 mt-6 rounded-md">
         <h3 class="text-l font-semibold">Product Details</h3>
+        <div class="text-gray-500 italic text-sm m-4">
+            Note: For the pre-orders products, edit status if ready to pick up status
+        </div>
         <table class="table-auto w-full border-collapse mt-4">
             <thead>
                 <tr class="bg-white">
-                    <!-- Table headers (same as before) -->
-                </tr>
+                <thead>
+                    <tr class="bg-white">
+                        <th class="border border-gray-300 px-2 py-1"></th>
+                        <th class="border border-gray-300 px-2 py-1"></th>
+                        <th class="border border-gray-300 px-2 py-1">Product Name</th>
+                        <th class="border border-gray-300 px-2 py-1">Brand</th>
+                        <th class="border border-gray-300 px-2 py-1">Quantity</th>
+                        <th class="border border-gray-300 px-2 py-1">Unit Price</th>
+                        <th class="border border-gray-300 px-2 py-1">SubTotal</th>
+                    </tr>
             </thead>
             <tbody>
                 @foreach ($orderDetails as $detail)

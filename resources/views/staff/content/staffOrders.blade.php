@@ -16,9 +16,9 @@
             <table id="orders-table" class="table-auto w-full">
                 <thead class="bg-white">
                     <tr>  
-                        <th class="px-4 py-2 text-left border-b border-gray-300">Order ID</th>
-                        <th class="px-4 py-2 text-left border-b border-gray-300">Scan Status</th>
-                        <th class="px-4 py-2 text-left border-b border-gray-300">Action</th>
+                        <th class="px-4 py-2  border-b border-gray-300">Order ID</th>
+                        <th class="px-4 py-2  border-b border-gray-300">Scan Status</th>
+                        <th class="px-4 py-2  border-b border-gray-300">Action</th>
                     </tr>
                 </thead>
                 <tbody id="orders-list" class="text-gray-800">
