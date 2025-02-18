@@ -43,34 +43,54 @@ class OrderController extends Controller
 
     public function staffOrderOverview()
     {
-        // Fetch all orders, customize as needed (e.g., pagination or filters)
+        // Fetch all orders, customize as needed
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
-            ->orderBy('created_at', 'desc') // Sort by most recent
+            ->orderBy('created_at', 'desc')
             ->get();
-
-        // Return the view with the orders data
+    
+        // Count the number of orders with status 'Pending'
+        $pendingCount = \App\Models\Order::where('status', 'Pending')->count();
+    
+        // Store the pending count in the session
+        session(['pendingCount' => $pendingCount]);
+    
+        // Return the view with orders data and the pending count
         return view('staff.content.staffOrderOverview', compact('orders'));
     }
 
     public function stockOrderOverview()
     {
-        // Fetch all orders, customize as needed (e.g., pagination or filters)
+        // Fetch all orders, customize as needed
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
-            ->orderBy('created_at', 'desc') // Sort by most recent
+            ->orderBy('created_at', 'desc')
             ->get();
-
-        // Return the view with the orders data
+    
+        // Count the number of orders with status 'Pending'
+        $pendingCount = \App\Models\Order::where('status', 'Pending')->count();
+    
+        // Store the pending count in the session
+        session(['pendingCount' => $pendingCount]);
+    
+        // Return the view with orders data and the pending count
         return view('stockclerk.content.stockOrderOverview', compact('orders'));
     }
+    
+
 
     public function ManagerstockOrderOverview()
     {
-        // Fetch all orders, customize as needed (e.g., pagination or filters)
+        // Fetch all orders, customize as needed
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
-            ->orderBy('created_at', 'desc') // Sort by most recent
+            ->orderBy('created_at', 'desc')
             ->get();
-
-        // Return the view with the orders data
+    
+        // Count the number of orders with status 'Pending'
+        $pendingCount = \App\Models\Order::where('status', 'Pending')->count();
+    
+        // Store the pending count in the session
+        session(['pendingCount' => $pendingCount]);
+    
+        // Return the view with orders data and the pending count
         return view('manager.content.ManagerstockOrderOverview', compact('orders'));
     }
 

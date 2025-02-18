@@ -153,6 +153,8 @@ Route::get('/add-product', [ProductController::class, 'create'])->name('add.prod
 
 Route::get('/manager-add-product', [ProductController::class, 'Managercreate'])->name('manager.add.product');
 
+Route::get('/manager-add-quantity', [ProductController::class, 'ManagerAddQuantity'])->name('manager.add.quantity');
+
 
 Route::get('/add-details-product/{model_id}', [ProductController::class, 'addDetails'])->name('addDetails');
 

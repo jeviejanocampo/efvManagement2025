@@ -90,7 +90,14 @@
                 Add Product
             </button>
         </a>
+
+        <a href="{{ route('manager.add.quantity') }}">
+            <button class="bg-red-700 text-white px-2 py-1 rounded-lg hover:bg-red-700 mb-4">
+                Add Quantity
+            </button>
+        </a>
     </div>
+
 
     <div class="overflow-x-auto">
         <table class="table-auto w-full border-collapse border border-gray-300">

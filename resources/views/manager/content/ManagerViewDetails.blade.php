@@ -63,11 +63,28 @@
             <input type="text" name="m_part_id" value="{{ $product->m_part_id }}" class="px-3 py-2 border rounded-lg w-full">
         </div>
 
-        <!-- Stock Quantity -->
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Stocks Quantity:</label>
-            <input type="number" name="stocks_quantity" value="{{ $product->stocks_quantity }}" class="px-3 py-2 border rounded-lg w-full">
+            <div class="flex items-center">
+                <!-- Minus Button -->
+                <button type="button" id="decreaseQuantity" 
+                        class="bg-red-500 text-white px-3 py-2 rounded-l-lg hover:bg-red-600">
+                    -
+                </button>
+                
+                <!-- Quantity Input -->
+                <input type="number" name="stocks_quantity" id="stocksQuantity" 
+                    value="{{ $product->stocks_quantity }}" 
+                    class="px-3 py-2 border w-20 text-center">
+                
+                <!-- Plus Button -->
+                <button type="button" id="increaseQuantity" 
+                        class="bg-green-500 text-white px-3 py-2 rounded-r-lg hover:bg-green-600">
+                    +
+                </button>
+            </div>
         </div>
+
 
         <!-- Status -->
         <div class="mb-4">
@@ -136,6 +153,25 @@
     </div>
 </div>
 
+<script>
+    const decreaseButton = document.getElementById("decreaseQuantity");
+    const increaseButton = document.getElementById("increaseQuantity");
+    const quantityInput = document.getElementById("stocksQuantity");
+
+    // Decrease quantity
+    decreaseButton.addEventListener("click", function() {
+        let currentValue = parseInt(quantityInput.value);
+        if (currentValue > 0) { // Prevent going below 0
+            quantityInput.value = currentValue - 1;
+        }
+    });
+
+    // Increase quantity
+    increaseButton.addEventListener("click", function() {
+        let currentValue = parseInt(quantityInput.value);
+        quantityInput.value = currentValue + 1;
+    });
+</script>
 <script>
       document.getElementById("editButton").addEventListener("click", function() {
         document.getElementById("editForm").classList.remove("hidden");

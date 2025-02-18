@@ -23,7 +23,7 @@
 
     <div class="flex justify-between items-center mb-4 space-x-4">
 
-        <div class="w-full sm:w-1/3">
+        <div class="w-full sm:w-1/2">
             <input 
                 type="text" 
                 id="search-bar" 
@@ -31,16 +31,16 @@
                 placeholder="Search by Product Name">
         </div>
 
-        <div class="w-full sm:w-1/2">
-            <select id="category-filter" class="w-full px-2 py-1 border border-gray-300 rounded-lg">
+        <div class="w-full sm:w-1/4">
+            <select id="category-filter" class="w-full px-2 py-1 border border-gray-300 text-sm rounded-lg">
                 <option value="">All Categories</option>
                 <option value="Gear Oils">Gear Oils</option>
                 <option value="Auto Parts">Auto Parts</option>
             </select>
         </div>
 
-        <div class="w-full sm:w-1/2">
-            <select id="brand-filter" class="w-full px-2 py-1 border border-gray-300 rounded-lg">
+        <div class="w-full sm:w-1/4">
+            <select id="brand-filter" class="w-full px-2 py-1 border border-gray-300 text-sm rounded-lg">
                 <option value="">All Brands</option>
                 @foreach ($brands as $brand)
                     <option value="{{ $brand }}">{{ $brand }}</option>
@@ -50,7 +50,7 @@
 
         
         <div class="w-full sm:w-1/4">
-            <select id="status-filter" class="w-full px-2 py-1 border border-gray-300 rounded-lg">
+            <select id="status-filter" class="w-full px-2 py-1 border border-gray-300 text-sm rounded-lg">
                 <option value="">All Status</option>
                 @foreach ($statuses as $status)
                     <option value="{{ $status }}">{{ ucfirst($status) }}</option>
@@ -58,16 +58,46 @@
             </select>
         </div>
 
+        <div class="flex items-center space-x-2">
+        <input 
+            type="number" 
+            id="min-price" 
+            class="w-24 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+            placeholder="Min Price"
+        >
+        <span>-</span>
+        <input 
+            type="number" 
+            id="max-price" 
+            class="w-24 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+            placeholder="Max Price"
+        >
+        <button 
+            id="apply-price-filter" 
+            class="px-3 py-1 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            Apply
+        </button>
+        <button 
+            id="clear-price" 
+            class="px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:outline-none">
+            Clear
+        </button>
+    </div>
 
     </div>
 
     <div>
-        <a href="{{ route('add.product') }}">
+        <a href="{{ route('manager.add.product') }}">
             <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
                 Add Product
             </button>
         </a>
     </div>
+
+    <div class="text-gray-500 italic text-sm">
+        Note: Navigate to action to add details for the specific products
+    </div>
+
 
     <div class="overflow-x-auto">
         <table class="table-auto w-full border-collapse border border-gray-300">
@@ -80,8 +110,8 @@
                     <th class="border border-gray-300 px-2 py-1">Product Name</th>
                     <th class="border border-gray-300 px-2 py-1">Unit Price</th>
                     <th class="border border-gray-300 px-2 py-1">Quantity</th>
-                    <th class="border border-gray-300 px-2 py-1">W/Variant</th>
-                    <th class="border border-gray-300 px-2 py-1">Details</th>
+                    <!-- <th class="border border-gray-300 px-2 py-1">W/Variant</th> -->
+                    <!-- <th class="border border-gray-300 px-2 py-1">Details</th> -->
                     <th class="border border-gray-300 px-2 py-1">View Variants</th>
                     <th class="border border-gray-300 px-2 py-1">Status</th>
                     <th class="border border-gray-300 px-2 py-1">Action</th>
@@ -117,28 +147,28 @@
                             @endif
                         </td>
 
-                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->w_variant }}</td>
+                        <!-- <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->w_variant }}</td> -->
 
-                        <td class="border border-gray-300 px-2 py-1 text-center">
+                        <!-- <td class="border border-gray-300 px-2 py-1 text-center">
                             @php
                                 $hasDetails = Products::where('model_id', $product->model_id)->exists();
                             @endphp
                             @if ($hasDetails)
-                                <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}" 
+                                <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}" 
                                 class="px-2 py-1 text-white text-xs font-semibold rounded bg-green-500">
                                     View Details
                                 </a>
                             @else
-                                <a href="{{ route('addDetails', ['model_id' => $product->model_id]) }}" 
+                                <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}" 
                                 class="px-1 py-1 text-white font-semibold rounded bg-red-500" style="font-size:10px">
                                     No Details | Click to add
                                 </a>
                             @endif
-                        </td>
+                        </td> -->
 
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
-                                <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
+                                <a href="{{ route('manager.variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
                             @else
                                 <span class="text-gray-500">No Variant</span>
                             @endif
@@ -153,16 +183,36 @@
                             </span>
                         </td>
 
-
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">
-                        <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}" class="text-blue-500">Edit</a> |
-                        <a href="#" class="text-red-500 delete-product" data-id="{{ $product->model_id }}">Delete</a>
-                            </td>
+                        @if ($hasDetails)
+                            <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}">
+                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-6 h-6 inline mx-1" title="View Details">
+                            </a>
+                        @else
+                            <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}">
+                                <img src="{{ asset('product-images/view.png') }}" alt="No Details" class="w-6 h-6 inline mx-1 opacity-50 cursor-not-allowed" title="No Details | Add Details">
+                            </a>
+                        @endif
+
+                        <!-- Edit Icon -->
+                        <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
+                            <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-6 h-6 inline mx-1" title="Edit">
+                        </a>
+
+                        <!-- Delete Icon -->
+                        <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
+                            <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-6 h-6 inline mx-1" title="Delete">
+                        </a>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="mt-4">
+    {{ $products->links('pagination::tailwind') }}
 </div>
 
  <!-- Status Update Modal -->
@@ -186,6 +236,40 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const minPriceInput = document.getElementById("min-price");
+    const maxPriceInput = document.getElementById("max-price");
+    const applyPriceFilterButton = document.getElementById("apply-price-filter");
+    const productRows = document.querySelectorAll("#order-table tr");
+
+    applyPriceFilterButton.addEventListener("click", function () {
+        const minPrice = parseFloat(minPriceInput.value) || 0;
+        const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
+
+        productRows.forEach(row => {
+            const priceCell = row.querySelector("td:nth-child(5)");
+            const price = parseFloat(priceCell.textContent);
+
+            if (price >= minPrice && price <= maxPrice) {
+                row.style.display = ""; // Show row
+            } else {
+                row.style.display = "none"; // Hide row
+            }
+        });
+    });
+    });
+
+    document.getElementById('clear-price').addEventListener('click', () => {
+        document.getElementById('min-price').value = '';
+        document.getElementById('max-price').value = '';
+        
+        // Optionally, refresh your table or apply filters again here
+        console.log('Price range cleared');
+    });
+
+
+</script>
 <script>
    document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById("statusModal");

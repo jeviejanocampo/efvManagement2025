@@ -3,7 +3,7 @@
 @section('content')
 
 <div class ="bg-white p-4 rounded-md">
-    <h1 class="text-2xl font-semibold mb-4">Activity Logs</h1>
+    <h1 class="text-2xl font-semibold mb-4">Unit Logs</h1>
     <!-- Filters Section -->
     <div class="flex space-x-4 mb-6">
         <!-- Search Filter -->
@@ -24,7 +24,7 @@
         </div>
 
         <!-- Role Filter -->
-        <div class="flex items-center">
+        <!-- <div class="flex items-center">
             <label for="role" class="mr-2 text-sm">Role:</label>
             <select id="role" class="p-2 border rounded-lg text-sm">
                 <option value="">All</option>
@@ -33,7 +33,7 @@
                 <option value="manager">Manager</option>
                 <option value="stock clerk">Stock Clerk</option>
             </select>
-        </div>
+        </div> -->
     </div>
 
     <!-- Activity Log Table -->

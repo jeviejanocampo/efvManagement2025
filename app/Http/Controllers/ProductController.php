@@ -17,7 +17,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Models::with(['brand.category'])->get();
+        $products = Models::with(['brand.category'])->paginate(8); 
         $brands = Brand::pluck('brand_name'); 
         $statuses = Products::distinct()->pluck('status');
     
@@ -91,6 +91,12 @@ class ProductController extends Controller
     {
         $brands = Brand::all(); // Fetch all brands from the database
         return view('manager.content.ManageraddProduct', compact('brands'));
+    }
+
+    public function ManagerAddQuantity()
+    {
+        $brands = Brand::all(); // Fetch all brands from the database
+        return view('stockclerk.content.ManageraddQuantity', compact('brands'));
     }
 
     public function addDetails($model_id)
@@ -403,18 +409,29 @@ class ProductController extends Controller
                 'status' => 'required|string',
                 'model_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048' // Image validation
             ]);
-    
+
             // Find the product by model_id
             $product = Products::where('model_id', $model_id)->firstOrFail();
-    
+
+            // Track changes
+            $changes = [];
+            foreach (['model_name', 'brand_name', 'price', 'description', 'm_part_id', 'stocks_quantity', 'status'] as $field) {
+                if ($product->$field != $request->$field) {
+                    $changes[] = ucfirst(str_replace('_', ' ', $field)) . " changed from '{$product->$field}' to '{$request->$field}'";
+                }
+            }
+
             // Handle image upload
             if ($request->hasFile('model_img')) {
                 $image = $request->file('model_img');
                 $imageName = $image->getClientOriginalName(); // Keep original filename
                 $image->move(public_path('product-images/'), $imageName);
-                $product->model_img = $imageName; // Update model_img field in database
+                $changes[] = "Model image updated";
+
+                // Update model_img field in database
+                $product->model_img = $imageName;
             }
-    
+
             // Update the product details
             $product->update([
                 'model_name' => $request->model_name,
@@ -425,20 +442,19 @@ class ProductController extends Controller
                 'stocks_quantity' => $request->stocks_quantity,
                 'status' => $request->status,
             ]);
-    
+
             // Save updated product
             $product->save();
-    
-            // ✅ INSERTING ACTIVITY LOG (ONLY THIS PART IS ADDED)
+
+            // Insert activity log with specific details
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'role' => Auth::user()->role, // Get user's role
-                'activity' => "Updated product #$model_id details",
+                'activity' => "Updated product #$model_id details: " . implode(', ', $changes),
             ]);
-    
+
             // Return success alert and reload the page
-            return "<script>alert('Product updated successfully!'); window.location.href='" . route('viewDetails', ['model_id' => $model_id]) . "';</script>";
-    
+            return "<script>alert('Product updated successfully!'); window.location.href='" . route('manager.viewDetails', ['model_id' => $model_id]) . "';</script>";
         } catch (\Exception $e) {
             return "<script>alert('Error: " . $e->getMessage() . "'); window.history.back();</script>";
         }
@@ -458,18 +474,29 @@ class ProductController extends Controller
                 'status' => 'required|string',
                 'model_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048' // Image validation
             ]);
-    
+
             // Find the product by model_id
             $product = Products::where('model_id', $model_id)->firstOrFail();
-    
+
+            // Track changes
+            $changes = [];
+            foreach (['model_name', 'brand_name', 'price', 'description', 'm_part_id', 'stocks_quantity', 'status'] as $field) {
+                if ($product->$field != $request->$field) {
+                    $changes[] = ucfirst(str_replace('_', ' ', $field)) . " changed from '{$product->$field}' to '{$request->$field}'";
+                }
+            }
+
             // Handle image upload
             if ($request->hasFile('model_img')) {
                 $image = $request->file('model_img');
                 $imageName = $image->getClientOriginalName(); // Keep original filename
                 $image->move(public_path('product-images/'), $imageName);
-                $product->model_img = $imageName; // Update model_img field in database
+                $changes[] = "Model image updated";
+
+                // Update model_img field in database
+                $product->model_img = $imageName;
             }
-    
+
             // Update the product details
             $product->update([
                 'model_name' => $request->model_name,
@@ -480,24 +507,24 @@ class ProductController extends Controller
                 'stocks_quantity' => $request->stocks_quantity,
                 'status' => $request->status,
             ]);
-    
+
             // Save updated product
             $product->save();
-    
-            // ✅ INSERTING ACTIVITY LOG (ONLY THIS PART IS ADDED)
+
+            // Insert activity log with specific details
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'role' => Auth::user()->role, // Get user's role
-                'activity' => "Updated product #$model_id details",
+                'activity' => "Updated product #$model_id details: " . implode(', ', $changes),
             ]);
-    
+
             // Return success alert and reload the page
             return "<script>alert('Product updated successfully!'); window.location.href='" . route('manager.viewDetails', ['model_id' => $model_id]) . "';</script>";
-    
         } catch (\Exception $e) {
             return "<script>alert('Error: " . $e->getMessage() . "'); window.history.back();</script>";
         }
     }
+
     
     public function viewModelDetails($model_id)
     {

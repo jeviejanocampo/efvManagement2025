@@ -88,13 +88,13 @@
 
     <div>
         <a href="{{ route('manager.add.product') }}">
-            <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+            <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700">
                 Add Product
             </button>
         </a>
     </div>
 
-    <div class="text-gray-500 italic text-sm m-4">
+    <div class="text-gray-500 italic text-sm mt-4">
         Note: Navigate to action to add details for the specific products
     </div>
 
@@ -258,15 +258,15 @@
             }
         });
     });
-});
+    });
 
-document.getElementById('clear-price').addEventListener('click', () => {
-    document.getElementById('min-price').value = '';
-    document.getElementById('max-price').value = '';
-    
-    // Optionally, refresh your table or apply filters again here
-    console.log('Price range cleared');
-});
+    document.getElementById('clear-price').addEventListener('click', () => {
+        document.getElementById('min-price').value = '';
+        document.getElementById('max-price').value = '';
+        
+        // Optionally, refresh your table or apply filters again here
+        console.log('Price range cleared');
+    });
 
 
 </script>
