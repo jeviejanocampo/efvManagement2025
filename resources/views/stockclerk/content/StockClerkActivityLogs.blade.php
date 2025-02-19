@@ -46,6 +46,7 @@
                     <th class="px-4 py-2  text-sm font-medium">Role</th>
                     <th class="px-4 py-2  text-sm font-medium">Activity</th>
                     <th class="px-4 py-2  text-sm font-medium">Created At</th>
+                    <th class="px-4 py-2  text-sm font-medium">Updated At</th>
                 </tr>
             </thead>
             <tbody id="activityLogsTable">
@@ -57,6 +58,7 @@
                         <td class="px-4 py-2 text-sm">{{ $log->role }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->activity }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->created_at }}</td>
+                        <td class="px-4 py-2 text-sm">{{ $log->updated_at }}</td>
                     </tr>
                 @endif
             @endforeach
@@ -65,10 +67,7 @@
     </div>
 </div>
 
-@endsection
-
-@section('scripts')
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             // Get filter inputs
             const searchInput = document.getElementById('search');
@@ -81,20 +80,26 @@
             // Function to filter rows based on inputs
             function filterTable() {
                 const searchValue = searchInput.value.toLowerCase();
-                const startDateValue = startDateInput.value;
-                const endDateValue = endDateInput.value;
-                const roleValue = roleSelect.value.toLowerCase();
+                const startDateValue = startDateInput.value ? new Date(startDateInput.value) : null;
+                const endDateValue = endDateInput.value ? new Date(endDateInput.value) : null;
+                const roleValue = roleSelect ? roleSelect.value.toLowerCase() : "";
 
                 tableRows.forEach(row => {
                     const activity = row.getAttribute('data-activity').toLowerCase();
                     const role = row.getAttribute('data-role').toLowerCase();
-                    const createdAt = row.getAttribute('data-created');
+                    const createdAt = new Date(row.getAttribute('data-created'));
                     const rowTextContent = row.textContent.toLowerCase();
 
-                    // Check if row matches the filter criteria
+                    // Check if row matches search input
                     const matchesSearch = rowTextContent.includes(searchValue);
-                    const matchesRole = role.includes(roleValue);
-                    const matchesDateRange = (!startDateValue || createdAt >= startDateValue) && (!endDateValue || createdAt <= endDateValue);
+
+                    // Check if row matches role (if role filtering exists)
+                    const matchesRole = !roleValue || role.includes(roleValue);
+
+                    // Check if row matches date range
+                    const matchesDateRange =
+                        (!startDateValue || createdAt >= startDateValue) &&
+                        (!endDateValue || createdAt <= endDateValue);
 
                     // Show or hide row based on filter conditions
                     if (matchesSearch && matchesRole && matchesDateRange) {
@@ -105,11 +110,17 @@
                 });
             }
 
+
             // Add event listeners to filter inputs
             searchInput.addEventListener('input', filterTable);
             startDateInput.addEventListener('change', filterTable);
             endDateInput.addEventListener('change', filterTable);
             roleSelect.addEventListener('change', filterTable);
         });
-    </script>
+</script>
+
+@endsection
+
+@section('scripts')
+
 @endsection

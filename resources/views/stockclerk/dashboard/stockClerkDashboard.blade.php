@@ -44,11 +44,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
                     Products
-                    @if($lowStockCount > 0)
+                    <!-- @if($lowStockCount > 0)
                         <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                             {{ $lowStockCount }}
                         </span>
-                    @endif
+                    @endif -->
                 </a>
                 <a href="{{ route('stockclerkLow') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

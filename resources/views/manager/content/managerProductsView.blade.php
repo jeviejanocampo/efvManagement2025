@@ -21,7 +21,7 @@
         Products Overview
     </div>
 
-    <div class="flex justify-between items-center mb-4 space-x-4">
+    <div class="flex justify-between items-center mb-8 space-x-4">
 
         <div class="w-full sm:w-1/2">
             <input 
@@ -92,9 +92,21 @@
                 Add Product
             </button>
         </a>
+
+        <a href="{{ route('manager.add.brand') }}">
+            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+                Add New Brand
+            </button>
+        </a>
+
+        <a href="{{ route('manager.view.brands') }}">
+            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+                View Brands
+            </button>
+        </a>
     </div>
 
-    <div class="text-gray-500 italic text-sm mt-4">
+    <div class="text-gray-500 italic text-sm">
         Note: Navigate to action to add details for the specific products
     </div>
 
@@ -133,7 +145,7 @@
                             {{ $product->brand->brand_name ?? 'N/A' }}
                         </td>
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
-                        <td class="border border-gray-300 px-2 py-1">{{ $product->price }}</td>
+                        <td class="border border-gray-300 px-2 py-1">₱ {{ $product->price }}</td>
                         <td class="border border-gray-300 px-2 py-1 relative">
                             @php
                                 $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');
@@ -186,22 +198,22 @@
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">
                         @if ($hasDetails)
                             <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-6 h-6 inline mx-1" title="View Details">
+                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-5 h-5 inline mx-1" title="View Details">
                             </a>
                         @else
                             <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="No Details" class="w-6 h-6 inline mx-1 opacity-50 cursor-not-allowed" title="No Details | Add Details">
+                                <img src="{{ asset('product-images/view.png') }}" alt="No Details" class="w-5 h-5 inline mx-1 opacity-50 cursor-not-allowed" title="No Details | Add Details">
                             </a>
                         @endif
 
                         <!-- Edit Icon -->
                         <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
-                            <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-6 h-6 inline mx-1" title="Edit">
+                            <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-5 h-5 inline mx-1" title="Edit">
                         </a>
 
                         <!-- Delete Icon -->
                         <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
-                            <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-6 h-6 inline mx-1" title="Delete">
+                            <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-5 h-5 inline mx-1" title="Delete">
                         </a>
                         </td>
                     </tr>

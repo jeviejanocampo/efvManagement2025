@@ -57,11 +57,15 @@
         </div>
     </div>
 
+    <div class="text-gray-500 italic text-sm mt-4">
+       Note: Pending orders are displayed here, and only stock clerks have the authority to update them to "In Process."
+    </div>
+
     <div class="overflow-x-auto">
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-white">
-                    <th class="border border-gray-300 px-4 py-2">Order ID</th>
+                    <th class="border border-gray-300 px-4 py-2"></th>
                     <th class="border border-gray-300 px-4 py-2">User ID</th>
                     <th class="border border-gray-300 px-4 py-2">Total Items</th>
                     <th class="border border-gray-300 px-4 py-2">Total</th>
@@ -77,11 +81,12 @@
                         <td class="border border-gray-300 px-4 py-2">{{ $order->user_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>
                         <td class="border border-gray-300 px-4 py-2">₱ {{ $order->total_price }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->created_at }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
                         <td class="border border-gray-300 px-4 py-2">
                         <span 
                             class="
-                                px-4 py-1 rounded-full text-sm text-white
+                                px-4 py-1 rounded-full text-sm text-white text-center 
+                                flex items-center justify-center
                                 @if ($order->status === 'Pending') bg-yellow-500
                                 @elseif ($order->status === 'Ready to Pickup') bg-blue-500
                                 @elseif ($order->status === 'Cancelled') bg-red-500

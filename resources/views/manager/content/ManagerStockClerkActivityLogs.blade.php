@@ -67,10 +67,7 @@
     </div>
 </div>
 
-@endsection
-
-@section('scripts')
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             // Get filter inputs
             const searchInput = document.getElementById('search');
@@ -114,4 +111,9 @@
             roleSelect.addEventListener('change', filterTable);
         });
     </script>
+
+@endsection
+
+@section('scripts')
+
 @endsection

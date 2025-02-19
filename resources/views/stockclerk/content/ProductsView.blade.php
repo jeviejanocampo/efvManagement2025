@@ -92,6 +92,20 @@
                 Add Product
             </button>
         </a>
+        <a href="{{ route('stockclerk.add.brand') }}">
+            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+                Add New Brand
+            </button>
+        </a>
+
+        <a href="{{ route('stockclerk.view.brands') }}">
+            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+                View Brands
+            </button>
+        </a>
+
+        
+      
     </div>
 
     <div class="text-gray-500 italic text-sm">
@@ -133,7 +147,7 @@
                             {{ $product->brand->brand_name ?? 'N/A' }}
                         </td>
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
-                        <td class="border border-gray-300 px-2 py-1">{{ $product->price }}</td>
+                        <td class="border border-gray-300 px-2 py-1">₱ {{ $product->price }}</td>
                         <td class="border border-gray-300 px-2 py-1 relative">
                             @php
                                 $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');

@@ -31,7 +31,7 @@
                 <tr class="bg-gray-200">
                     <th class="border border-gray-300 px-2 py-1">Part ID</th>
                     <th class="border border-gray-300 px-2 py-1"></th>
-                    <th class="border border-gray-300 px-2 py-1">Product Name</th>
+                    <th class="border border-gray-300 px-2 py-1">Variant Name</th>
                     <th class="border border-gray-300 px-2 py-1">Price</th>
                     <th class="border border-gray-300 px-2 py-1">Stock Quantity</th>
                     <th class="border border-gray-300 px-2 py-1">Status</th>

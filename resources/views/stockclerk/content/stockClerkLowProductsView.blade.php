@@ -135,14 +135,14 @@
                             {{ $product->brand->brand_name ?? 'N/A' }}
                         </td>
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
-                        <td class="border border-gray-300 px-2 py-1">{{ $product->price }}</td>
-                        <td class="border border-gray-300 px-2 py-1 relative">
+                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">₱ {{ $product->price }}</td>
+                        <td class="border border-gray-300 px-2 py-1 relative" style="text-align: center">
                             {{ $stock }}
-                            @if ($stock <= 5 && !request()->routeIs('edit.product'))
+                            <!-- @if ($stock <= 5 && !request()->routeIs('edit.product'))
                                 <span class="absolute left-8 bg-red-500 text-white font-semibold px-2 py-1 rounded-md" style="font-size:10px">
                                     Low units
                                 </span>
-                            @endif
+                            @endif -->
                         </td>
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
@@ -161,13 +161,13 @@
                         </td>
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">
                             <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-6 h-6 inline mx-1" title="View Details">
+                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-4 h-4 inline mx-1" title="View Details">
                             </a>
                             <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-6 h-6 inline mx-1" title="Edit">
+                                <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-4 h-4 inline mx-1" title="Edit">
                             </a>
                             <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
-                                <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-6 h-6 inline mx-1" title="Delete">
+                                <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-4 h-4 inline mx-1" title="Delete">
                             </a>
                         </td>
                     </tr>

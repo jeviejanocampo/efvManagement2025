@@ -3,6 +3,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const statusFilter = document.getElementById("status-filter");
     const orderTable = document.getElementById("order-table");
 
+    // Automatically select "Pending" in the status filter
+    if (statusFilter) {
+        statusFilter.value = "Pending";
+    }
+
+    // Run filterOrders initially to apply the default filter
+    filterOrders();
+
     searchBar.addEventListener("input", filterOrders);
     statusFilter.addEventListener("change", filterOrders);
 

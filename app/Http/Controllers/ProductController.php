@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Models; 
+use App\Models\Category; 
 use Illuminate\Support\Facades\Auth;
 use App\Models\ActivityLog; 
 use App\Models\Products; 
@@ -92,6 +93,61 @@ class ProductController extends Controller
         $brands = Brand::all(); // Fetch all brands from the database
         return view('manager.content.ManageraddProduct', compact('brands'));
     }
+
+    public function Stockcreate()
+    {
+        $brands = Brand::all();
+        $categories = Category::all(); // Fetch all categories
+        return view('stockclerk.content.StockClerkAddBrand', compact('brands', 'categories'));
+    }
+
+    public function ManagerStockcreate()
+    {
+        $brands = Brand::all();
+        $categories = Category::all(); // Fetch all categories
+        return view('manager.content.ManagerAddBrand', compact('brands', 'categories'));
+    }
+
+    public function StockViewBrands()
+    {
+        $brands = Brand::all();
+        $categories = Category::all(); // Fetch all categories
+        return view('stockclerk.content.StockClerkViewBrands', compact('brands', 'categories'));
+    }
+
+    public function ManagerStockViewBrands()
+    {
+        $brands = Brand::all();
+        $categories = Category::all(); // Fetch all categories
+        return view('manager.content.ManagerStockClerkViewBrands', compact('brands', 'categories'));
+    }
+
+    public function storeBrand(Request $request)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:categories,category_id',
+            'brand_name' => 'required|string|max:255',
+            'brand_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|in:Active,Inactive',
+        ]);
+    
+        $brand = new Brand();
+        $brand->cat_id = $request->category_id;
+        $brand->brand_name = $request->brand_name;
+    
+        if ($request->hasFile('brand_image')) {
+            $file = $request->file('brand_image');
+            $filename = time() . '.' . $file->getClientOriginalExtension(); // Generate unique filename
+            $file->move(public_path('product-images'), $filename); // Move to assets folder
+            $brand->brand_image = $filename; // Store only the filename
+        }
+    
+        $brand->status = $request->status;
+        $brand->save();
+    
+        return redirect()->route('stockclerk.add.brand')->with('success', 'Brand added successfully!');
+    }    
+
 
     public function ManagerAddQuantity()
     {
