@@ -157,6 +157,9 @@ Route::get('/stock-add-brand', [ProductController::class, 'Stockcreate'])->name(
 
 Route::get('/manager-add-brand', [ProductController::class, 'ManagerStockcreate'])->name('manager.add.brand');
 
+Route::get('/manager-add-category', [ProductController::class, 'ManagerAddBrand'])->name('manager.add.category');
+
+Route::post('/manager-store-category', [ProductController::class, 'storeCategory'])->name('manager.store.category');
 
 Route::post('/stock-add-brand/store', [ProductController::class, 'storeBrand'])->name('stockclerk.add.brand.store');
 
@@ -164,6 +167,7 @@ Route::get('/stock-view-brand', [ProductController::class, 'StockViewBrands'])->
 
 Route::get('/manager-stock-view-brand', [ProductController::class, 'ManagerStockViewBrands'])->name('manager.view.brands');
 
+Route::get('/manager-stock-view-category', [ProductController::class, 'ManagerStockViewCategory'])->name('manager.view.category');
 
 Route::get('/manager-add-quantity', [ProductController::class, 'ManagerAddQuantity'])->name('manager.add.quantity');
 

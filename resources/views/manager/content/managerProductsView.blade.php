@@ -99,11 +99,24 @@
             </button>
         </a>
 
+        <a href="{{ route('manager.add.category') }}">
+            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+                Add Category
+            </button>
+        </a>
+
         <a href="{{ route('manager.view.brands') }}">
             <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
                 View Brands
             </button>
         </a>
+
+        <a href="{{ route('manager.view.category') }}">
+            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+                View Categories
+            </button>
+        </a>
+
     </div>
 
     <div class="text-gray-500 italic text-sm">

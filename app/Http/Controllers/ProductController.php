@@ -108,6 +108,39 @@ class ProductController extends Controller
         return view('manager.content.ManagerAddBrand', compact('brands', 'categories'));
     }
 
+
+    public function ManagerAddBrand (){
+        $brands = Brand::all();
+        $categories= Category::all();
+        return view('manager.content.ManagerAddCategory', compact('brands', 'categories'));
+    }
+
+    public function storeCategory(Request $request)
+    {
+        $request->validate([
+            'category_name' => 'required|string|max:255',
+            'cat_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'status' => 'required|in:active,inactive',
+        ]);
+    
+        try {
+            // Handle image upload
+            $imageName = time() . '.' . $request->cat_image->extension();
+            $request->cat_image->move(public_path('product-images'), $imageName); // Store in public/product-images
+    
+            // Insert into DB
+            Category::create([
+                'category_name' => $request->category_name,
+                'cat_image' => $imageName, // Only store the filename
+                'status' => $request->status,
+            ]);
+    
+            return redirect()->back()->with('success', 'Category added successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to add category.');
+        }
+    }
+    
     public function StockViewBrands()
     {
         $brands = Brand::all();
@@ -120,6 +153,13 @@ class ProductController extends Controller
         $brands = Brand::all();
         $categories = Category::all(); // Fetch all categories
         return view('manager.content.ManagerStockClerkViewBrands', compact('brands', 'categories'));
+    }
+
+    public function ManagerStockViewCategory()
+    {
+        $brands = Brand::all();
+        $categories = Category::all(); // Fetch all categories
+        return view('manager.content.ManagerStockClerkViewCategory', compact('brands', 'categories'));
     }
 
     public function storeBrand(Request $request)
