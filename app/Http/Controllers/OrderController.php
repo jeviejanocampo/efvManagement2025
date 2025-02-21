@@ -15,13 +15,30 @@ class OrderController extends Controller
 {
     public function fetchOrders()
     {
-        // Fetch orders with scan_status "Yes" that have been updated in the last 5 minutes
+        // Fetch orders with scan_status "Yes" updated in the last 5 minutes
         $orders = Order::where('scan_status', 'Yes')
             ->where('updated_at', '>=', Carbon::now()->subMinutes(5))
-            ->get(['order_id', 'scan_status']); // Only retrieve necessary columns
-
+            ->get(['order_id', 'scan_status']); // Retrieve only necessary columns
+    
+        foreach ($orders as $order) {
+            // Fetch the last 2 part_id values for the current order_id
+            $partIds = OrderDetail::where('order_id', $order->order_id)
+                ->latest('order_detail_id') // Sort by latest
+                ->limit(2) // Get last 2 rows
+                ->pluck('part_id') // Fetch only part_id values
+                ->toArray(); // Convert to an array
+    
+            // Remove dashes and merge the part_id values into a single string
+            $cleanedPartIds = implode('', array_map(fn($id) => str_replace('-', '', $id), $partIds));
+    
+            // Set the reference_id by appending order_id
+            $order->reference_id = $cleanedPartIds ? $cleanedPartIds . '-' . $order->order_id : $order->order_id;
+        }
+    
         return response()->json($orders);
     }
+    
+    
     
     public function show($order_id)
     {
@@ -41,58 +58,116 @@ class OrderController extends Controller
         return view('staff.content.staffOrderDetails', compact('order', 'orderDetails'));
     }
 
+
     public function staffOrderOverview()
     {
-        // Fetch all orders, customize as needed
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
             ->orderBy('created_at', 'desc')
             ->get();
     
-        // Count the number of orders with status 'Pending'
-        $pendingCount = \App\Models\Order::where('status', 'Pending')->count();
+        foreach ($orders as $order) {
+            // Fetch the latest 2 part_id values
+            $partIds = OrderDetail::where('order_id', $order->order_id)
+                ->latest('order_detail_id')
+                ->take(2)
+                ->pluck('part_id'); // Get an array of part_ids
     
-        // Store the pending count in the session
-        session(['pendingCount' => $pendingCount]);
+            // Remove special characters and extract first 4 characters
+            $cleanParts = $partIds->map(function ($partId) {
+                return substr(preg_replace('/[^A-Za-z0-9]/', '', $partId), 0, 4);
+            });
     
-        // Return the view with orders data and the pending count
+            // Format Reference ID
+            if ($cleanParts->count() === 2) {
+                $order->reference_id = $cleanParts[0] . $cleanParts[1];
+            } elseif ($cleanParts->count() === 1) {
+                $order->reference_id = $cleanParts[0];
+            } else {
+                $order->reference_id = null;
+            }
+        }
+    
+        session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
+    
         return view('staff.content.staffOrderOverview', compact('orders'));
     }
+    
+    
+
 
     public function stockOrderOverview()
     {
-        // Fetch all orders, customize as needed
+        // Fetch all orders
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
             ->orderBy('created_at', 'desc')
             ->get();
     
-        // Count the number of orders with status 'Pending'
-        $pendingCount = \App\Models\Order::where('status', 'Pending')->count();
+        foreach ($orders as $order) {
+            // Fetch the latest 2 part_id values
+            $partIds = OrderDetail::where('order_id', $order->order_id)
+                ->latest('order_detail_id')
+                ->take(2)
+                ->pluck('part_id'); // Get an array of part_ids
+    
+            // Remove special characters and extract first 4 characters
+            $cleanParts = $partIds->map(function ($partId) {
+                return substr(preg_replace('/[^A-Za-z0-9]/', '', $partId), 0, 4);
+            });
+    
+            // Format Reference ID
+            if ($cleanParts->count() === 2) {
+                $order->reference_id = $cleanParts[0] . $cleanParts[1];
+            } elseif ($cleanParts->count() === 1) {
+                $order->reference_id = $cleanParts[0];
+            } else {
+                $order->reference_id = null;
+            }
+        }
     
         // Store the pending count in the session
-        session(['pendingCount' => $pendingCount]);
+        session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
     
         // Return the view with orders data and the pending count
-        return view('stockclerk.content.stockOrderOverview', compact('orders'));
-    }
+        return view('manager.content.ManagerstockOrderOverview', compact('orders'));
+    }    
     
 
 
     public function ManagerstockOrderOverview()
     {
-        // Fetch all orders, customize as needed
+        // Fetch all orders
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
             ->orderBy('created_at', 'desc')
             ->get();
     
-        // Count the number of orders with status 'Pending'
-        $pendingCount = \App\Models\Order::where('status', 'Pending')->count();
+        foreach ($orders as $order) {
+            // Fetch the latest 2 part_id values
+            $partIds = OrderDetail::where('order_id', $order->order_id)
+                ->latest('order_detail_id')
+                ->take(2)
+                ->pluck('part_id'); // Get an array of part_ids
+    
+            // Remove special characters and extract first 4 characters
+            $cleanParts = $partIds->map(function ($partId) {
+                return substr(preg_replace('/[^A-Za-z0-9]/', '', $partId), 0, 4);
+            });
+    
+            // Format Reference ID
+            if ($cleanParts->count() === 2) {
+                $order->reference_id = $cleanParts[0] . $cleanParts[1];
+            } elseif ($cleanParts->count() === 1) {
+                $order->reference_id = $cleanParts[0];
+            } else {
+                $order->reference_id = null;
+            }
+        }
     
         // Store the pending count in the session
-        session(['pendingCount' => $pendingCount]);
+        session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
     
         // Return the view with orders data and the pending count
         return view('manager.content.ManagerstockOrderOverview', compact('orders'));
-    }
+    }    
 
 
     public function details($order_id)
@@ -138,16 +213,18 @@ class OrderController extends Controller
             abort(404, 'Order not found'); // Handle invalid order ID
         }
     
-        // Fetch the order details based on the order_id
+        // Fetch the order details based on the order_id, including part_id
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
     
-        // Fetch images for each order detail's model_id
+        // Fetch images for each order detail's model_id and include part_id
         foreach ($orderDetails as $detail) {
             $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
+            $detail->part_id = OrderDetail::where('order_detail_id', $detail->order_detail_id)->pluck('part_id')->first();
         }
     
         return view('manager.content.managerstockOverviewDetails', compact('order', 'orderDetails'));
     }
+    
 
     public function updateStatus($order_id, Request $request)
     {
@@ -232,6 +309,12 @@ class OrderController extends Controller
             $order->save();
         }
 
+        // If status is "Completed", add the total_price of the product to the order total
+        if ($request->status === 'Completed') {
+            $order->total_price += $orderDetail->total_price;
+            $order->save(); // <-- Fixed! Ensure the new total price is saved
+        }
+
         // Update the product status
         $orderDetail->product_status = $request->status;
         $orderDetail->save();
@@ -249,9 +332,5 @@ class OrderController extends Controller
 
         return response()->json(['message' => 'Product status updated successfully.', 'success' => true]);
     }
-
-    
-    
-    
 
 }

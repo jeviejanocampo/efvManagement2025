@@ -30,54 +30,38 @@
         </div> -->
 
 
-        <div class="relative h-64 w-full">
-        <h3 class="text-lg font-semibold mb-4">Monthly Sales</h3>
-            <form id="dateRangeForm" class="flex items-center space-x-2">
-                <label for="startDate" class="text-gray-700 dark:text-gray-300 text-sm font-medium">Start:</label>
-                <input type="date" id="startDate" name="start_date" class="mt-1 block border-gray-300 rounded-md shadow-sm 
-                 focus:ring-blue-500 focus:border-blue-500 sm:text-sm  border rounded">
-                <label for="endDate" class="text-gray-700 dark:text-gray-300 text-sm font-medium">End:</label>
-                <input type="date" id="endDate" name="end_date" class="mt-1 block border-gray-300 rounded-md 
-                 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm  border rounded">
-                <button type="submit" class="bg-blue-600 text-white px-2 py-1 text-sm rounded-md hover:bg-blue-700">
-                    Filter
-                </button>
-            </form>
-            <canvas id="salesLineChart"></canvas>
-        </div>
-        <br>
+    <div class="relative h-84 w-full">
+                <!-- <h3 class="text-lg font-semibold mb-4"></h3> -->
 
-    </div>
-
-    <div class="bg-white p-6 rounded-md">
-        <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-4">Daily Sales</h3>
-            <form id="dateRangeForm" class="flex items-center space-x-2">
-                        <label for="startDate" class="block text-sm font-medium text-gray-700">Start Date</label>
-                        <input type="date" id="startDate" name="start_date" 
-                            value="{{ request('start_date', now()->subDays(29)->toDateString()) }}"
-                            class="mt-1 block border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm  border rounded">
-                        <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
-                        <input type="date" id="endDate" name="end_date" 
-                            value="{{ request('end_date', now()->toDateString()) }}"
-                            class="mt-1 block border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm  border rounded">
-                    <button type="submit" 
-                        class="bg-blue-600 text-white px-2 py-1 text-sm rounded-md hover:bg-blue-700">
+                <!-- Date Range Form -->
+                <form id="dateRangeForm" class="flex items-center space-x-2 mb-4">
+                    <label for="startDate" class="text-gray-700 text-sm font-medium">Start:</label>
+                    <input type="date" id="startDate" name="start_date"
+                        value="{{ request('start_date', now()->subDays(29)->toDateString()) }}"
+                        class="border-gray-300 rounded-md px-2 py-1 focus:ring-blue-500 focus:border-blue-500">
+                    
+                    <label for="endDate" class="text-gray-700 text-sm font-medium">End:</label>
+                    <input type="date" id="endDate" name="end_date"
+                        value="{{ request('end_date', now()->toDateString()) }}"
+                        class="border-gray-300 rounded-md px-2 py-1 focus:ring-blue-500 focus:border-blue-500">
+                    
+                    <button type="submit" class="bg-blue-600 text-white px-2 py-1 text-sm rounded-md hover:bg-blue-700">
                         Filter
                     </button>
                 </form>
-            </div>
 
-            <div class="relative h-64 w-full">
-        
-
-            <div class="relative h-64 w-full">
-                <canvas id="dailySalesLineChart"></canvas>
-            </div>
-
+                <label for="salesType" class="text-gray-700 font-medium">Select Type:</label>
+                    <select id="salesType" class="border-gray-300 rounded-md px-2 py-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="daily">Daily Sales</option>
+                        <option value="monthly">Monthly Sales</option>
+                </select>
+                
+                <div class="relative h-64 w-full">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            <br>
         </div>
     </div>
-
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
 
@@ -171,52 +155,80 @@
     </div>
 </div>
 
-<script>
-    const dailySalesLabels = {!! json_encode($days->keys()->map(fn($date) => \Carbon\Carbon::parse($date)->format('M d, Y'))) !!};
-    const dailySalesData = {!! json_encode($days->values()) !!};
 
-    // Render the line chart
-    const ctx = document.getElementById('dailySalesLineChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dailySalesLabels, // Dates as labels
-            datasets: [{
-                label: 'Daily Sales (₱)',
-                data: dailySalesData, // Sales amounts
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderWidth: 2,
-                tension: 0.4 // Smooth line
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Date'
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+
+        // Get Sales Data from Laravel Backend
+        const dailySalesLabels = {!! json_encode($days->keys()->map(fn($date) => \Carbon\Carbon::parse($date)->format('M d, Y'))) !!};
+        const dailySalesData = {!! json_encode($days->values()) !!};
+        const monthlySalesLabels = {!! json_encode($months->keys()->map(fn($date) => \Carbon\Carbon::parse($date)->format('F Y'))) !!};
+        const monthlySalesData = {!! json_encode($months->values()) !!};
+
+        // Initialize Chart
+        let salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dailySalesLabels, // Default to daily sales
+                datasets: [{
+                    label: 'Daily Sales (₱)',
+                    data: dailySalesData,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointRadius: 5, // Increase point size for better hover
+                    pointHoverRadius: 7 // Increase hover size for better visibility
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Sales (₱)' }, beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        enabled: true, // Ensure tooltips are enabled
+                        mode: 'index', // Show tooltip for all datasets at the same index
+                        intersect: false, // Show tooltip even if not directly over a point
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                return `₱ ${tooltipItem.raw.toLocaleString()}`; // Format sales as currency
+                            }
+                        }
                     }
                 },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Sales (₱)'
-                    },
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
+                hover: {
+                    mode: 'nearest', // Ensure hover is responsive
+                    intersect: true
                 }
             }
-        }
+        });
+
+        // Event Listener for Dropdown
+        document.getElementById('salesType').addEventListener('change', (event) => {
+            const selectedType = event.target.value;
+            
+            if (selectedType === 'daily') {
+                salesChart.data.labels = dailySalesLabels;
+                salesChart.data.datasets[0].label = 'Daily Sales (₱)';
+                salesChart.data.datasets[0].data = dailySalesData;
+            } else {
+                salesChart.data.labels = monthlySalesLabels;
+                salesChart.data.datasets[0].label = 'Monthly Sales (₱)';
+                salesChart.data.datasets[0].data = monthlySalesData;
+            }
+
+            salesChart.update();
+        });
     });
 </script>
+
 <script>
     const salesMonths = @json($months->keys()); // Fetch labels (months)
     const salesData = @json($months->values()); // Fetch data (sales)

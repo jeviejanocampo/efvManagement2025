@@ -74,7 +74,7 @@
         >
         <button 
             id="apply-price-filter" 
-            class="px-3 py-1 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            class="px-3 py-1 text-sm text-white bg-black rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             Apply
         </button>
         <button 
@@ -86,41 +86,37 @@
 
     </div>
 
-    <div>
-        <a href="{{ route('manager.add.product') }}">
-            <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700">
-                Add Product
+    <div class="text-gray-500 italic text-sm mb-2">
+        Note: Navigate to action to add details for the specific products /
+        <a href="{{ route('manager.add.product') }}" style="margin-left: 4px">
+        <button class="bg-white text-black px-2 py-1 rounded-[6px] border border-gray-400 hover:bg-violet-100">
+        Add Product
             </button>
         </a>
 
         <a href="{{ route('manager.add.brand') }}">
-            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+        <button class="bg-white text-black px-2 py-1 rounded-[6px] border border-gray-400 hover:bg-violet-100">
                 Add New Brand
             </button>
         </a>
 
         <a href="{{ route('manager.add.category') }}">
-            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+        <button class="bg-white text-black px-2 py-1 rounded-[6px] border border-gray-400 hover:bg-violet-100">
                 Add Category
             </button>
         </a>
 
         <a href="{{ route('manager.view.brands') }}">
-            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+        <button class="bg-white text-black px-2 py-1 rounded-[6px] border border-gray-400 hover:bg-violet-100">
                 View Brands
             </button>
         </a>
 
         <a href="{{ route('manager.view.category') }}">
-            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+        <button class="bg-white text-black px-2 py-1 rounded-[6px] border border-gray-400 hover:bg-violet-100">
                 View Categories
             </button>
         </a>
-
-    </div>
-
-    <div class="text-gray-500 italic text-sm">
-        Note: Navigate to action to add details for the specific products
     </div>
 
 
@@ -128,13 +124,13 @@
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-white">
-                    <th class="border border-gray-300 px-2 py-1">Id</th>
+                    <th class="border border-gray-300 px-2 py-1"></th>
                     <th class="border border-gray-300 px-2 py-1"></th>
                     <!-- <th class="border border-gray-300 px-2 py-1">Category</th> -->
                     <th class="border border-gray-300 px-2 py-1">Brand Name</th>
                     <th class="border border-gray-300 px-2 py-1">Product Name</th>
                     <th class="border border-gray-300 px-2 py-1">Unit Price</th>
-                    <th class="border border-gray-300 px-2 py-1">Quantity</th>
+                    <th class="border border-gray-300 px-2 py-1">Qty</th>
                     <!-- <th class="border border-gray-300 px-2 py-1">W/Variant</th> -->
                     <!-- <th class="border border-gray-300 px-2 py-1">Details</th> -->
                     <th class="border border-gray-300 px-2 py-1">View Variants</th>
@@ -159,15 +155,15 @@
                         </td>
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
                         <td class="border border-gray-300 px-2 py-1">₱ {{ $product->price }}</td>
-                        <td class="border border-gray-300 px-2 py-1 relative">
+                        <td class="border border-gray-300 px-2 py-1 relative text-center">
                             @php
                                 $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');
                             @endphp
                             {{ $stock }}
 
                             @if ($stock <= 5 && !request()->routeIs('edit.product'))
-                                <span class="absolute left-8 bg-red-500 text-white font-semibold px-2 py-1 rounded-md" style="font-size:10px">
-                                    Low units
+                                <span class="absolute left-2 bg-red-500 text-white font-semibold px-2 py-1 bottom-8 rounded-md" style="font-size:10px">
+                                    Low
                                 </span>
                             @endif
                         </td>
@@ -221,7 +217,7 @@
 
                         <!-- Edit Icon -->
                         <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
-                            <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-5 h-5 inline mx-1" title="Edit">
+                            <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-5 h-5 inline mx-1" title="Edit Primary Model Details">
                         </a>
 
                         <!-- Delete Icon -->
@@ -234,11 +230,12 @@
             </tbody>
         </table>
     </div>
+    <div class="mt-4">
+        {{ $products->links('pagination::tailwind') }}
+    </div>
 </div>
 
-<div class="mt-4">
-    {{ $products->links('pagination::tailwind') }}
-</div>
+
 
  <!-- Status Update Modal -->
  <div id="statusModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-20 flex justify-center items-center mb-50">

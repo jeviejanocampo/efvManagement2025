@@ -39,7 +39,19 @@
 
     <div class ="bg-white p-4 mt-6 rounded-md">
         <div class="flex justify-between items-center">
-            <p style="font-size: 28px; font-weight: 700;">ORDER ID: {{ $order->order_id }}</p>
+            
+        @php
+            $latestOrderDetail = $orderDetails->last(); // Get the last row (latest order detail)
+        @endphp
+
+        @if ($latestOrderDetail)
+            <p style="font-size: 28px; font-weight: 700;">
+                REFERENCE ID: {{ str_replace('-', '', substr($latestOrderDetail->part_id, -6)) . '-' . $order->order_id }}
+            </p>
+        @else
+            <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
+        @endif
+
             <p class="text-md">
                 <strong>Status: </strong>
                 <span class="
@@ -96,6 +108,7 @@
                     <tr class="bg-white">
                         <th class="border border-gray-300 px-2 py-1"></th>
                         <th class="border border-gray-300 px-2 py-1"></th>
+                        <!-- <th class="border border-gray-300 px-2 py-1"></th> -->
                         <th class="border border-gray-300 px-2 py-1">Product Name</th>
                         <th class="border border-gray-300 px-2 py-1">Brand</th>
                         <th class="border border-gray-300 px-2 py-1">Quantity</th>
@@ -131,6 +144,7 @@
                         @endif
                     </td>
                     <td class=" px-5 py-1" style="display: none">{{ $detail->model_id }}</td>
+                    <td class=" px-5 py-1" style="display:none">{{ $detail->part_id }}</td>
                     <td class=" px-5 py-1">{{ $detail->product_name }}</td>
                     <td class=" px-5 py-1">{{ $detail->brand_name }}</td>
                     <td class=" px-5 py-1">{{ $detail->quantity }}x</td>

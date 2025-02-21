@@ -39,8 +39,18 @@
 
     <div class ="bg-white p-4 mt-6 rounded-md">
         <div class="flex justify-between items-center">
-            <p style="font-size: 28px; font-weight: 700;">ORDER ID: {{ $order->order_id }}</p>
-            <p class="text-md">
+                @php
+                    $latestOrderDetail = $orderDetails->last(); // Get the last row (latest order detail)
+                @endphp
+
+                @if ($latestOrderDetail)
+                    <p style="font-size: 28px; font-weight: 700;">
+                        REFERENCE ID: {{ str_replace('-', '', substr($latestOrderDetail->part_id, -6)) . '-' . $order->order_id }}
+                    </p>
+                @else
+                    <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
+                @endif
+                <p class="text-md">
                 <strong>Status: </strong>
                 <span class="
                     rounded-lg 
@@ -144,6 +154,7 @@
                                     <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="In Process" {{ $detail->product_status === 'In Process' ? 'selected' : '' }}>In Process</option>
                                     <option value="Ready to Pickup" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
+                                    <option value="Completed" {{ $detail->product_status === 'Completed' ? 'selected' : '' }}>Completed</option>
                                 </select>
                             </div>
                         @else

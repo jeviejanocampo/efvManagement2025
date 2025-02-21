@@ -61,7 +61,7 @@
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-white">
-                    <th class="border border-gray-300 px-4 py-2"></th>
+                    <th class="border border-gray-300 px-4 py-2">Reference ID</th>
                     <th class="border border-gray-300 px-4 py-2">User ID</th>
                     <th class="border border-gray-300 px-4 py-2">Total Items</th>
                     <th class="border border-gray-300 px-4 py-2">Total</th>
@@ -73,7 +73,7 @@
             <tbody id="order-table">
                 @foreach ($orders as $order)
                     <tr class="border border-gray-300 transition-transform duration-300 hover:bg-gray-100">
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->order_id }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->user_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>
                         <td class="border border-gray-300 px-4 py-2">₱ {{ $order->total_price }}</td>
