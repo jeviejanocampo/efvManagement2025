@@ -28,31 +28,31 @@
         <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
             <thead>
                 <tr>
-                    <th class="px-2 py-1 border"></th>
-                    <th class="px-2 py-1 border"></th>
-                    <th class="px-2 py-1 border">Category</th>
-                    <th class="px-2 py-1 border">Brand Name</th>
-                    <th class="px-2 py-1 border">Status</th>
+                    <th class="px-1 py-1 border"></th>
+                    <th class="px-1 py-1 border"></th>
+                    <th class="px-1 py-1 border">Category</th>
+                    <th class="px-1 py-1 border">Brand Name</th>
+                    <th class="px-1 py-1 border">Status</th>
                 </tr>
             </thead>
             <tbody id="brandTableBody">
                 @forelse($brands as $index => $brand)
                 <tr class="text-center border brand-row">
-                    <td class="px-2 py-1 border"></td>
-                    <td class="px-2 py-1 border text-center">
+                    <td class="px-1 py-1 border"></td>
+                    <td class="px-1 py-1 border text-center">
                         @if($brand->brand_image)
                             <img src="{{ asset('product-images/' . $brand->brand_image) }}" alt="Brand Image" class="w-16 h-16 rounded mx-auto">
                         @else
                             No Image
                         @endif
                     </td>
-                    <td class="px-2 py-1 border brand-name">{{ $brand->brand_name }}</td>
-                    <td class="px-2 py-1 border category-name">
+                    <td class="px-1 py-1 border brand-name">{{ $brand->brand_name }}</td>
+                    <td class="px-1 py-1 border category-name">
                         {{ $brand->category ? $brand->category->category_name : 'N/A' }}
                     </td>
                 
-                    <td class="px-2 py-1 border">
-                        <span class="px-2 py-1 rounded-lg text-white {{ strtolower($brand->status) === 'active' ? 'bg-green-600' : 'bg-red-600' }}">
+                    <td class="px-1 py-1 border">
+                        <span class="px-1 py-1 rounded-lg text-white {{ strtolower($brand->status) === 'active' ? 'bg-green-600' : 'bg-red-600' }}">
                             {{ $brand->status }}
                         </span>
                     </td>

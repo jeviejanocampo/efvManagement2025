@@ -41,7 +41,7 @@
             </thead>
             <tbody>
                 @foreach ($variants as $variant)
-                    <tr>
+                    <tr class="text-center">
                         <td class="border border-gray-300 px-2 py-1">{{ $variant->part_id }}</td>
                         <td class="border border-gray-300 px-2 py-1">
                             <img src="{{ asset('product-images/' . $variant->variant_image) }}" alt="Variant Image" class="w-16 h-16 object-cover rounded">

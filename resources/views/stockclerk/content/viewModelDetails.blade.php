@@ -24,7 +24,7 @@
 
     <!-- Header Section with Model Details and Edit Button -->
     <div class="flex justify-between items-center my-4">
-        <h2 class="text-2xl font-bold">Model Details</h2>
+        <h2 class="text-2xl font-bold">Primary Product Details</h2>
 
         <!-- Edit Button (Toggle Form) -->
         <button onclick="toggleEditForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">

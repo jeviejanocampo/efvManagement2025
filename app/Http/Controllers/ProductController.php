@@ -700,17 +700,19 @@ class ProductController extends Controller
                 'model_name' => 'required|string|max:255',
                 'price' => 'required|numeric',
                 'status' => 'required|string',
+                'w_variant' => 'required|in:none,YES', // ✅ Validate new field
                 'model_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Validate image
             ]);
-
+    
             // Find model by ID
             $model = Models::findOrFail($model_id);
-
+    
             // Update fields
             $model->model_name = $request->model_name;
             $model->price = $request->price;
             $model->status = $request->status;
-
+            $model->w_variant = $request->w_variant; // ✅ Update `w_variant`
+    
             // Handle image upload if provided
             if ($request->hasFile('model_img')) {
                 $image = $request->file('model_img');
@@ -718,25 +720,23 @@ class ProductController extends Controller
                 $image->move(public_path('product-images/'), $imageName);
                 $model->model_img = $imageName;
             }
-
+    
             $model->save();
-
+    
             // ✅ Insert activity log after saving the updated model
             ActivityLog::create([
                 'user_id' => Auth::id(),
-                'role' => Auth::user()->role, // Get user's role
+                'role' => Auth::user()->role,
                 'activity' => "Updated model #$model_id details",
             ]);
-
-
+    
             return redirect()->route('manager.viewModelDetails', ['model_id' => $model_id])
                 ->with('success', 'Model updated successfully!');
         } catch (\Exception $e) {
             return back()->with('error', 'Update failed: ' . $e->getMessage());
         }
     }
-
-
+    
     
     public function updateStatus(Request $request, $model_id)
     {
@@ -1055,7 +1055,7 @@ class ProductController extends Controller
 
     
         if ($variant->save()) {
-            return redirect()->route('variantsView', ['model_id' => $model_id])->with('success', 'Variant updated successfully.');
+            return redirect()->route('manager.variantsView', ['model_id' => $model_id])->with('success', 'Variant updated successfully.');
         } else {
             return redirect()->back()->with('error', 'Failed to update variant.');
         }

@@ -76,7 +76,7 @@
             <button type="button" onclick="confirmUpdate()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
                 Save
             </button>
-            <a href="{{ route('variantsView', ['model_id' => $model_id]) }}" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+            <a href="{{ route('manager.variantsView', ['model_id' => $model_id]) }}" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
                 Cancel
             </a>
         </div>

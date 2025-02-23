@@ -11,12 +11,17 @@
 
     @media print {
         button {
-            display: none;
+            display: none !important;
         }
 
-        /* Optionally hide other elements if needed */
+        /* Force hide header during printing */
+        /* header {
+            display: none !important;
+        } */
+
+        /* Optionally hide other elements */
         .no-print {
-            display: none;
+            display: none !important;
         }
     }
 
@@ -37,9 +42,6 @@
         background-size: 50%; /* Adjust size of the watermark */
         opacity: 0.2; /* Opacity of the watermark (20%) */
         z-index: -1; /* Pushes the watermark behind content */
-    }
-    p{
-        font-size:14px;
     }
 </style>
 
@@ -128,7 +130,7 @@
         </div>
         <table class="w-full border-collapse border border-gray-300 text-left">
             <thead>
-                <tr class="bg-gray-100">
+                <tr>
                     <th class="border border-gray-300 px-4 py-2"></th>
                     <th class="border border-gray-300 px-4 py-2">PRODUCT NAME</th>
                     <th class="border border-gray-300 px-4 py-2">UNIT PRICE</th>

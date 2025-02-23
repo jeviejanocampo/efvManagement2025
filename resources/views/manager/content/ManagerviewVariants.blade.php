@@ -12,7 +12,7 @@
 
     <div class="flex justify-between items-center mb-4">
         <!-- <h2 class="text-2xl font-bold">Model ID: {{ $model->model_id }}</h2> -->
-        <h2 class="text-2xl font-bold">Product Name: {{ $model->model_name }}</h2>
+        <h2 class="text-2xl font-bold">Primary Product Name: {{ $model->model_name }}</h2>
     </div>
 
     <div>
@@ -41,7 +41,7 @@
             </thead>
             <tbody>
                 @foreach ($variants as $variant)
-                    <tr>
+                    <tr class="text-center">
                         <td class="border border-gray-300 px-2 py-1">{{ $variant->part_id }}</td>
                         <td class="border border-gray-300 px-2 py-1">
                             <img src="{{ asset('product-images/' . $variant->variant_image) }}" alt="Variant Image" class="w-16 h-16 object-cover rounded">

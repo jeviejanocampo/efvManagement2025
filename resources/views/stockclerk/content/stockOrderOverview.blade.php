@@ -1,3 +1,7 @@
+@extends('stockclerk.dashboard.stockClerkDashboard')
+@section('content')
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,8 +15,7 @@
     }
 </style>
 <body>
-@extends('stockclerk.dashboard.stockClerkDashboard')
-@section('content')
+
 
 <div class="container mx-auto p-4 bg-white rounded-xl">
 

@@ -24,7 +24,7 @@
 
     <!-- Header Section with Model Details and Edit Button -->
     <div class="flex justify-between items-center my-4">
-        <h2 class="text-2xl font-bold">Model Details</h2>
+        <h2 class="text-2xl font-bold">Primary Product Details</h2>
 
         <!-- Edit Button (Toggle Form) -->
         <button onclick="toggleEditForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
@@ -111,6 +111,15 @@
                     <option value="inactive" {{ $model->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
             </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">W Variant:</label>
+                <select name="w_variant" required class="w-full px-3 py-2 border rounded-lg">
+                    <option value="none" {{ $model->w_variant == 'none' ? 'selected' : '' }}>None</option>
+                    <option value="YES" {{ $model->w_variant == 'YES' ? 'selected' : '' }}>YES</option>
+                </select>
+            </div>
+
 
             <div class="flex justify-end">
                 <button type="button" onclick="toggleEditForm()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 mr-2">Cancel</button>

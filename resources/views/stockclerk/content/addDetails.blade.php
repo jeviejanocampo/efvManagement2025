@@ -8,7 +8,7 @@
         </button>
     </div>
 
-    <h2 class="text-2xl font-bold mb-4">Add Details Based on the Product</h2>
+    <h2 class="text-2xl font-bold mb-4">Add Details Based on the Primary Product</h2>
 
     <form action="{{ route('add.details.store') }}" method="POST" enctype="multipart/form-data">
         @csrf

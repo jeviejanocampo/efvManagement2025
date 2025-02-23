@@ -128,7 +128,7 @@ class OrderController extends Controller
         session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
     
         // Return the view with orders data and the pending count
-        return view('manager.content.ManagerstockOrderOverview', compact('orders'));
+        return view('stockclerk.content.stockOrderOverview', compact('orders'));
     }    
     
 

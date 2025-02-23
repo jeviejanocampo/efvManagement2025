@@ -84,13 +84,13 @@
     </div>
 </div>
 
-    <div>
+    <!-- <div>
         <a href="{{ route('manager.add.product') }}">
             <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
                 Add Product
             </button>
         </a>
-    </div>
+    </div> -->
 
     <div class="overflow-x-auto">
         <table class="table-auto w-full border-collapse border border-gray-300">

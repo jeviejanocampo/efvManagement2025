@@ -21,7 +21,7 @@
         Products Overview
     </div>
 
-    <div class="flex justify-between items-center mb-8 space-x-4">
+    <div class="flex justify-between items-center mb-4 space-x-4">
 
         <div class="w-full sm:w-1/2">
             <input 
@@ -87,7 +87,8 @@
     </div>
 
     <div class="text-gray-500 italic text-sm mb-2">
-        Note: Navigate to action to add details for the specific products /
+        Note: Navigate to action to add details for the specific products || To edit primary products status, just click the status text
+        <div class="mt-2">
         <a href="{{ route('manager.add.product') }}" style="margin-left: 4px">
         <button class="bg-white text-black px-2 py-1 rounded-[6px] border border-gray-400 hover:bg-violet-100">
         Add Product
@@ -118,6 +119,7 @@
             </button>
         </a>
     </div>
+    </div>
 
 
     <div class="overflow-x-auto">
@@ -127,8 +129,8 @@
                     <th class="border border-gray-300 px-2 py-1"></th>
                     <th class="border border-gray-300 px-2 py-1"></th>
                     <!-- <th class="border border-gray-300 px-2 py-1">Category</th> -->
-                    <th class="border border-gray-300 px-2 py-1">Brand Name</th>
-                    <th class="border border-gray-300 px-2 py-1">Product Name</th>
+                    <th class="border border-gray-300 px-2 py-1">Brand</th>
+                    <th class="border border-gray-300 px-2 py-1">Product</th>
                     <th class="border border-gray-300 px-2 py-1">Unit Price</th>
                     <th class="border border-gray-300 px-2 py-1">Qty</th>
                     <!-- <th class="border border-gray-300 px-2 py-1">W/Variant</th> -->
@@ -154,7 +156,7 @@
                             {{ $product->brand->brand_name ?? 'N/A' }}
                         </td>
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
-                        <td class="border border-gray-300 px-2 py-1">₱ {{ $product->price }}</td>
+                        <td class="border border-gray-300 px-2 py-1 text-center">₱ {{ $product->price }}</td>
                         <td class="border border-gray-300 px-2 py-1 relative text-center">
                             @php
                                 $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');
@@ -162,7 +164,7 @@
                             {{ $stock }}
 
                             @if ($stock <= 5 && !request()->routeIs('edit.product'))
-                                <span class="absolute left-2 bg-red-500 text-white font-semibold px-2 py-1 bottom-8 rounded-md" style="font-size:10px">
+                                <span class="absolute left-1 bg-red-500 text-white font-semibold px-2 py-1 bottom-9 rounded-md" style="font-size:10px">
                                     Low
                                 </span>
                             @endif

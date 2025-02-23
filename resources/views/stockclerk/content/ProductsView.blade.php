@@ -9,6 +9,9 @@
     th {
         font-size: 12px;
     }
+    tr{
+        text-align: center;
+    }
     td {
         font-size: 12px;
         style="text-align: center"
@@ -86,30 +89,25 @@
 
     </div>
 
-    <div>
+
+    <div class="text-gray-500 italic text-sm mt-2">
+        Note: Navigate to action to add details for the specific products
         <a href="{{ route('manager.add.product') }}">
-            <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+            <button class=" text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
                 Add Product
             </button>
         </a>
         <a href="{{ route('stockclerk.add.brand') }}">
-            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+            <button class="text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
                 Add New Brand
             </button>
         </a>
 
         <a href="{{ route('stockclerk.view.brands') }}">
-            <button class="bg-black text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
+            <button class=" text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
                 View Brands
             </button>
         </a>
-
-        
-      
-    </div>
-
-    <div class="text-gray-500 italic text-sm">
-        Note: Navigate to action to add details for the specific products
     </div>
 
 
@@ -117,13 +115,13 @@
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-white">
-                    <th class="border border-gray-300 px-2 py-1">Id</th>
+                    <th class="border border-gray-300 px-2 py-1"></th>
                     <th class="border border-gray-300 px-2 py-1"></th>
                     <!-- <th class="border border-gray-300 px-2 py-1">Category</th> -->
-                    <th class="border border-gray-300 px-2 py-1">Brand Name</th>
-                    <th class="border border-gray-300 px-2 py-1">Product Name</th>
+                    <th class="border border-gray-300 px-2 py-1">Brand </th>
+                    <th class="border border-gray-300 px-2 py-1">Product </th>
                     <th class="border border-gray-300 px-2 py-1">Unit Price</th>
-                    <th class="border border-gray-300 px-2 py-1">Quantity</th>
+                    <th class="border border-gray-300 px-2 py-1">Qty</th>
                     <!-- <th class="border border-gray-300 px-2 py-1">W/Variant</th> -->
                     <!-- <th class="border border-gray-300 px-2 py-1">Details</th> -->
                     <th class="border border-gray-300 px-2 py-1">View Variants</th>
@@ -155,8 +153,8 @@
                             {{ $stock }}
 
                             @if ($stock <= 5 && !request()->routeIs('edit.product'))
-                                <span class="absolute left-8 bg-red-500 text-white font-semibold px-2 py-1 rounded-md" style="font-size:10px">
-                                    Low units
+                                <span class="absolute right-10 bottom-6 bg-red-500 text-white font-semibold px-1 py-1 rounded-md" style="font-size:10px">
+                                    Low
                                 </span>
                             @endif
                         </td>
@@ -200,22 +198,22 @@
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">
                         @if ($hasDetails)
                             <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-6 h-6 inline mx-1" title="View Details">
+                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-5 h-5 inline mx-1" title="View Details">
                             </a>
                         @else
                             <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="No Details" class="w-6 h-6 inline mx-1 opacity-50 cursor-not-allowed" title="No Details | Add Details">
+                                <img src="{{ asset('product-images/view.png') }}" alt="No Details" class="w-5 h-5 inline mx-1 opacity-50 cursor-not-allowed" title="No Details | Add Details">
                             </a>
                         @endif
 
                         <!-- Edit Icon -->
                         <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
-                            <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-6 h-6 inline mx-1" title="Edit">
+                            <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-5 h-5 inline mx-1" title="Edit Primary Product">
                         </a>
 
                         <!-- Delete Icon -->
                         <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
-                            <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-6 h-6 inline mx-1" title="Delete">
+                            <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-5 h-5 inline mx-1" title="Delete">
                         </a>
                         </td>
                     </tr>
@@ -223,11 +221,11 @@
             </tbody>
         </table>
     </div>
+    <div class="mt-4">
+        {{ $products->links('pagination::tailwind') }}
+    </div>
 </div>
 
-<div class="mt-4">
-    {{ $products->links('pagination::tailwind') }}
-</div>
 
  <!-- Status Update Modal -->
  <div id="statusModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-20 flex justify-center items-center mb-50">
