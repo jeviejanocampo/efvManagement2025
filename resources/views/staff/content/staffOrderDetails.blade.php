@@ -1,12 +1,28 @@
 @extends('staff.dashboard.StaffMain')
 
 @section('content') 
+<style>
+    td {
+     text-align: center;
+    }
+</style>
 
 <div class="p-4 rounded-xl">
-    <a href="{{ url('staff/queue') }}" 
-    class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-white-200 mb-5 custom-arrow">
+    <a href="{{ url('staff/overview') }}" 
+        class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-white-200 mb-5 custom-arrow">
         Back
     </a>
+
+    <div style="margin-top: 12px">
+        @if($order->status === 'Cancelled')
+         <p class="text-white bg-red-500 px-5 py-2 rounded-md text-center font-bold text-lg">CANCELLED </p>
+         @elseif($order->status === 'Completed')
+         <p class="text-white bg-green-500 px-5 py-2 rounded-md text-center font-bold text-lg">ORDER COMPLETED </p>
+         @else
+         <p></p>
+        @endif
+    </div>
+
 
     <!-- Order Status Dropdown -->
     <div class="flex justify-between items-center mt-4 bg-white p-4 rounded-md">
@@ -28,18 +44,22 @@
 
     <div class ="bg-white p-4 mt-6 rounded-md">
         <div class="flex justify-between items-center">
-        @php
-            $latestOrderDetail = $orderDetails->last(); // Get the last row (latest order detail)
-        @endphp
+                @php
+                    // Retrieve the passed reference_id from the URL
+                    $referenceId = request('reference_id'); 
+                @endphp
 
-        @if ($latestOrderDetail)
-            <p style="font-size: 28px; font-weight: 700;">
-                REFERENCE ID: {{ str_replace('-', '', substr($latestOrderDetail->part_id, -6)) . '-' . $order->order_id }}
-            </p>
-        @else
-            <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
-        @endif
-            <p class="text-md">
+                @if ($referenceId)
+                    <p style="font-size: 28px; font-weight: 700;">
+                        REFERENCE ID: {{ $referenceId }}
+                    </p>
+                @else
+                    <p style="font-size: 28px; font-weight: 700;">
+                        ORDER ID: N/A
+                    </p>
+                @endif
+
+                <p class="text-md">
                 <strong>Status: </strong>
                 <span class="
                     rounded-lg 
@@ -93,7 +113,7 @@
                 <tr class="bg-white">
                 <thead>
                     <tr class="bg-white">
-                        <th class="border border-gray-300 px-2 py-1"></th>
+                        <th class="border border-gray-300 px-2 py-1">Status</th>
                         <th class="border border-gray-300 px-2 py-1"></th>
                         <th class="border border-gray-300 px-2 py-1">Product Name</th>
                         <th class="border border-gray-300 px-2 py-1">Brand</th>
@@ -107,17 +127,17 @@
                     <tr class="border border-white  ">
                     <td class=" px-5 py-1">
                         <!-- Add badge based on product status -->
-                        @if($order->status !== 'Completed')
+                        @if($order->status !== 'Completed' && $order->status !== 'Cancelled')
                             @if($detail->product_status === 'pending')
                                 <span class="bg-red-500 text-white px-5 py-1 rounded-full text-sm">Reserved</span>
                             @elseif($detail->product_status === 'pre-order')
                                 <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Pre Ordered</span>
                             @elseif($detail->product_status === 'Ready to Pickup')
-                                <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Ready to Pickup</span>
+                                <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Ready to Pickup (Not yet paid)</span>
                             @elseif($detail->product_status === 'Cancelled')
-                                <option value="Cancelled" {{ $detail->product_status === 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                <span class="bg-gray-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Cancelled</span>
                             @else
-                                <span class="px-5 py-1 text-sm">N/A</span>
+                                <span class="bg-black text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Unknown</span>
                             @endif
                         @endif
                         <span style="display: none">{{ $detail->order_detail_id }}</span>
@@ -133,22 +153,22 @@
                     <td class=" px-5 py-1">{{ $detail->product_name }}</td>
                     <td class=" px-5 py-1">{{ $detail->brand_name }}</td>
                     <td class=" px-5 py-1">{{ $detail->quantity }}x</td>
-                    <td class=" px-5 py-1">₱{{ $detail->price }}</td>
-                    <td class=" px-5 py-1">₱{{ $detail->total_price }}</td>
+                    <td class="px-5 py-1">₱{{ number_format($detail->price, 2) }}</td>
+                    <td class="px-5 py-1">₱{{ number_format($detail->total_price, 2) }}</td>
                     <td class=" px-5 py-1">
-                     <!-- Conditional for Edit Status Dropdown -->
-                     @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending')
-                     <div class="mt-2">
-                            <!-- <label for="edit_status_{{ $detail->order_detail_id }}" class="text-sm mr-2">Edit Status:</label> -->
-                            <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
-                                <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="In Process" {{ $detail->product_status === 'Process' ? 'selected' : '' }}>In Process</option>
-                                <option value="Ready to Pickup" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
-                            </select>
-                        </div>
-                    @else
-                        <span class="text-sm text-gray-500" id="status_span_{{ $detail->order_detail_id }}" style="display:none">Status is Pending</span>
-                    @endif
+                        <!-- Conditional for Edit Status Dropdown -->
+                        @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending')
+                        <div class="mt-2">
+                                <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
+                                    <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="In Process" {{ $detail->product_status === 'In Process' ? 'selected' : '' }}>In Process</option>
+                                    <option value="Ready to Pickup" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
+                                    <option value="Completed" {{ $detail->product_status === 'Completed' ? 'selected' : '' }}>Completed</option>
+                                </select>
+                            </div>
+                        @else
+                            <span class="text-sm text-gray-500" id="status_span_{{ $detail->order_detail_id }}" style="display:none">Status is Pending</span>
+                        @endif
                     </td>
                     </tr>
                 @endforeach
@@ -166,11 +186,10 @@
         @else
             <p style="font-size: 20px; font-weight: bold">
                 Total To Pay: ₱ 
-                {{ $order->total_price }}
+                {{ number_format ( $order->total_price, 2 ) }}
             </p> 
         @endif
     </div>
-
 
     <!-- User Details Modal -->
     <div id="userModal" class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 hidden">
@@ -180,19 +199,6 @@
             <button onclick="closeModal()" class="mt-4 bg-gray-800 text-white px-5 py-2 rounded-md">Close</button>
         </div>
     </div>
-
-    <!-- Confirmation Modal -->
-    <div id="confirmOrderModal" class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white p-6 rounded-lg w-1/3">
-            <h2 class="text-xl font-semibold mb-4">Confirm Order</h2>
-            <p>Are you sure you want to mark this order as <strong>Completed</strong>?</p>
-            <div class="flex justify-end mt-4">
-                <button id="cancelButton" class="mr-2 bg-gray-500 text-white px-4 py-2 rounded-md">No</button>
-                <button id="confirmButton" class="bg-green-500 text-white px-4 py-2 rounded-md">Yes</button>
-            </div>
-        </div>
-    </div>
-
 
 
 </div>
@@ -220,29 +226,40 @@
         document.getElementById('userModal').classList.add('hidden');
     }
 
-    function updateOrderStatus(orderId, status = null) {
-        const newStatus = status || document.getElementById('order_status').value;
+    function updateOrderStatus(orderId) {
+        const newStatus = document.getElementById('order_status').value;
 
-        fetch(`/orders/update-status/${orderId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ status: newStatus })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.success) {
-                window.location.reload();
-            }
-        })
-        .catch(error => {
-            alert("An error occurred while updating the status.");
-        });
+        // Confirm the action
+        const confirmUpdate = confirm(`Are you sure you want to update the status to "${newStatus}"?`);
+
+        if (confirmUpdate) {
+            // Send the update request via AJAX
+            fetch(`/orders/update-status/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF token
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message); // Display confirmation message from server
+                if (data.success) {
+                    // Optionally, you can update the page with the new status
+                    document.getElementById('order_status').value = newStatus; 
+
+                    // Refresh the page to reflect changes
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                alert("An error occurred while updating the status.");
+            });
+        }
     }
-
 
     function updateProductStatus(orderDetailId) {
         const newStatus = document.getElementById('edit_status_' + orderDetailId).value;
@@ -291,34 +308,6 @@
             });
         }
     }
-
-    let enterPressCount = 0;
-
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            enterPressCount++;
-
-            setTimeout(() => {
-                enterPressCount = 0;
-            }, 500); // Reset count after 500ms
-
-            if (enterPressCount === 2) {
-                document.getElementById("confirmOrderModal").classList.remove("hidden");
-            }
-        }
-    });
-
-    // Close modal on "No" button
-    document.getElementById("cancelButton").addEventListener("click", function () {
-        document.getElementById("confirmOrderModal").classList.add("hidden");
-    });
-
-    // Confirm action on "Yes" button
-    document.getElementById("confirmButton").addEventListener("click", function () {
-        updateOrderStatus({{ $order->order_id }}, 'Completed');
-        document.getElementById("confirmOrderModal").classList.add("hidden");
-    });
-
 </script>
 
 @endsection

@@ -25,8 +25,8 @@
 
         <!-- Right Side -->
         <div class="w-1/2 p-6">
-            <h2 class="text-2xl font-bold mb-4">Manager Login</h2>
-            <form action="{{ route('manager.login.submit') }}" method="POST">
+            <h2 class="text-2xl font-bold mb-4">Admin Login</h2>
+            <form action="{{ route('admin.login.submit') }}" method="POST">
                 @csrf
                 <div class="mb-4">
                     <label for="email" class="block text-gray-700 mb-2">Email</label>
@@ -53,7 +53,7 @@
                 </script>
             @endif
             <div class="mt-6 text-center">
-                <p class="text-sm text-gray-600">Don't have an account? <a href="/manager/signup" class="text-gray-900 font-semibold hover:underline">Create Account</a></p>
+                <p class="text-sm text-gray-600">Don't have an account? <a href="/admin/signup" class="text-gray-900 font-semibold hover:underline">Create Account</a></p>
             </div>
         </div>
     </div>

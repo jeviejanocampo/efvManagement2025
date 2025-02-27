@@ -92,7 +92,7 @@
 
     <div class="text-gray-500 italic text-sm mt-2">
         Note: Navigate to action to add details for the specific products
-        <a href="{{ route('manager.add.product') }}">
+        <a href="{{ route('add.product') }}">
             <button class=" text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
                 Add Product
             </button>
@@ -106,6 +106,12 @@
         <a href="{{ route('stockclerk.view.brands') }}">
             <button class=" text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
                 View Brands
+            </button>
+        </a>
+
+        <a href="{{ route('stockclerk.view.category') }}">
+        <button class="bg-white text-black px-2 py-1 rounded-[6px] border border-gray-400 hover:bg-violet-100">
+                View Categories
             </button>
         </a>
     </div>
@@ -166,12 +172,12 @@
                                 $hasDetails = Products::where('model_id', $product->model_id)->exists();
                             @endphp
                             @if ($hasDetails)
-                                <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}" 
+                                <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}" 
                                 class="px-2 py-1 text-white text-xs font-semibold rounded bg-green-500">
                                     View Details
                                 </a>
                             @else
-                                <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}" 
+                                <a href="{{ route('addDetails', ['model_id' => $product->model_id]) }}" 
                                 class="px-1 py-1 text-white font-semibold rounded bg-red-500" style="font-size:10px">
                                     No Details | Click to add
                                 </a>
@@ -180,7 +186,7 @@
 
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
-                                <a href="{{ route('manager.variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
+                                <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
                             @else
                                 <span class="text-gray-500">No Variant</span>
                             @endif
@@ -197,17 +203,17 @@
 
                         <td class="border border-gray-300 px-2 py-1" style="text-align: center">
                         @if ($hasDetails)
-                            <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}">
+                            <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}">
                                 <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-5 h-5 inline mx-1" title="View Details">
                             </a>
                         @else
-                            <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}">
+                            <a href="{{ route('addDetails', ['model_id' => $product->model_id]) }}">
                                 <img src="{{ asset('product-images/view.png') }}" alt="No Details" class="w-5 h-5 inline mx-1 opacity-50 cursor-not-allowed" title="No Details | Add Details">
                             </a>
                         @endif
 
                         <!-- Edit Icon -->
-                        <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
+                        <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}">
                             <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-5 h-5 inline mx-1" title="Edit Primary Product">
                         </a>
 

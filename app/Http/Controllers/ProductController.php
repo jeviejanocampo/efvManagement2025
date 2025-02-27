@@ -82,6 +82,15 @@ class ProductController extends Controller
         return view('manager.content.managerProductsView', compact('products', 'brands', 'statuses'));
     }
 
+    public function Adminindex()
+    {
+        $products = Models::with(['brand.category'])->paginate(8); 
+        $brands = Brand::pluck('brand_name');
+        $statuses = Products::distinct()->pluck('status');
+        
+        return view('admin.dashboard.adminDashboard', compact('products', 'brands', 'statuses'));
+    }
+
     public function create()
     {
         $brands = Brand::all(); // Fetch all brands from the database
@@ -152,7 +161,14 @@ class ProductController extends Controller
     {
         $brands = Brand::all();
         $categories = Category::all(); // Fetch all categories
-        return view('manager.content.ManagerStockClerkViewBrands', compact('brands', 'categories'));
+        return view('stockclerk.content.StockClerkViewCategory', compact('brands', 'categories'));
+    }
+
+    public function StockClerkStockViewCategory()
+    {
+        $brands = Brand::all();
+        $categories = Category::all(); // Fetch all categories
+        return view('stockclerk.content.StockClerkViewCategory', compact('brands', 'categories'));
     }
 
     public function ManagerStockViewCategory()

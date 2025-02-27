@@ -77,12 +77,12 @@
             </thead>
             <tbody id="order-table">
                 @foreach ($orders as $order)
-                    <tr class="border border-gray-300 transition-transform duration-300 hover:bg-gray-100">
+                    <tr class="border border-gray-300 transition-transform duration-300 hover:bg-gray-100 text-center">
                         <!-- <td class="border border-gray-300 px-4 py-2">{{ $order->order_id }}</td> -->
                         <td class="border border-gray-300 px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->user_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>
-                        <td class="border border-gray-300 px-4 py-2">₱ {{ $order->total_price }}</td>
+                        <td class="border border-gray-300 px-4 py-2">₱ {{ number_format($order->total_price, 2) }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
                         <td class="border border-gray-300 px-4 py-2">
                         <span 
@@ -101,8 +101,10 @@
                         </span>
                         </td>
                         <td class="border border-gray-300 px-4 py-2">
-                            <a href="{{ route('overViewDetails', ['order_id' => $order->order_id]) }}" 
-                               class="text-blue-600 hover:underline">view</a>
+                            <p style="text-align:center">
+                                <a href="{{ route('overViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
+                                class="text-blue-600 hover:underline">view</a>
+                            </p>
                         </td>
                     </tr>
                 @endforeach

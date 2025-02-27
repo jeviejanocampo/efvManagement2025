@@ -1,7 +1,11 @@
 @extends('stockclerk.dashboard.stockClerkDashboard')
 
 @section('content') 
-
+<style>
+    td {
+        text-align: center;
+    }
+</style>
 <div class="p-4 rounded-xl">
     <a href="{{ url('stockclerk/overview') }}" 
         class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-white-200 mb-5 custom-arrow">
@@ -39,7 +43,24 @@
 
     <div class ="bg-white p-4 mt-6 rounded-md">
         <div class="flex justify-between items-center">
-            <p style="font-size: 28px; font-weight: 700;">ORDER ID: {{ $order->order_id }}</p>
+            @php
+                $latestOrderDetail = $orderDetails->last(); // Get the last row (latest order detail)
+                $referenceId = request()->query('reference_id'); // Retrieve reference_id from URL
+
+                if ($referenceId) {
+                    $formattedRefId = substr($referenceId, 0, 3) . '-' . substr($referenceId, 3, -1) . '-' . substr($referenceId, -1);
+                } else {
+                    $formattedRefId = 'N/A';
+                }
+            @endphp
+
+            @if ($latestOrderDetail)
+                <p style="font-size: 28px; font-weight: 700;">
+                    REFERENCE ID: {{ $formattedRefId }}
+                </p>
+            @else
+                <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
+            @endif
             <p class="text-md">
                 <strong>Status: </strong>
                 <span class="
@@ -75,17 +96,17 @@
         </div>
         <p style="font-size: 12px">Created At: {{ $order->created_at }} </p> 
         <div class="mt-4">
-            <p style="font-size: 13px">USER ID: 
+            <p style="font-size: 15px">USER ID: 
             {{ $order->user_id }} <a href="#" class="text-blue-600" onclick="openModal({{ $order->user_id }})">view details</a>
             </p>
-            <p style="font-size: 13px">TOTAL ITEMS: {{ $order->total_items }}</p> 
-            <p style="font-size: 13px">PAYMENT METHOD: {{ $order->payment_method }}</p> 
+            <p style="font-size: 15px">TOTAL ITEMS: {{ $order->total_items }}</p> 
+            <p style="font-size: 15px">PAYMENT METHOD: {{ $order->payment_method }}</p> 
         </div>
     </div>
 
     <!-- Order Details Table -->
     <div class ="bg-white p-4 mt-6 rounded-md">
-        <h3 class="text-l font-semibold">Product Details</h3>
+        <h3 class="text-2xl font-semibold">Product Details</h3>
         <div class="text-gray-500 italic text-sm m-4">
             Note: For the pre-orders products, edit status if ready to pick up status
         </div>
@@ -94,7 +115,7 @@
                 <tr class="bg-white">
                 <thead>
                     <tr class="bg-white">
-                        <th class="border border-gray-300 px-2 py-1"></th>
+                        <th class="border border-gray-300 px-2 py-1">Status</th>
                         <th class="border border-gray-300 px-2 py-1"></th>
                         <th class="border border-gray-300 px-2 py-1">Product Name</th>
                         <th class="border border-gray-300 px-2 py-1">Brand</th>
@@ -134,8 +155,8 @@
                     <td class=" px-5 py-1">{{ $detail->product_name }}</td>
                     <td class=" px-5 py-1">{{ $detail->brand_name }}</td>
                     <td class=" px-5 py-1">{{ $detail->quantity }}x</td>
-                    <td class=" px-5 py-1">₱{{ $detail->price }}</td>
-                    <td class=" px-5 py-1">₱{{ $detail->total_price }}</td>
+                    <td class="px-5 py-1">₱{{ number_format($detail->price, 2) }}</td>
+                    <td class="px-5 py-1">₱{{ number_format($detail->total_price, 2) }}</td>
                     <td class=" px-5 py-1">
                         <!-- Conditional for Edit Status Dropdown -->
                         @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending')
@@ -168,7 +189,7 @@
         @else
             <p style="font-size: 20px; font-weight: bold">
                 Total To Pay: ₱ 
-                {{ $order->total_price }}
+                {{number_format ($order->total_price, 2) }}
             </p> 
         @endif
     </div>

@@ -85,17 +85,17 @@
 </div>
 
     <div>
-        <a href="{{ route('manager.add.product') }}">
+        <a href="{{ route('stockclerk.add.product') }}">
             <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
                 Add Product
             </button>
         </a>
 
-        <a href="{{ route('manager.add.quantity') }}">
+        <!-- <a href="{{ route('stockclerk.add.quantity') }}">
             <button class="bg-red-700 text-white px-2 py-1 rounded-lg hover:bg-red-700 mb-4">
                 Add Quantity
             </button>
-        </a>
+        </a> -->
     </div>
 
 
@@ -146,7 +146,7 @@
                         </td>
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
-                                <a href="{{ route('manager.variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
+                                <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
                             @else
                                 <span class="text-gray-500">No Variant</span>
                             @endif
@@ -159,15 +159,15 @@
                                 {{ $product->status }}
                             </span>
                         </td>
-                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">
-                            <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-4 h-4 inline mx-1" title="View Details">
+                        <td class="border border-gray-300 px-1 py-1" style="text-align: center">
+                            <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}">
+                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-5 h-4 inline mx-1" title="View Details">
                             </a>
-                            <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-4 h-4 inline mx-1" title="Edit">
+                            <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}">
+                                <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-5 h-4 inline mx-1" title="Edit">
                             </a>
                             <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
-                                <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-4 h-4 inline mx-1" title="Delete">
+                                <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-5 h-4 inline mx-1" title="Delete">
                             </a>
                         </td>
                     </tr>

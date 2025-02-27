@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Main</title>
+    <title>Stock Clerk Main</title>
     <!-- Import Poppins Font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,6 +11,9 @@
         body {
             font-family: 'Poppins', sans-serif;
             zoom: 90%;
+        }
+        td{
+            text-align: center;
         }
     </style>
 </head>
@@ -26,7 +29,8 @@
             </div>
             <!-- Navigation -->
             <nav class="space-y-4">
-            <a href="{{ route('stockoverView') }}" class="flex items-center text-gray-300 hover:text-white relative">
+            <p class="text-white text-1xl font-bold">Main</p>
+            <a href="{{ route('stockoverView') }}" class="flex items-center text-gray-300 hover:text-white relative ml-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                 </svg>
@@ -39,7 +43,8 @@
                 @endif
             </a>
 
-                <a href="{{ route('productsView') }}" class="flex items-center text-gray-300 hover:text-white">
+                <p class="text-white text-1xl font-bold">Products Management</p>
+                <a href="{{ route('productsView') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
@@ -50,7 +55,7 @@
                         </span>
                     @endif -->
                 </a>
-                <a href="{{ route('stockclerkLow') }}" class="flex items-center text-gray-300 hover:text-white">
+                <a href="{{ route('stockclerkLow') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
@@ -68,7 +73,8 @@
                     Orders Queue
                 </a> -->
                 
-                <a href="{{ route('Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white">
+                <p class="text-white text-1xl font-bold">Activity Logs</p>
+                <a href="{{ route('Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16" />
                     </svg>

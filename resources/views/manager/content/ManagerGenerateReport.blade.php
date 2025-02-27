@@ -3,9 +3,11 @@
 @section('content')
 <style>
     td {
+        text-align: center;
         font-size: 12px;
     }
     th {
+        text-align: center;
         font-size: 13px;
     }
 
@@ -117,21 +119,21 @@
 
             <a href="{{ route('manager.exportSalesReport', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}"
             class="bg-green-600 text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-6">
-             <p style="font-size: 15px"> Export to Excel</p>
+             <p style="font-size: 14px; padding: 4px"> Export to Excel</p>
             </a>
         </form>
 
 
 
             <button onclick="printReport()" 
-                class="bg-green-600 text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300">
-               <p style="font-size: 12px"> Print Report</p>
+                class="bg-green-600 text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-2">
+               <p style="font-size: 14px; padding: 4px"> Print Report</p>
             </button>
         </div>
         <table class="w-full border-collapse border border-gray-300 text-left">
             <thead>
                 <tr>
-                    <th class="border border-gray-300 px-4 py-2"></th>
+                    <th class="border border-gray-300 px-4 py-2">REFERENCE ID</th>
                     <th class="border border-gray-300 px-4 py-2">PRODUCT NAME</th>
                     <th class="border border-gray-300 px-4 py-2">UNIT PRICE</th>
                     <th class="border border-gray-300 px-4 py-2">QUANTITY</th>
@@ -141,7 +143,9 @@
             <tbody>
                 @forelse ($orderDetails as $detail)
                 <tr>
-                    <td class="border border-gray-300 px-4 py-2">{{ $detail->order_detail_id }}</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                    {{ $detail->reference_id }}
+                    </td>
                     <td class="border border-gray-300 px-4 py-2">{{ $detail->product_name }}</td>
                     <td class="border border-gray-300 px-4 py-2">₱{{ number_format($detail->price, 2) }}</td>
                     <td class="border border-gray-300 px-4 py-2">{{ $detail->quantity }}</td>

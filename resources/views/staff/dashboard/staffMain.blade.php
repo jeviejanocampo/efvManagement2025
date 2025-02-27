@@ -32,30 +32,34 @@
                     </svg>
                     Dashboard
                 </a> -->
-                <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white">
+                <p class="text-white text-1xl font-bold">Main</p>
+                <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
-                    Overview Reserved and Pre-Orders
+                    Reserved and Pre-Orders
                     @if(session('pendingCount') && session('pendingCount') > 0)
                         <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                             {{ session('pendingCount') }}
                         </span>
                     @endif
                 </a>
-                <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white">
+                <p class="text-white text-1xl font-bold">Queue</p>
+                <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
                     Orders Queue
                 </a>
                 
-                <a href="{{ route('logs') }}" class="flex items-center text-gray-300 hover:text-white">
+                <p class="text-white text-1xl font-bold">Logs</p>
+                <a href="{{ route('logs') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16" />
                     </svg>
                     Staff Activity Log
                 </a>
+
                 <!-- <a href="#" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h7M7 16h6M5 20h10" />
@@ -100,7 +104,7 @@
 
                         <!-- Dropdown -->
                         <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg shadow-md hidden opacity-0 transform scale-95 transition-all duration-200">
-                            <a href="/stock-clerk/login" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
+                            <a href="/staff/login" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
                         </div>
                     </div>
             </header>

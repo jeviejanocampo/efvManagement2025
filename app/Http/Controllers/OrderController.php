@@ -7,6 +7,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\OrderDetail;  
 use App\Models\Models;  
+use App\Models\Products;  
 use App\Models\ActivityLog;  
 use Carbon\Carbon;
 
@@ -21,18 +22,54 @@ class OrderController extends Controller
             ->get(['order_id', 'scan_status']); // Retrieve only necessary columns
     
         foreach ($orders as $order) {
-            // Fetch the last 2 part_id values for the current order_id
-            $partIds = OrderDetail::where('order_id', $order->order_id)
+            // Fetch the last 2 part_id, variant_id, and brand_name from OrderDetail
+            $orderDetails = OrderDetail::where('order_id', $order->order_id)
                 ->latest('order_detail_id') // Sort by latest
                 ->limit(2) // Get last 2 rows
-                ->pluck('part_id') // Fetch only part_id values
-                ->toArray(); // Convert to an array
+                ->get(['part_id', 'variant_id', 'brand_name']); // Fetch required columns
     
-            // Remove dashes and merge the part_id values into a single string
-            $cleanedPartIds = implode('', array_map(fn($id) => str_replace('-', '', $id), $partIds));
+            $cleanParts = collect();
+            $brandNames = collect();
     
-            // Set the reference_id by appending order_id
-            $order->reference_id = $cleanedPartIds ? $cleanedPartIds . '-' . $order->order_id : $order->order_id;
+            foreach ($orderDetails as $detail) {
+                if (!empty($detail->variant_id) && $detail->variant_id != 0) {
+                    // Fetch part_id from Variant if variant_id exists
+                    $variantPartId = \App\Models\Variant::where('variant_id', $detail->variant_id)
+                        ->value('part_id');
+    
+                    // Trim to first 3 characters
+                    $cleanPart = $variantPartId ? substr(preg_replace('/[^A-Za-z0-9]/', '', $variantPartId), 0, 3) : '';
+    
+                    // Fetch brand_name from OrderDetail
+                    $brandName = $detail->brand_name ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->brand_name), 0, 3)) : '';
+    
+                    $brandNames->push($brandName);
+                } else {
+                    // Use part_id directly from OrderDetail
+                    $cleanPart = substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->part_id), 0, 3);
+                }
+    
+                $cleanParts->push($cleanPart);
+            }
+    
+            // Fetch the brand_name using m_part_id from Products table
+            $productBrandName = \App\Models\Products::whereIn('m_part_id', $orderDetails->pluck('part_id'))
+                ->value('brand_name');
+    
+            // Trim product brand name to first 3 letters
+            $shortProductBrand = $productBrandName ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $productBrandName), 0, 3)) : '';
+    
+            // If variant_id exists, use brand from OrderDetail, otherwise from Products table
+            $finalBrand = $brandNames->isNotEmpty() ? $brandNames->first() : $shortProductBrand;
+    
+            // Format Reference ID (BRAND + PART_IDs + ORDER_ID)
+            if ($cleanParts->count() === 2) {
+                $order->reference_id = $finalBrand . $cleanParts[0] . $cleanParts[1] . '-' . $order->order_id;
+            } elseif ($cleanParts->count() === 1) {
+                $order->reference_id = $finalBrand . $cleanParts[0] . '-' . $order->order_id;
+            } else {
+                $order->reference_id = $finalBrand . '-' . $order->order_id;
+            }
         }
     
         return response()->json($orders);
@@ -40,14 +77,17 @@ class OrderController extends Controller
     
     
     
-    public function show($order_id)
+    
+    public function show($order_id, Request $request)
     {
-       $order = Order::find($order_id); // Fetch the order by ID
+        $reference_id = $request->query('reference_id'); // Get reference_id from URL query
+    
+        $order = Order::find($order_id);
         if (!$order) {
-            abort(404, 'Order not found'); // Handle invalid order ID
+            abort(404, 'Order not found');
         }
     
-        // Fetch the order details based on the order_id
+        // Fetch order details based on order_id
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
     
         // Fetch images for each order detail's model_id
@@ -55,8 +95,9 @@ class OrderController extends Controller
             $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
         }
     
-        return view('staff.content.staffOrderDetails', compact('order', 'orderDetails'));
+        return view('staff.content.staffOrderDetails', compact('order', 'orderDetails', 'reference_id'));
     }
+    
 
 
     public function staffOrderOverview()
@@ -64,108 +105,186 @@ class OrderController extends Controller
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
             ->orderBy('created_at', 'desc')
             ->get();
-    
+
         foreach ($orders as $order) {
-            // Fetch the latest 2 part_id values
-            $partIds = OrderDetail::where('order_id', $order->order_id)
+            // Fetch the latest 2 part_id, variant_id, and brand_name from OrderDetail
+            $orderDetails = OrderDetail::where('order_id', $order->order_id)
                 ->latest('order_detail_id')
                 ->take(2)
-                ->pluck('part_id'); // Get an array of part_ids
-    
-            // Remove special characters and extract first 4 characters
-            $cleanParts = $partIds->map(function ($partId) {
-                return substr(preg_replace('/[^A-Za-z0-9]/', '', $partId), 0, 4);
-            });
-    
+                ->get(['part_id', 'variant_id', 'brand_name']);
+
+            $cleanParts = collect();
+            $brandNames = collect();
+
+            foreach ($orderDetails as $detail) {
+                if (!empty($detail->variant_id) && $detail->variant_id != 0) {
+                    // Fetch part_id from the variants table based on variant_id
+                    $variantPartId = \App\Models\Variant::where('variant_id', $detail->variant_id)
+                        ->value('part_id');
+
+                    // Trim to first 3 characters
+                    $cleanPart = $variantPartId ? substr(preg_replace('/[^A-Za-z0-9]/', '', $variantPartId), 0, 3) : '';
+
+                    // Fetch brand_name from OrderDetail
+                    $brandName = $detail->brand_name ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->brand_name), 0, 3)) : '';
+
+                    $brandNames->push($brandName);
+                } else {
+                    // Use part_id directly from OrderDetail
+                    $cleanPart = substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->part_id), 0, 4);
+                }
+
+                $cleanParts->push($cleanPart);
+            }
+
+            // Fetch the brand_name using m_part_id from Products table
+            $productBrandName = \App\Models\Products::whereIn('m_part_id', $orderDetails->pluck('part_id'))
+                ->value('brand_name');
+
+            // Trim brand_name to first 3 letters and convert to uppercase
+            $shortProductBrand = $productBrandName ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '-', $productBrandName), 0, 3)) : '';
+
+            // If variant_id exists, use the brand from OrderDetail, otherwise use from Products table
+            $finalBrand = $brandNames->isNotEmpty() ? $brandNames->first() : $shortProductBrand;
+
             // Format Reference ID
             if ($cleanParts->count() === 2) {
-                $order->reference_id = $cleanParts[0] . $cleanParts[1];
+                $order->reference_id = $finalBrand . $cleanParts[0] . $cleanParts[1];
             } elseif ($cleanParts->count() === 1) {
-                $order->reference_id = $cleanParts[0];
+                $order->reference_id = $finalBrand . $cleanParts[0];
             } else {
-                $order->reference_id = null;
+                $order->reference_id = $finalBrand;
             }
         }
-    
+
         session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
-    
+
         return view('staff.content.staffOrderOverview', compact('orders'));
     }
-    
-    
 
 
     public function stockOrderOverview()
     {
-        // Fetch all orders
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
             ->orderBy('created_at', 'desc')
             ->get();
-    
+
         foreach ($orders as $order) {
-            // Fetch the latest 2 part_id values
-            $partIds = OrderDetail::where('order_id', $order->order_id)
+            // Fetch the latest 2 part_id, variant_id, and brand_name from OrderDetail
+            $orderDetails = OrderDetail::where('order_id', $order->order_id)
                 ->latest('order_detail_id')
                 ->take(2)
-                ->pluck('part_id'); // Get an array of part_ids
-    
-            // Remove special characters and extract first 4 characters
-            $cleanParts = $partIds->map(function ($partId) {
-                return substr(preg_replace('/[^A-Za-z0-9]/', '', $partId), 0, 4);
-            });
-    
+                ->get(['part_id', 'variant_id', 'brand_name']);
+
+            $cleanParts = collect();
+            $brandNames = collect();
+
+            foreach ($orderDetails as $detail) {
+                if (!empty($detail->variant_id) && $detail->variant_id != 0) {
+                    // Fetch part_id from the variants table based on variant_id
+                    $variantPartId = \App\Models\Variant::where('variant_id', $detail->variant_id)
+                        ->value('part_id');
+
+                    // Trim to first 3 characters
+                    $cleanPart = $variantPartId ? substr(preg_replace('/[^A-Za-z0-9]/', '', $variantPartId), 0, 3) : '';
+
+                    // Fetch brand_name from OrderDetail
+                    $brandName = $detail->brand_name ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->brand_name), 0, 3)) : '';
+
+                    $brandNames->push($brandName);
+                } else {
+                    // Use part_id directly from OrderDetail
+                    $cleanPart = substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->part_id), 0, 4);
+                }
+
+                $cleanParts->push($cleanPart);
+            }
+
+            // Fetch the brand_name using m_part_id from Products table
+            $productBrandName = \App\Models\Products::whereIn('m_part_id', $orderDetails->pluck('part_id'))
+                ->value('brand_name');
+
+            // Trim brand_name to first 3 letters and convert to uppercase
+            $shortProductBrand = $productBrandName ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '-', $productBrandName), 0, 3)) : '';
+
+            // If variant_id exists, use the brand from OrderDetail, otherwise use from Products table
+            $finalBrand = $brandNames->isNotEmpty() ? $brandNames->first() : $shortProductBrand;
+
             // Format Reference ID
             if ($cleanParts->count() === 2) {
-                $order->reference_id = $cleanParts[0] . $cleanParts[1];
+                $order->reference_id = $finalBrand . $cleanParts[0] . $cleanParts[1];
             } elseif ($cleanParts->count() === 1) {
-                $order->reference_id = $cleanParts[0];
+                $order->reference_id = $finalBrand . $cleanParts[0];
             } else {
-                $order->reference_id = null;
+                $order->reference_id = $finalBrand;
             }
         }
-    
-        // Store the pending count in the session
+
         session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
-    
-        // Return the view with orders data and the pending count
+
         return view('stockclerk.content.stockOrderOverview', compact('orders'));
     }    
-    
 
 
     public function ManagerstockOrderOverview()
     {
-        // Fetch all orders
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
             ->orderBy('created_at', 'desc')
             ->get();
-    
+
         foreach ($orders as $order) {
-            // Fetch the latest 2 part_id values
-            $partIds = OrderDetail::where('order_id', $order->order_id)
+            // Fetch the latest 2 part_id, variant_id, and brand_name from OrderDetail
+            $orderDetails = OrderDetail::where('order_id', $order->order_id)
                 ->latest('order_detail_id')
                 ->take(2)
-                ->pluck('part_id'); // Get an array of part_ids
-    
-            // Remove special characters and extract first 4 characters
-            $cleanParts = $partIds->map(function ($partId) {
-                return substr(preg_replace('/[^A-Za-z0-9]/', '', $partId), 0, 4);
-            });
-    
+                ->get(['part_id', 'variant_id', 'brand_name']);
+
+            $cleanParts = collect();
+            $brandNames = collect();
+
+            foreach ($orderDetails as $detail) {
+                if (!empty($detail->variant_id) && $detail->variant_id != 0) {
+                    // Fetch part_id from the variants table based on variant_id
+                    $variantPartId = \App\Models\Variant::where('variant_id', $detail->variant_id)
+                        ->value('part_id');
+
+                    // Trim to first 3 characters
+                    $cleanPart = $variantPartId ? substr(preg_replace('/[^A-Za-z0-9]/', '', $variantPartId), 0, 3) : '';
+
+                    // Fetch brand_name from OrderDetail
+                    $brandName = $detail->brand_name ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->brand_name), 0, 3)) : '';
+
+                    $brandNames->push($brandName);
+                } else {
+                    // Use part_id directly from OrderDetail
+                    $cleanPart = substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->part_id), 0, 4);
+                }
+
+                $cleanParts->push($cleanPart);
+            }
+
+            // Fetch the brand_name using m_part_id from Products table
+            $productBrandName = \App\Models\Products::whereIn('m_part_id', $orderDetails->pluck('part_id'))
+                ->value('brand_name');
+
+            // Trim brand_name to first 3 letters and convert to uppercase
+            $shortProductBrand = $productBrandName ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '-', $productBrandName), 0, 3)) : '';
+
+            // If variant_id exists, use the brand from OrderDetail, otherwise use from Products table
+            $finalBrand = $brandNames->isNotEmpty() ? $brandNames->first() : $shortProductBrand;
+
             // Format Reference ID
             if ($cleanParts->count() === 2) {
-                $order->reference_id = $cleanParts[0] . $cleanParts[1];
+                $order->reference_id = $finalBrand . $cleanParts[0] . $cleanParts[1];
             } elseif ($cleanParts->count() === 1) {
-                $order->reference_id = $cleanParts[0];
+                $order->reference_id = $finalBrand . $cleanParts[0];
             } else {
-                $order->reference_id = null;
+                $order->reference_id = $finalBrand;
             }
         }
-    
-        // Store the pending count in the session
+
         session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
-    
-        // Return the view with orders data and the pending count
+
         return view('manager.content.ManagerstockOrderOverview', compact('orders'));
     }    
 
@@ -188,8 +307,11 @@ class OrderController extends Controller
         return view('staff.content.staffOverviewDetails', compact('order', 'orderDetails'));
     }
 
-    public function stockDetails($order_id)
+    public function stockDetails($order_id, Request $request)
     {
+
+        $reference_id = $request->query('reference_id');
+
         $order = Order::find($order_id); // Fetch the order by ID
         if (!$order) {
             abort(404, 'Order not found'); // Handle invalid order ID
@@ -206,8 +328,11 @@ class OrderController extends Controller
         return view('stockclerk.content.stockOverviewDetails', compact('order', 'orderDetails'));
     }
 
-    public function ManagerstockDetails($order_id)
+    public function ManagerstockDetails($order_id, Request $request)
     {
+
+        $reference_id = $request->query('reference_id');
+
         $order = Order::find($order_id); // Fetch the order by ID
         if (!$order) {
             abort(404, 'Order not found'); // Handle invalid order ID

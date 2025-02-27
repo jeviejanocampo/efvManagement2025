@@ -18,6 +18,10 @@ Route::get('/staff/login', function () {
     return view('staff.staffLogin');
 });
 
+Route::get('/admin/login', function () {
+    return view('admin.adminLogin');
+});
+
 Route::get('/stock-clerk/login', function () {
     return view('stockclerk.stockClerkLogin');
 });
@@ -59,7 +63,11 @@ Route::get('/staff/overview', [OrderController::class, 'staffOrderOverview'])->n
 
 Route::get('/staff/signup', [StaffController::class, 'showSignupForm'])->name('staff.signup.form');
 
+Route::get('/admin/signup', [StaffController::class, 'AdminshowSignupForm'])->name('admin.signup.form');
+
 Route::post('/staff/signup', [StaffController::class, 'signup'])->name('staff.signup.submit');
+
+Route::post('/admin/signup', [StaffController::class, 'AdminSignup'])->name('admin.signup.submit');
 
 Route::post('/stock-clerk/signup', [StaffController::class, 'Clerksignup'])->name('stock-clerk.signup.submit');
 
@@ -70,6 +78,8 @@ Route::post('/staff/login', [StaffController::class, 'StaffLogin'])->name('staff
 Route::post('/stock-clerk/login', [StaffController::class, 'StockClerkLogin'])->name('stockclerk.login.submit');
 
 Route::post('/manager/login', [StaffController::class, 'ManagerLogin'])->name('manager.login.submit');
+
+Route::post('/admin/login', [StaffController::class, 'AdminLogin'])->name('admin.login.submit');
 
 
 Route::get('/stock-clerk/dashboard', function () {
@@ -127,6 +137,8 @@ Route::get('/stock-activity-logs', [ActivityLogController::class, 'Stockindex'])
 
 Route::get('/manager-salesreport', [ActivityLogController::class, 'SalesReportIndex'])->name('manager.salesreport');
 
+Route::get('/admin-salesreport', [ActivityLogController::class, 'AdminSalesReportIndex'])->name('admin.salesreport');
+
 Route::get('/manager-stock-activity-logs', [ActivityLogController::class, 'ManagerStockindex'])->name('manager.Stocklogs');
 
 Route::post('/scanner-login', [StaffController::class, 'Scannerlogin']);
@@ -148,10 +160,13 @@ Route::get('/manager-low-products', [ProductController::class, 'ManagerLowIndex'
 
 Route::get('/manager-view', [ProductController::class, 'Managerindex'])->name('managerproductsView');
 
+Route::get('/admin-view', [ProductController::class, 'Adminindex'])->name('adminproductsView');
 
 Route::get('/add-product', [ProductController::class, 'create'])->name('add.product');
 
 Route::get('/manager-add-product', [ProductController::class, 'Managercreate'])->name('manager.add.product');
+
+Route::get('/stockclerk-add-product', [ProductController::class, 'Managercreate'])->name('stockclerk.add.product');
 
 Route::get('/stock-add-brand', [ProductController::class, 'Stockcreate'])->name('stockclerk.add.brand');
 
@@ -167,9 +182,13 @@ Route::get('/stock-view-brand', [ProductController::class, 'StockViewBrands'])->
 
 Route::get('/manager-stock-view-brand', [ProductController::class, 'ManagerStockViewBrands'])->name('manager.view.brands');
 
+Route::get('/stockclerk-stock-view-category', [ProductController::class, 'StockClerkStockViewCategory'])->name('stockclerk.view.category');
+
 Route::get('/manager-stock-view-category', [ProductController::class, 'ManagerStockViewCategory'])->name('manager.view.category');
 
 Route::get('/manager-add-quantity', [ProductController::class, 'ManagerAddQuantity'])->name('manager.add.quantity');
+
+Route::get('/stockclerk-add-quantity', [ProductController::class, 'ManagerAddQuantity'])->name('stockclerk.add.quantity');
 
 
 Route::get('/add-details-product/{model_id}', [ProductController::class, 'addDetails'])->name('addDetails');

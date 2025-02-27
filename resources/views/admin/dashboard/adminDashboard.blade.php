@@ -22,12 +22,11 @@
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
                 <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-25 h-25">
-                <p style="margin-top: 8px"><a href="#" class="text-white">Manager Panel</a></p>
+                <p style="margin-top: 8px"><a href="#" class="text-white">Admin Panel</a></p>
             </div>
             <!-- Navigation -->
             <nav class="space-y-4">
-                <p class="text-white text-1xl font-bold">Main</p>
-                <a href="{{ route('ManagerstockoverView') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
+                <!-- <a href="{{ route('ManagerstockoverView') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
@@ -38,14 +37,13 @@
                             </span>
                         @endif
                 </a>
-                <p class="text-white text-1xl font-bold">Products Management</p>
-                <a href="{{ route('ManagerproductsView') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
+                <a href="{{ route('ManagerproductsView') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
                     Products
                 </a>
-                <a href="{{ route('managerLow') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
+                <a href="{{ route('managerLow') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
                     </svg>
@@ -55,7 +53,7 @@
                             {{ $lowStockCount }}
                         </span>
                     @endif
-                </a>
+                </a> -->
 
 
                 <!-- <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white">
@@ -65,16 +63,14 @@
                     Orders Queue
                 </a> -->
                 
-                <p class="text-white text-1xl font-bold">Reports and Analytics</p>
-                <a href="{{ route('manager.salesreport') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
+                <a href="{{ route('admin.salesreport') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h7M7 16h6M5 20h10" />
                     </svg>
-                    Sales 
+                    Sales Overview
                 </a>
 
-                <p class="text-white text-1xl font-bold">Activity Log</p>
-                <a href="{{ route('manager.Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
+                <a href="{{ route('manager.Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16" />
                     </svg>
@@ -119,7 +115,7 @@
 
                         <!-- Dropdown -->
                         <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg shadow-md hidden opacity-0 transform scale-95 transition-all duration-200">
-                            <a href="/manager/login" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
+                            <a href="/admin/login" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
                         </div>
                     </div>
 

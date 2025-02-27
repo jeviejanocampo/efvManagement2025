@@ -1,6 +1,11 @@
 @extends('staff.dashboard.StaffMain')
 
 @section('content') 
+<style>
+    td {
+     text-align: center;
+    }
+</style>
 
 <div class="p-4 rounded-xl">
     <a href="{{ url('staff/overview') }}" 
@@ -104,7 +109,7 @@
                 <tr class="bg-white">
                 <thead>
                     <tr class="bg-white">
-                        <th class="border border-gray-300 px-2 py-1"></th>
+                        <th class="border border-gray-300 px-2 py-1">Status</th>
                         <th class="border border-gray-300 px-2 py-1"></th>
                         <th class="border border-gray-300 px-2 py-1">Product Name</th>
                         <th class="border border-gray-300 px-2 py-1">Brand</th>
@@ -144,8 +149,8 @@
                     <td class=" px-5 py-1">{{ $detail->product_name }}</td>
                     <td class=" px-5 py-1">{{ $detail->brand_name }}</td>
                     <td class=" px-5 py-1">{{ $detail->quantity }}x</td>
-                    <td class=" px-5 py-1">₱{{ $detail->price }}</td>
-                    <td class=" px-5 py-1">₱{{ $detail->total_price }}</td>
+                    <td class="px-5 py-1">₱{{ number_format($detail->price, 2) }}</td>
+                    <td class="px-5 py-1">₱{{ number_format($detail->total_price, 2) }}</td>
                     <td class=" px-5 py-1">
                         <!-- Conditional for Edit Status Dropdown -->
                         @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending')
@@ -177,7 +182,7 @@
         @else
             <p style="font-size: 20px; font-weight: bold">
                 Total To Pay: ₱ 
-                {{ $order->total_price }}
+                {{ number_format ( $order->total_price, 2 ) }}
             </p> 
         @endif
     </div>

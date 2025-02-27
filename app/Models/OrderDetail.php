@@ -30,4 +30,10 @@ class OrderDetail extends Model
     {
         return $this->belongsTo(Models::class, 'model_id', 'model_id');
     }
+
+    public function product()
+    {
+        return $this->belongsTo(Products::class, 'm_part_id', 'm_part_id');
+    }
+
 }
