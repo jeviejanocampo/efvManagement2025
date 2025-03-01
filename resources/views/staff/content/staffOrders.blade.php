@@ -10,7 +10,7 @@
     @extends('staff.dashboard.StaffMain')
 
     @section('content')
-    <div class ="bg-white p-4 mt-6 rounded-md">
+    <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         <div class="container mx-auto px-4 py-1">
             <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 12px">Scanned Items Queue</h1>
             <!-- Table with orders -->

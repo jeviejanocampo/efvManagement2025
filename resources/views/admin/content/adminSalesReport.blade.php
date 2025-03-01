@@ -66,7 +66,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
 
         <div class="space-y-4">
-        <div class="bg-white p-4 rounded-md shadow-md flex items-center relative">
+        <div class="bg-white p-4 rounded-md  flex items-center relative">
             <h1 class="absolute top-2 left-4 text-xl font-bold z-10 px-2">Total Orders</h1>
             <br>
             <div class="w-2/3 h-64">
@@ -84,7 +84,7 @@
         </div>
 
 
-        <div class="bg-white p-4 rounded-md shadow-md flex items-center relative">
+        <div class="bg-white p-4 rounded-md  flex items-center relative">
             <h1 class="absolute top-2 left-2 text-xl font-bold z-10 px-2">Total Sales</h1>
             <br>
             <div class="w-2/3 h-64">
@@ -116,7 +116,7 @@
             </div>
         </div>
 
-        <div class="bg-white p-4 rounded-md shadow-md">
+        <div class="bg-white p-4 rounded-md ">
             <h1 style="font-size: 24px; font-weight: Bold">Top Selling</h1>
             <table class="w-full text-left border-collapse">
                 <thead>

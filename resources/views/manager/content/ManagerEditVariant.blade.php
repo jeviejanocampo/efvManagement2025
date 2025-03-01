@@ -1,7 +1,7 @@
 @extends('manager.dashboard.managerDashboard')
 
 @section('content')
-<div class="container mx-auto p-6 bg-white rounded-xl shadow-md">
+<div class="container mx-auto p-6 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <!-- Back Button -->
     <div class="mb-4">
         <a href="{{ route('manager.variantsView', ['model_id' => $model_id]) }}" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">

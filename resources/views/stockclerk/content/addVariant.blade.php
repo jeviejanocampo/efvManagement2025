@@ -1,7 +1,7 @@
 @extends('stockclerk.dashboard.stockClerkDashboard')
 
 @section('content')
-<div class="container mx-auto p-6 bg-white rounded-xl shadow-md">
+<div class="container mx-auto p-6 bg-white rounded-xl ">
     <!-- Back Button -->
     <div class="mb-4">
         <button onclick="window.history.back()" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">

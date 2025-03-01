@@ -64,9 +64,9 @@ class OrderController extends Controller
     
             // Format Reference ID (BRAND + PART_IDs + ORDER_ID)
             if ($cleanParts->count() === 2) {
-                $order->reference_id = $finalBrand . $cleanParts[0] . $cleanParts[1] . '-' . $order->order_id;
+                $order->reference_id = $finalBrand . '-'. $cleanParts[0] . $cleanParts[1] . '-' . $order->order_id;
             } elseif ($cleanParts->count() === 1) {
-                $order->reference_id = $finalBrand . $cleanParts[0] . '-' . $order->order_id;
+                $order->reference_id = $finalBrand . '-' . $cleanParts[0] . '-' . $order->order_id;
             } else {
                 $order->reference_id = $finalBrand . '-' . $order->order_id;
             }
@@ -149,9 +149,9 @@ class OrderController extends Controller
 
             // Format Reference ID
             if ($cleanParts->count() === 2) {
-                $order->reference_id = $finalBrand . $cleanParts[0] . $cleanParts[1];
+                $order->reference_id = $finalBrand . '-' . $cleanParts[0] . '' . $cleanParts[1];
             } elseif ($cleanParts->count() === 1) {
-                $order->reference_id = $finalBrand . $cleanParts[0];
+                $order->reference_id = $finalBrand . '-' . $cleanParts[0];
             } else {
                 $order->reference_id = $finalBrand;
             }
@@ -289,8 +289,11 @@ class OrderController extends Controller
     }    
 
 
-    public function details($order_id)
+    public function details($order_id, Request $request)
     {
+
+        $reference_id = $request->query('reference_id');
+
         $order = Order::find($order_id); // Fetch the order by ID
         if (!$order) {
             abort(404, 'Order not found'); // Handle invalid order ID

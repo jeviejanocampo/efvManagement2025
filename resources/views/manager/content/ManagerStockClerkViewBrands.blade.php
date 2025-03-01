@@ -1,7 +1,7 @@
 @extends('manager.dashboard.managerDashboard')
 
 @section('content')
-<div class="container mx-auto p-6 bg-white rounded-xl shadow-md">
+<div class="container mx-auto p-6 bg-white rounded-xl ">
     <div class="mb-4">
         <button onclick="window.history.back()" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
             ← Back
@@ -25,7 +25,7 @@
     </div>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+        <table class="min-w-full bg-white border border-gray-300 rounded-lg ">
             <thead>
                 <tr>
                     <th class="px-1 py-1 border"></th>

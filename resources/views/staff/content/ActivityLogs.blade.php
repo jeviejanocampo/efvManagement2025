@@ -7,7 +7,7 @@
   }
 </style>
 
-<div class ="bg-white p-4 rounded-md">
+<div class ="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <h1 class="text-3xl font-semibold">Activity Logs</h1>
     <p style="margin-bottom: 12px; font-style: italic;color: gray">
         Note: All the activities that have been operated by the staff are logged here.

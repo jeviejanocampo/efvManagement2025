@@ -93,17 +93,12 @@ Route::get('/staff/dashboard', function () {
 
 Route::get('/orders/fetch', [OrderController::class, 'fetchOrders'])->name('orders.fetch');
 
-// Make sure this route exists
 Route::get('/staff/order-details/{order_id}', [OrderController::class, 'show'])->name('orders.show');
-
-
 
 Route::get('/qrcode', [QRCodeController::class, 'showForm'])->name('qr.form');
 
 Route::post('/generate-qr', [QRCodeController::class, 'generate'])->name('generate.qr');
 
-
-// Route for staff order details (passing order_id)
 Route::get('/staff/overview/details/{order_id}', [OrderController::class, 'details'])->name('overViewDetails');
 
 Route::get('/stockclerk/overview/details/{order_id}', [OrderController::class, 'stockDetails'])->name('stockclerkoverViewDetails');

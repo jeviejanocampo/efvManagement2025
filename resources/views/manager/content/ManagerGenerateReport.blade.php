@@ -47,7 +47,7 @@
     }
 </style>
 
-<div class="watermark-container bg-white p-6 rounded-md">
+<div class="watermark-container bg-white p-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <!-- Header Section -->
     <button onclick="window.history.back()" 
         class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300">

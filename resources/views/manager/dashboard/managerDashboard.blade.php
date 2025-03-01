@@ -14,7 +14,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-200">
+<body>
     <div class="flex h-screen">
         
         <!-- Sidebar -->
@@ -89,7 +89,7 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col ml-0 md:ml-64">
             <!-- Header -->
-            <header class="bg-gray-900 text-white py-2 px-4 flex justify-between items-center shadow-md  top-0 w-full">
+            <header class="bg-gray-900 text-white py-2 px-4 flex justify-between items-center   top-0 w-full">
                 <div class="flex items-center space-x-4">
                     <!-- Hamburger for Small Screens -->
                     <button class="md:hidden focus:outline-none" onclick="toggleSidebar()">
@@ -118,7 +118,7 @@
                         </button>
 
                         <!-- Dropdown -->
-                        <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg shadow-md hidden opacity-0 transform scale-95 transition-all duration-200">
+                        <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg  hidden opacity-0 transform scale-95 transition-all duration-200">
                             <a href="/manager/login" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
                         </div>
                     </div>

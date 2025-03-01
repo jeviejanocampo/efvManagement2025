@@ -24,7 +24,7 @@
 
 
     <!-- Order Status Dropdown -->
-    <div class="flex justify-between items-center mt-4 bg-white p-4 rounded-md">
+    <div class="flex justify-between items-center mt-4 bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         <h1 style="font-size: 24px">ORDER DETAILS</h1>
 
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <div class ="bg-white p-4 mt-6 rounded-md">
+    <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         <div class="flex justify-between items-center">
             @php
                 $latestOrderDetail = $orderDetails->last(); // Get the last row (latest order detail)
@@ -105,7 +105,7 @@
     </div>
 
     <!-- Order Details Table -->
-    <div class ="bg-white p-4 mt-6 rounded-md">
+    <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         <h3 class="text-2xl font-semibold">Product Details</h3>
         <div class="text-gray-500 italic text-sm m-4">
             Note: For the pre-orders products, edit status if ready to pick up status
@@ -179,7 +179,7 @@
         </table>
     </div>
 
-    <div class="bg-white p-4 mt-6 rounded-md">
+    <div class="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         @if($order->status === 'Completed')
             <p>
             </p>

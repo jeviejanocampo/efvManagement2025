@@ -14,7 +14,7 @@
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center h-screen">
-<div class="bg-white shadow-md rounded-lg w-full max-w-3xl flex rounded-xl">
+<div class="bg-white  rounded-lg w-full max-w-3xl flex rounded-xl">
         <!-- Left Side with Logo and Welcome Text -->
         <div class="w-1/2 bg-black text-white flex flex-col justify-center items-center p-6 rounded-xl">
             <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-2/3 mb-4">

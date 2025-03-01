@@ -7,7 +7,7 @@
     }
 </style>
 
-<div class ="bg-white p-4 rounded-md">
+<div class ="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <h1 class="text-2xl font-semibold mb-4">Manager Activity Logs</h1>
     <!-- Filters Section -->
     <div class="flex space-x-4 mb-6">

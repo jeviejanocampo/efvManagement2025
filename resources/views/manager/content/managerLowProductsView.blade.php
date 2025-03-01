@@ -15,7 +15,7 @@
     }
 </style>
 
-<div class="container mx-auto p-4 bg-white rounded-xl">
+<div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
     <div style="text-align: center; margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
          Low Units
@@ -177,7 +177,7 @@
 
  <!-- Status Update Modal -->
  <div id="statusModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-20 flex justify-center items-center mb-50">
-    <div class="bg-white p-5 rounded-lg shadow-md w-1/3">
+    <div class="bg-white p-5 rounded-lg  w-1/3">
         <h2 class="text-lg font-bold mb-4">Update Status</h2>
         
         <input type="hidden" id="model_id">
