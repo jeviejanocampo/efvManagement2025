@@ -21,11 +21,11 @@
     <div class="flex h-screen">
         
         <!-- Sidebar -->
-        <div id="sidebar" class="bg-gray-900 text-white w-64 space-y-6 py-7 px-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40">
+        <div id="sidebar" class="bg-black text-white w-64 space-y-6 py-7 px-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40">
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
                 <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-25 h-25">
-                <p style="margin-top: 8px"><a href="#" class="text-white">Stock Clerk Panel</a></p>
+                <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Stock Clerk Panel</a></p>
             </div>
             <!-- Navigation -->
             <nav class="space-y-4">
@@ -73,12 +73,12 @@
                     Orders Queue
                 </a> -->
                 
-                <p class="text-white text-1xl font-bold">Activity Logs</p>
+                <p class="text-white text-1xl font-bold">Activity Log</p>
                 <a href="{{ route('Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16" />
                     </svg>
-                    Unit Logs
+                    Overview
                 </a>
                 <!-- <a href="#" class="flex items-center text-gray-300 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

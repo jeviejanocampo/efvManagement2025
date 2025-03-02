@@ -145,7 +145,7 @@
                     <tr data-category="{{ $product->brand->category->category_name ?? 'N/A' }}"
                         data-brand="{{ $product->brand->brand_name ?? 'N/A' }}"
                         data-name="{{ $product->model_name }}">
-                        <td class="border border-gray-300 px-2 py-1">{{ $product->model_id }}</td>
+                        <td class="border border-gray-300 px-2 py-1">000{{ $product->model_id }}</td>
                         <td class="border border-gray-300 px-2 py-1">
                             <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="50">
                         </td>
@@ -164,7 +164,7 @@
                             {{ $stock }}
 
                             @if ($stock <= 5 && !request()->routeIs('edit.product'))
-                                <span class="absolute left-1 bg-red-500 text-white font-semibold px-2 py-1 bottom-9 rounded-md" style="font-size:10px">
+                                <span class="absolute right-12 bg-red-500 text-white font-semibold px-2 py-1 bottom-9 rounded-md" style="font-size:10px">
                                     Low
                                 </span>
                             @endif

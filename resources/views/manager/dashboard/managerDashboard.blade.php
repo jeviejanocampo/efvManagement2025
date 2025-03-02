@@ -18,11 +18,11 @@
     <div class="flex h-screen">
         
         <!-- Sidebar -->
-        <div id="sidebar" class="bg-gray-900 text-white w-64 space-y-6 py-7 px-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40">
+        <div id="sidebar" class="bg-black text-white w-64 space-y-6 py-7 px-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40">
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
                 <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-25 h-25">
-                <p style="margin-top: 8px"><a href="#" class="text-white">Manager Panel</a></p>
+                <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Manager Panel</a></p>
             </div>
             <!-- Navigation -->
             <nav class="space-y-4">

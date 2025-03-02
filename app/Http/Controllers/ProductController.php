@@ -161,7 +161,7 @@ class ProductController extends Controller
     {
         $brands = Brand::all();
         $categories = Category::all(); // Fetch all categories
-        return view('stockclerk.content.StockClerkViewCategory', compact('brands', 'categories'));
+        return view('manager.content.ManagerStockClerkViewCategory', compact('brands', 'categories'));
     }
 
     public function StockClerkStockViewCategory()

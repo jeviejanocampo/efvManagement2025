@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Automatically select "Pending" in the status filter
     if (statusFilter) {
-        statusFilter.value = "Pending";
+        statusFilter.value = "In Process";
     }
 
     // Run filterOrders initially to apply the default filter
