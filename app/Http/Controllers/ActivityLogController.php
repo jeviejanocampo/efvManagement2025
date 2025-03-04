@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\OrderDetail;
+use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -21,6 +22,46 @@ class ActivityLogController extends Controller
         return view('staff.content.activityLogs', compact('activityLogs'));
     }
 
+    public function confirmUser($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        }
+
+        // Update status to 'active'
+        $user->status = 'active';
+        if ($user->save()) {
+            return response()->json(['success' => true, 'message' => 'User confirmed successfully.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Failed to update user status.'], 500);
+        }
+    }
+
+    public function updateUserStatus($id, Request $request)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        }
+
+        // Update user status based on request
+        $newStatus = $request->status;
+        if (!in_array($newStatus, ['active', 'inactive'])) {
+            return response()->json(['success' => false, 'message' => 'Invalid status.'], 400);
+        }
+
+        $user->status = $newStatus;
+        if ($user->save()) {
+            return response()->json(['success' => true, 'message' => "User status updated to $newStatus."]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Failed to update user status.'], 500);
+        }
+    }
+
+
     public function Stockindex()
     {
         // Fetch all activity logs in descending order by created_at
@@ -36,6 +77,23 @@ class ActivityLogController extends Controller
 
         return view('manager.content.ManagerStockClerkActivityLogs', compact('activityLogs'));
     }
+
+    public function AdminStockindex()
+    {
+        // Fetch all activity logs in descending order by created_at
+        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->get(); 
+
+        return view('admin.content.AdminStockLogs', compact('activityLogs'));
+    }
+
+    public function UserManagement()
+    {
+        // Fetch all users in descending order by created_at
+        $users = User::orderBy('created_at', 'desc')->get();
+
+        return view('admin.content.AdminUserManagement', compact('users'));
+    }
+
 
     public function SalesReportIndex(Request $request)
     {
@@ -313,6 +371,56 @@ class ActivityLogController extends Controller
         $salesTotal = $orderDetails->count();
 
         return view('manager.content.ManagerGenerateReport', compact('orderDetails', 'salesAmount', 'salesTotal'));
+    }
+
+    public function AdminGenerateIndex(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        $query = OrderDetail::where('product_status', 'Completed');
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        if ($month) {
+            $query->whereMonth('created_at', $month);
+        }
+
+        if ($year) {
+            $query->whereYear('created_at', $year);
+        }
+
+        // Fetch order details with product relationship
+        $orderDetails = $query->with('product')->get();
+
+        // Modify each order detail to include formatted reference_id
+        foreach ($orderDetails as $detail) {
+            // Extract first 3 letters of brand_name (if available)
+            $brand = isset($detail->brand_name) ? strtoupper(substr($detail->brand_name, 0, 3)) : 'N/A';
+
+            // Get part_id
+            $partId = $detail->part_id ?? 'N/A';
+
+            // Get order_detail_id
+            $orderDetailId = $detail->order_detail_id;
+
+            // Construct formatted reference_id
+            $detail->reference_id = "{$brand}-{$partId}{$orderDetailId}";
+        }
+
+        // Calculate totals
+        $salesAmount = $orderDetails->sum('total_price');
+        $salesTotal = $orderDetails->count();
+
+        return view('admin.content.AdminGenerateReport', compact('orderDetails', 'salesAmount', 'salesTotal'));
     }
     
     public function exportSalesReport(Request $request)

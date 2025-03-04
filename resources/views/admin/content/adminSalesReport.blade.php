@@ -3,14 +3,14 @@
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <div class="bg-white p-6 rounded-md mb-6">
+    <div class="bg-white p-6 rounded-md mb-6" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
         <div class="flex items-center justify-between mb-6">
             <!-- Sales Overview Title -->
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Sales Overview</h1>
             
             <!-- Generate Report Button -->
-            <a href="{{ route('manager.generateReport') }}" 
+            <a href="{{ route('admin.generateReport') }}" 
             class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition duration-300">
                 Generate Report
             </a>
@@ -30,7 +30,7 @@
         </div> -->
 
 
-    <div class="relative h-84 w-full">
+    <div class="relative h-84 w-full" >
                 <!-- <h3 class="text-lg font-semibold mb-4"></h3> -->
 
                 <!-- Date Range Form -->
@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
         <div class="space-y-4">
         <div class="bg-white p-4 rounded-md  flex items-center relative">

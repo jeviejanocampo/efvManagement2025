@@ -17,10 +17,9 @@
 <body>
     <div class="flex h-screen" >
         
-        <!-- Sidebar -->
         <div id="sidebar" class="bg-black text-white w-64 space-y-6 py-7 px-4 transform -translate-x-full 
-        md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40">
-        <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
+            md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40">
+            <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
                 <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-25 h-25">
                 <p style="text-align: center; margin-top: 6px"><a href="#" class="text-white" >Staff Panel</a></p>
@@ -124,12 +123,12 @@
         // Function to update active link state
         function setActiveLink(clickedLink) {
             navLinks.forEach(link => {
-                link.classList.remove("text-white", "scale-105", "font-bold");
-                link.classList.add("text-gray-300");
+                link.classList.remove("text-black", "bg-white", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+                link.classList.add("text-gray-300", "hover:text-white"); // Add hover effect back to non-active links
             });
 
-            clickedLink.classList.add("text-white", "scale-105", "font-bold");
-            clickedLink.classList.remove("text-gray-300");
+            clickedLink.classList.add("text-black", "bg-white", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+            clickedLink.classList.remove("text-gray-300", "hover:text-white"); // Remove hover effect from active link
 
             // Store the active link in localStorage to persist highlight
             localStorage.setItem("activeNav", clickedLink.getAttribute("href"));

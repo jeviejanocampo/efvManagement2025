@@ -136,6 +136,14 @@ Route::get('/admin-salesreport', [ActivityLogController::class, 'AdminSalesRepor
 
 Route::get('/manager-stock-activity-logs', [ActivityLogController::class, 'ManagerStockindex'])->name('manager.Stocklogs');
 
+Route::get('/admin-stock-activity-logs', [ActivityLogController::class, 'AdminStockindex'])->name('admin.Stocklogs');
+
+Route::get('/admin-user-management', [ActivityLogController::class, 'UserManagement'])->name('admin.user.management');
+
+Route::post('/users/confirm/{id}', [ActivityLogController::class, 'confirmUser'])->name('users.confirm');
+
+Route::post('/users/update-status/{id}', [ActivityLogController::class, 'updateUserStatus'])->name('users.updateStatus');
+
 Route::post('/scanner-login', [StaffController::class, 'Scannerlogin']);
 
 Route::get('/csrf-token', function (Request $request) {
@@ -252,5 +260,7 @@ Route::put('/update-variant/{model_id}/{variant_id}', [ProductController::class,
 Route::put('/update-variant-status/{variant_id}', [ProductController::class, 'updateVariantStatus']);
 
 Route::get('/manager/generate-report', [ActivityLogController::class, 'GenerateIndex'])->name('manager.generateReport');
+
+Route::get('/admin/generate-report', [ActivityLogController::class, 'AdminGenerateIndex'])->name('admin.generateReport');
 
 Route::get('/manager/export-sales-report', [ActivityLogController::class, 'exportSalesReport'])->name('manager.exportSalesReport');

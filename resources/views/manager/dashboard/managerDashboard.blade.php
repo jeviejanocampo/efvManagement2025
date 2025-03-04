@@ -139,12 +139,12 @@
         // Function to update active link state
         function setActiveLink(clickedLink) {
             navLinks.forEach(link => {
-                link.classList.remove("text-white", "scale-105", "font-bold");
-                link.classList.add("text-gray-300");
+                link.classList.remove("text-black", "bg-white", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+                link.classList.add("text-gray-300", "hover:text-white"); // Add hover effect back to non-active links
             });
 
-            clickedLink.classList.add("text-white", "scale-105", "font-bold");
-            clickedLink.classList.remove("text-gray-300");
+            clickedLink.classList.add("text-black", "bg-white", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+            clickedLink.classList.remove("text-gray-300", "hover:text-white"); // Remove hover effect from active link
 
             // Store the active link in localStorage to persist highlight
             localStorage.setItem("activeNav", clickedLink.getAttribute("href"));

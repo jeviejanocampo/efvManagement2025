@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager Main</title>
+    <title>Admin Main</title>
     <!-- Import Poppins Font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,7 +14,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-200">
+<body class="bg-gray-100">
     <div class="flex h-screen">
         
         <!-- Sidebar -->
@@ -22,7 +22,7 @@
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
                 <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-25 h-25">
-                <p style="margin-top: 8px"><a href="#" class="text-white">Admin Panel</a></p>
+                <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Admin Panel</a></p>
             </div>
             <!-- Navigation -->
             <nav class="space-y-4">
@@ -62,19 +62,29 @@
                     </svg>
                     Orders Queue
                 </a> -->
+
+                <p class="text-white text-1xl font-bold">User Management</p>
+                <a href="{{ route('admin.user.management') }}" class="flex items-center text-gray-300 hover:text-white ml-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h7M7 16h6M5 20h10" />
+                    </svg>
+                    Users
+                </a>
                 
-                <a href="{{ route('admin.salesreport') }}" class="flex items-center text-gray-300 hover:text-white">
+                <p class="text-white text-1xl font-bold">Main</p>
+                <a href="{{ route('admin.salesreport') }}" class="flex items-center text-gray-300 hover:text-white ml-6">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h7M7 16h6M5 20h10" />
                     </svg>
                     Sales Overview
                 </a>
 
-                <a href="{{ route('manager.Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white">
+                <p class="text-white text-1xl font-bold">Logs</p>
+                <a href="{{ route('admin.Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white ml-6">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16" />
                     </svg>
-                    Activity Log
+                    Overall Activity Log
                 </a>
             </nav>
         </div>
