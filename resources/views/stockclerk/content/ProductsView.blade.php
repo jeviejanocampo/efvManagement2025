@@ -20,7 +20,7 @@
 
 <div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
-    <div style="text-align: center; margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
+    <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333;">
         Products Overview
     </div>
 

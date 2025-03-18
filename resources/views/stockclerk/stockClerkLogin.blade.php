@@ -16,12 +16,14 @@
 <body class="bg-gray-100 flex items-center justify-center h-screen">
 <div class="bg-white  rounded-lg w-full max-w-3xl flex rounded-xl">
         <!-- Left Side with Logo and Welcome Text -->
-        <div class="w-1/2 bg-black text-white flex flex-col justify-center items-center p-6 rounded-xl">
-            <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-2/3 mb-4">
-            <h1 class="text-2xl font-semibold mb-4">Welcome Back!</h1>
-            <p class="mb-6 text-gray-300">Enter your credentials to access your account.</p>
-            <a href="#" class="text-sm text-gray-300 hover:text-white">Forgot Password?</a>
-        </div>
+            <div class="w-1/2 bg-black text-white flex flex-col justify-center items-center rounded-xl overflow-hidden">
+                <img src="{{ asset('product-images/loginstockclerk.png') }}" alt="EFV Logo" class="w-full h-64 object-cover rounded-t-xl">
+                <h1 class="text-1xl font-semibold mt-4">EFV Auto Parts Management System</h1>
+                <h1 class="text-2xl font-semibold">Welcome Back!</h1>
+                <p class="mb-4 text-gray-300">Enter your credentials to access your account.</p>
+                <a href="#" class="text-sm text-gray-300 hover:text-white">Forgot Password?</a>
+            </div>
+
 
 
         <!-- Right Side -->

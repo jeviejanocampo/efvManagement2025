@@ -14,13 +14,14 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ActivityLogController extends Controller
 {
-        public function index()
+    public function index()
     {
-        // Fetch all activity logs in descending order by created_at
-        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->get(); 
+        // Fetch activity logs with pagination (20 per page)
+        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->paginate(20);
 
         return view('staff.content.activityLogs', compact('activityLogs'));
     }
+
 
     public function confirmUser($id)
     {

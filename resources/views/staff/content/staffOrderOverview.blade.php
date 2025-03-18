@@ -20,8 +20,8 @@
 
 <div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
-    <div style="text-align: center; margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
-        Overview
+    <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333;">
+        Reserved and Pre-Orders
     </div>
 
     <div class="flex justify-between items-center mb-4 space-x-4">
@@ -62,31 +62,35 @@
     </div>
 
     <div class="overflow-x-auto">
-        <table class="table-auto w-full border-collapse border border-gray-300">
-            <thead>
-                <tr class="bg-white">
-                    <!-- <th class="border border-gray-300 px-4 py-2">Order ID</th> -->
-                    <th class="border border-gray-300 px-4 py-2">Reference ID</th> 
-                    <th class="border border-gray-300 px-4 py-2">User ID</th>
-                    <th class="border border-gray-300 px-4 py-2">Total Items</th>
-                    <th class="border border-gray-300 px-4 py-2">Total</th>
-                    <th class="border border-gray-300 px-4 py-2">Created At</th>
-                    <th class="border border-gray-300 px-4 py-2">Status</th>
-                    <th class="border border-gray-300 px-4 py-2">Action</th>
+    <table class="table-auto w-full border-collapse border border-gray-300">
+        <thead>
+            <tr class="bg-white">
+                <th class="border border-gray-300 px-4 py-2">Reference ID</th> 
+                <th class="border border-gray-300 px-4 py-2">User ID</th>
+                <th class="border border-gray-300 px-4 py-2">Total Items</th>
+                <th class="border border-gray-300 px-4 py-2">Total</th>
+                <th class="border border-gray-300 px-4 py-2">Created At</th>
+                <th class="border border-gray-300 px-4 py-2">Status</th>
+                <th class="border border-gray-300 px-4 py-2">Action</th>
+            </tr>
+        </thead>
+        <tbody id="order-table">
+            @if ($orders->isEmpty())
+                <tr>
+                    <td colspan="7" class="border border-gray-300 px-4 py-6 text-center text-gray-500">
+                        No orders available.
+                    </td>
                 </tr>
-            </thead>
-            <tbody id="order-table">
+            @else
                 @foreach ($orders as $order)
                     <tr class="border border-gray-300 transition-transform duration-300 hover:bg-gray-100 text-center">
-                        <!-- <td class="border border-gray-300 px-4 py-2">{{ $order->order_id }}</td> -->
                         <td class="border border-gray-300 px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->user_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>
                         <td class="border border-gray-300 px-4 py-2">₱ {{ number_format($order->total_price, 2) }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
                         <td class="border border-gray-300 px-4 py-2">
-                        <span 
-                            class="
+                            <span class="
                                 px-4 py-1 rounded-full text-sm text-white text-center 
                                 flex items-center justify-center
                                 @if ($order->status === 'Pending') bg-yellow-500
@@ -97,8 +101,8 @@
                                 @else bg-gray-500
                                 @endif
                             ">
-                            {{ $order->status }}
-                        </span>
+                                {{ $order->status }}
+                            </span>
                         </td>
                         <td class="border border-gray-300 px-4 py-2">
                             <p style="text-align:center">
@@ -108,7 +112,8 @@
                         </td>
                     </tr>
                 @endforeach
-            </tbody>
+            @endif
+        </tbody>
         </table>
     </div>
 </div>
