@@ -63,7 +63,8 @@
                     Orders Queue
                 </a> -->
 
-                <a href="#" class="flex items-center text-gray-300 hover:text-white ml-6">
+                <p class="text-white text-1xl font-bold">Main</p>
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center text-gray-300 hover:text-white ml-6">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h7M7 16h6M5 20h10" />
                     </svg>

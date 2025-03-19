@@ -21,7 +21,7 @@
 <div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
     <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333;">
-        Products Overview
+        Products
     </div>
 
     <div class="flex justify-between items-center mb-4 space-x-4">
@@ -91,30 +91,35 @@
 
 
     <div class="text-gray-500 italic text-sm mt-2">
-        Note: Navigate to action to add details for the specific products
-        <a href="{{ route('add.product') }}">
-            <button class=" text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
-                Add Product
-            </button>
-        </a>
-        <a href="{{ route('stockclerk.add.brand') }}">
-            <button class="text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
-                Add New Brand
-            </button>
-        </a>
+        <div class="flex justify-between items-center mt-2">
+            <p>Note: Navigate to action to add details for the specific products</p>
 
-        <a href="{{ route('stockclerk.view.brands') }}">
-            <button class=" text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
-                View Brands
-            </button>
-        </a>
-
-        <a href="{{ route('stockclerk.view.category') }}">
-        <button class="bg-white text-black px-2 py-1 rounded-[6px] border border-gray-400 hover:bg-violet-100">
-                View Categories
-            </button>
-        </a>
+            <div class="flex space-x-2">
+                <a href="{{ route('add.product') }}">
+                    <button class="text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
+                        + Add Product
+                    </button>
+                </a>
+                <a href="{{ route('stockclerk.add.brand') }}">
+                    <button class="text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
+                        + Add New Brand
+                    </button>
+                </a>
+                <a href="{{ route('stockclerk.view.brands') }}">
+                    <button class="text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
+                      👁 View Brands
+                    </button>
+                </a>
+                <a href="{{ route('stockclerk.view.category') }}">
+                <button class="text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
+                      👁 View Categories
+                    </button>
+                </a>
+            </div>
+        </div>
     </div>
+
+
 
 
     <div class="overflow-x-auto">
@@ -140,9 +145,9 @@
                     <tr data-category="{{ $product->brand->category->category_name ?? 'N/A' }}"
                         data-brand="{{ $product->brand->brand_name ?? 'N/A' }}"
                         data-name="{{ $product->model_name }}">
-                        <td class="border border-gray-300 px-2 py-1">{{ $product->model_id }}</td>
-                        <td class="border border-gray-300 px-2 py-1">
-                            <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="50">
+                        <td class="border border-gray-300 px-2 py-1">0000{{ $product->model_id }}</td>
+                        <td class="border border-gray-300 px-2 py-1 text-center">
+                            <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="50" class="mx-auto">
                         </td>
                         <!-- <td class="border border-gray-300 px-2 py-1">
                             {{ $product->brand->category->category_name ?? 'N/A' }}

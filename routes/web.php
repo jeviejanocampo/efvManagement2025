@@ -138,6 +138,10 @@ Route::get('/manager-stock-activity-logs', [ActivityLogController::class, 'Manag
 
 Route::get('/admin-stock-activity-logs', [ActivityLogController::class, 'AdminStockindex'])->name('admin.Stocklogs');
 
+Route::get('/admin/dashboard', function () {
+    return view('admin.content.adminDashboardPage');
+})->name('admin.dashboard');
+
 Route::get('/admin-user-management', [ActivityLogController::class, 'UserManagement'])->name('admin.user.management');
 
 Route::post('/users/confirm/{id}', [ActivityLogController::class, 'confirmUser'])->name('users.confirm');

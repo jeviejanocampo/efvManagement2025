@@ -118,12 +118,12 @@
                 <div class="relative flex items-center space-x-4">
                     <!-- Greeting -->
                     <div class="text-white">
-                        <h2 class="text-2xl font-semibold">GOOD DAY!,  {{ Auth::user()->name ?? 'Guest' }}!</h2>
+                        <h2 class="text-1xl font-semibold">GOOD DAY!,  {{ Auth::user()->name ?? 'Guest' }}!</h2>
                     </div>
 
                     <!-- Profile Button -->
                     <button onclick="toggleDropdown()" class="flex items-center space-x-2 focus:outline-none">
-                        <img class="w-14 h-14 rounded-full" src="{{ asset('product-images/adminlogo.png') }}" alt="Profile">
+                        <img class="w-10 h-10 rounded-full" src="{{ asset('product-images/adminlogo.png') }}" alt="Profile">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-6" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M5.292 7.292a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 
                             1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0-01-1.414z" clip-rule="evenodd" />

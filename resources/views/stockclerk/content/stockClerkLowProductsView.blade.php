@@ -85,11 +85,11 @@
 </div>
 
     <div>
-        <a href="{{ route('stockclerk.add.product') }}">
+        <!-- <a href="{{ route('stockclerk.add.product') }}">
             <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
                 Add Product
             </button>
-        </a>
+        </a> -->
 
         <!-- <a href="{{ route('stockclerk.add.quantity') }}">
             <button class="bg-red-700 text-white px-2 py-1 rounded-lg hover:bg-red-700 mb-4">
