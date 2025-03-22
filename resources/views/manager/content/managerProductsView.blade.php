@@ -197,9 +197,9 @@
 
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
-                                <a href="{{ route('manager.variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
+                                <a href="{{ route('manager.variantsView', ['model_id' => $product->model_id]) }}" class="text-white bg-blue-500 px-2 py-1 rounded">View</a>
                             @else
-                                <span class="text-gray-500">No Variant</span>
+                                <span class="text-white bg-gray-500 px-2 py-1 rounded">No Variant</span>
                             @endif
                         </td>
 

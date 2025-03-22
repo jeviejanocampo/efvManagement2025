@@ -29,6 +29,7 @@
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-gray-200">
+                    <th class="border border-gray-300 px-2 py-1">Product ID</th>
                     <th class="border border-gray-300 px-2 py-1">Part ID</th>
                     <th class="border border-gray-300 px-2 py-1"></th>
                     <th class="border border-gray-300 px-2 py-1">Variant Name</th>
@@ -42,6 +43,7 @@
             <tbody>
                 @foreach ($variants as $variant)
                     <tr class="text-center">
+                        <td class="border border-gray-300 px-2 py-1">0000{{ $variant->variant_id }}</td>
                         <td class="border border-gray-300 px-2 py-1">{{ $variant->part_id }}</td>
                         <td class="border border-gray-300 px-2 py-1">
                             <img src="{{ asset('product-images/' . $variant->variant_image) }}" alt="Variant Image" class="w-16 h-16 object-cover rounded">
@@ -63,16 +65,17 @@
                         </td>
 
                         <td class="border border-gray-300 px-2 py-1 text-center">
-                        <a href="{{ route('edit.variant', ['model_id' => $variant->model_id, 'variant_id' => $variant->variant_id]) }}" class="text-blue-500 hover:underline">
-                            Edit
-                        </a>
+                            <a href="{{ route('edit.variant', ['model_id' => $variant->model_id, 'variant_id' => $variant->variant_id]) }}" 
+                            class="text-blue-500 hover:underline">
+                                <i class="fas fa-edit"></i> 
+                            </a>
                             | 
                             <form action="{{ route('delete.variant', ['id' => $variant->variant_id]) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-500 hover:underline bg-transparent border-none cursor-pointer"
                                         onclick="return confirm('Are you sure you want to delete this variant?');">
-                                    Delete
+                                    <i class="fas fa-trash-alt"></i> 
                                 </button>
                             </form>
                         </td>

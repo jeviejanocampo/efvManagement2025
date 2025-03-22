@@ -18,7 +18,7 @@
 <body>
     <div class="flex h-screen" >
         
-    <div id="sidebar" class="bg-black text-white w-64 space-y-6 px-4 transform -translate-x-full 
+    <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 px-4 transform -translate-x-full 
         md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40"
             style="margin: 10px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
@@ -53,12 +53,12 @@
     </div>
 
         <!-- Overlay for Sidebar -->
-        <div id="sidebarOverlay" class="fixed inset-0 bg-black opacity-50 hidden md:hidden" onclick="toggleSidebar()"></div>
+        <div id="sidebarOverlay" class="fixed inset-0 bg-gray-800 opacity-50 hidden md:hidden" onclick="toggleSidebar()"></div>
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col ml-0 md:ml-64 mt-1">
             <!-- Header -->
-            <header class="bg-black text-white py-6 px-8 flex justify-between items-center top-0 w-70" style="margin: 10px; border-radius: 24px; margin-left: 24px">
+            <header class="bg-gray-800 text-white py-6 px-8 flex justify-between items-center top-0 w-70" style="margin: 10px; border-radius: 24px; margin-left: 24px">
                 <div class="flex items-start space-x-4">
                     <!-- Hamburger for Small Screens -->
                     <button class="md:hidden focus:outline-none" onclick="toggleSidebar()">
@@ -107,7 +107,7 @@
 
         function setActiveLink(clickedLink) {
             navLinks.forEach(link => {
-                link.classList.remove("text-white", "bg-gray-800", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+                link.classList.remove("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
                 link.classList.add("text-gray-300", "hover:text-white"); 
 
                 const icon = link.querySelector("i");
@@ -117,7 +117,7 @@
                 }
             });
 
-            clickedLink.classList.add("text-white", "bg-gray-800", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+            clickedLink.classList.add("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
             clickedLink.classList.remove("text-gray-300", "hover:text-white");
 
             const activeIcon = clickedLink.querySelector("i");

@@ -19,6 +19,11 @@
 
     <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333;">
          Low Units
+
+         <p class="border-b border-b-[1px] border-gray-300 mb-4">
+            <!-- Your content here -->
+        </p>
+
     </div>
 
  <div class="flex justify-between items-center mb-4 space-x-4">

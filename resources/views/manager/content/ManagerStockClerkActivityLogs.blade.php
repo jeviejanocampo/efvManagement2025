@@ -5,6 +5,9 @@
     th {
         text-align: "cemter",
     }
+    td {
+        text-align: "cemter",
+    }
 </style>
 
 <div class ="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
@@ -51,6 +54,7 @@
         <table class="min-w-full table-auto border-collapse border border-gray-300">
             <thead class="bg-white">
                 <tr class="border-b">
+                <th class="px-4 py-2 text-sm font-medium"></th>
                     <th class="px-4 py-2 text-sm font-medium">User ID</th>
                     <th class="px-4 py-2  text-sm font-medium">Role</th>
                     <th class="px-4 py-2  text-sm font-medium">Activity</th>
@@ -60,11 +64,11 @@
             <tbody id="activityLogsTable">
             @foreach($activityLogs as $log)
                     <tr class="border-b log-row" data-id="{{ $log->id }}" data-role="{{ $log->role }}" data-activity="{{ $log->activity }}" data-created="{{ $log->created_at }}">
-                        <td class="px-4 py-2 text-sm">{{ $log->id }}</td>
-                        <td class="px-4 py-2 text-sm">{{ $log->user_id }}</td>
-                        <td class="px-4 py-2 text-sm">{{ $log->role }}</td>
-                        <td class="px-4 py-2 text-sm">{{ $log->activity }}</td>
-                        <td class="px-4 py-2 text-sm">{{ $log->created_at }}</td>
+                        <td class="px-4 py-2 text-sm text-center">{{ $log->id }}</td>
+                        <td class="px-4 py-2 text-sm text-center">{{ $log->user_id }}</td>
+                        <td class="px-4 py-2 text-sm text-center">{{ $log->role }}</td>
+                        <td class="px-4 py-2 text-sm text-center">{{ $log->activity }}</td>
+                        <td class="px-4 py-2 text-sm text-center">{{ $log->created_at }}</td>
                     </tr>
             @endforeach
             </tbody>

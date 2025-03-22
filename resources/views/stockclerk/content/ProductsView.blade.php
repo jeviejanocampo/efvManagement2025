@@ -22,6 +22,11 @@
 
     <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333;">
         Products
+        
+        <p class="border-b border-b-[1px] border-gray-300 mt-2">
+            <!-- Your content here -->
+        </p>
+
     </div>
 
     <div class="flex justify-between items-center mb-4 space-x-4">
@@ -94,7 +99,7 @@
         <div class="flex justify-between items-center mt-2">
             <p>Note: Navigate to action to add details for the specific products</p>
 
-            <div class="flex space-x-2">
+            <!-- <div class="flex space-x-2">
                 <a href="{{ route('add.product') }}">
                     <button class="text-black px-2 py-1 rounded-lg hover:bg-violet-100 mb-4 border">
                         + Add Product
@@ -115,7 +120,7 @@
                       👁 View Categories
                     </button>
                 </a>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -191,9 +196,12 @@
 
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
-                                <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
+                                <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" 
+                                class="text-white bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition">
+                                View
+                                </a>
                             @else
-                                <span class="text-gray-500">No Variant</span>
+                                <span class="text-white bg-gray-500 px-3 py-1 rounded-lg">No Variant</span>
                             @endif
                         </td>
 
