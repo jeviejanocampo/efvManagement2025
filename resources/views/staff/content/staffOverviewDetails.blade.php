@@ -181,18 +181,16 @@
 
     <div class="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         @if($order->status === 'Completed')
-            <p>
-            </p>
+            <p></p>
         @elseif($order->status === 'Cancelled')
-            <p>
-            </p>
+            <p></p>
         @else
-            <p style="font-size: 20px; font-weight: bold">
-                Total To Pay: ₱ 
-                {{ number_format ( $order->total_price, 2 ) }}
+            <p style="font-size: 28px; font-weight: bold; text-align: right;">
+                Total To Pay: ₱ {{ number_format ( $order->total_price, 2 ) }}
             </p> 
         @endif
     </div>
+
 
     <!-- User Details Modal -->
     <div id="userModal" class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 hidden">

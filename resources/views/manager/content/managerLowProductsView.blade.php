@@ -17,8 +17,14 @@
 
 <div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
-    <div style="text-align: center; margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
+    <div style="margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
+
          Low Units
+
+         <p class="border-b border-b-[1px] border-gray-300 mb-4 mt-2">
+            <!-- Your content here -->
+        </p>
+
     </div>
 
  <div class="flex justify-between items-center mb-4 space-x-4">

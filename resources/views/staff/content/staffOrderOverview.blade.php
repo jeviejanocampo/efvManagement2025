@@ -105,9 +105,11 @@
                             </span>
                         </td>
                         <td class="border border-gray-300 px-4 py-2">
-                            <p style="text-align:center">
+                            <p style="text-align: center;">
                                 <a href="{{ route('overViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
-                                class="text-blue-600 hover:underline">view</a>
+                                class="text-black hover:underline">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                             </p>
                         </td>
                     </tr>

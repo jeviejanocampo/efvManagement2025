@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Overview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <style>
     th{
@@ -20,8 +21,13 @@
 
 <div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
-    <div style="text-align: center; margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
-        Overview
+    <div style="margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
+        Reserve and Pre-Orders
+
+        <p class="border-b border-b-[1px] border-gray-300 mt-2">
+            <!-- Your content here -->
+        </p>
+
     </div>
 
     <div class="flex justify-between items-center mb-4 space-x-4">
@@ -62,7 +68,7 @@
     </div>
 
     <div class="overflow-x-auto">
-        <table class="table-auto w-full border-collapse border border-gray-300">
+        <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
             <thead>
                 <tr class="bg-white">
                     <th class="border border-gray-300 px-4 py-2">Reference ID</th>
@@ -80,13 +86,10 @@
                         <td class="border border-gray-300 px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->user_id }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>
-                        <td class="border border-gray-300 px-4 py-2">₱ {{number_format ($order->total_price, 2) }}</td>
+                        <td class="border border-gray-300 px-4 py-2">₱ {{ number_format($order->total_price, 2) }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
                         <td class="border border-gray-300 px-4 py-2">
-                        <span 
-                            class="
-                                px-4 py-1 rounded-full text-sm text-white text-center 
-                                flex items-center justify-center
+                            <span class="px-4 py-1 rounded-full text-sm text-white text-center flex items-center justify-center
                                 @if ($order->status === 'Pending') bg-yellow-500
                                 @elseif ($order->status === 'Ready to Pickup') bg-blue-500
                                 @elseif ($order->status === 'Cancelled') bg-red-500
@@ -96,19 +99,24 @@
                                 @endif
                             ">
                             {{ $order->status }}
-                        </span>
+                            </span>
                         </td>
-                        <td class="border border-gray-300 px-4 py-2">
-                            <p style="text-align:center">
-                                <a href="{{ route('manageroverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
-                                class="text-blue-600 hover:underline">view</a>
-                            </p>
+                        <td class="border border-gray-300 px-4 py-2 text-center">
+                            <a href="{{ route('overViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
+                            class="text-black hover:underline">
+                                <i class="fas fa-eye"></i>
+                            </a>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+
+        <div class="mt-4">
+            {{ $orders->links('pagination::tailwind') }}
+        </div>
     </div>
+
 </div>
 
 <script>

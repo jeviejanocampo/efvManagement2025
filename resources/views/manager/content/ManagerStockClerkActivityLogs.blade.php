@@ -8,9 +8,14 @@
 </style>
 
 <div class ="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-    <h1 class="text-2xl font-semibold mb-4">Manager Activity Logs</h1>
+    <h1 class="text-2xl font-semibold mb-2">Manager Activity Logs</h1>
+
+    <p class="border-b border-b-[1px] border-gray-300 mb-4">
+        <!-- Your content here -->
+    </p>
+
     <!-- Filters Section -->
-    <div class="flex space-x-4 mb-6">
+    <div class="flex space-x-4 mb-4 ">
         <!-- Search Filter -->
         <div class="flex items-center">
             <label for="search" class="mr-2 text-sm">Search:</label>

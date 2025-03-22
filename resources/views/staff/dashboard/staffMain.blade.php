@@ -23,12 +23,12 @@
             style="margin: 10px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
         <div class="flex justify-center items-center text-2xl font-bold">
-            <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-25 h-25 ml-8">
+            <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-28 h-28 ml-8">
         </div>
 
         <nav class="space-y-4">
             <p class="text-white text-1xl font-bold">Main</p>
-            <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
+            <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
                 <i class="fa-solid fa-box mr-3"></i>
                 Reserved and Pre-Orders
                 @if(session('pendingCount') && session('pendingCount') > 0)
@@ -39,13 +39,13 @@
             </a>
 
             <p class="text-white text-1xl font-bold">Queue</p>
-            <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
+            <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
                 <i class="fa-solid fa-list-check mr-3"></i>
                 Orders Queue
             </a>
             
             <p class="text-white text-1xl font-bold">Logs</p>
-            <a href="{{ route('logs') }}" class="flex items-center text-gray-300 hover:text-white ml-4">
+            <a href="{{ route('logs') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
                 <i class="fa-solid fa-clipboard-list mr-3"></i>
                 Staff Activity Log
             </a>
@@ -68,8 +68,8 @@
                     </button>
                     <i class="fa-solid fa-screwdriver-wrench text-xl md:text-6xl text-white mt-2"></i>
                     <div class="space-x-2">
-                        <h1 class="text-lg md:text-4xl font-semibold mb-2">EFV AUTO PARTS MANAGEMENT SYSTEM</h1>
-                        <h2 class="text-1xl font-medium">Here are your daily tasks for today</h2>
+                        <h1 class="text-lg md:text-4xl font-semibold mt-4">EFV AUTO PARTS MANAGEMENT SYSTEM</h1>
+                        <!-- <h2 class="text-1xl font-medium">Here are your daily tasks for today</h2> -->
                     </div>
                 </div>
                 <div class="relative flex items-center space-x-4">
