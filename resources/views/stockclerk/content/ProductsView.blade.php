@@ -152,7 +152,7 @@
                         data-name="{{ $product->model_name }}">
                         <td class="border border-gray-300 px-2 py-1">0000{{ $product->model_id }}</td>
                         <td class="border border-gray-300 px-2 py-1 text-center">
-                            <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="50" class="mx-auto">
+                            <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="80" class="mx-auto">
                         </td>
                         <!-- <td class="border border-gray-300 px-2 py-1">
                             {{ $product->brand->category->category_name ?? 'N/A' }}

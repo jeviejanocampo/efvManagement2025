@@ -70,7 +70,7 @@
     <div class="overflow-x-auto">
         <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
             <thead>
-                <tr class="bg-white">
+                <tr class="bg-gray-100">
                     <th class="border border-gray-300 px-4 py-2">Reference ID</th>
                     <th class="border border-gray-300 px-4 py-2">User ID</th>
                     <th class="border border-gray-300 px-4 py-2">Total Items</th>
@@ -102,7 +102,7 @@
                             </span>
                         </td>
                         <td class="border border-gray-300 px-4 py-2 text-center">
-                            <a href="{{ route('overViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
+                            <a href="{{ route('manageroverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
                             class="text-black hover:underline">
                                 <i class="fas fa-eye"></i>
                             </a>

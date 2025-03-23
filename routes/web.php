@@ -190,7 +190,7 @@ Route::get('/manager-add-brand', [ProductController::class, 'ManagerStockcreate'
 Route::delete('/stockclerk/delete-category/{category_id}', [ProductController::class, 'StockClerkdeleteCategory'])
     ->name('stockclerk.delete.category');
 
-Route::get('/manager-add-category', [ProductController::class, 'ManagerAddBrand'])->name('manager.add.category');
+Route::get('/manager-add-category', [ProductController::class, 'ManagerkAddCategory'])->name('manager.add.category');
 
 Route::get('/stockclerk-add-category', [ProductController::class, 'StockClerkAddBrand'])->name('stockclerk.add.category');
 

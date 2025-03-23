@@ -118,7 +118,7 @@
             <thead>
                 <tr class="bg-white">
                 <thead>
-                    <tr class="bg-white">
+                    <tr class="bg-gray-100">
                         <th class="border border-gray-300 px-2 py-1"></th>
                         <th class="border border-gray-300 px-2 py-1"></th>
                         <!-- <th class="border border-gray-300 px-2 py-1"></th> -->
@@ -193,7 +193,7 @@
             <p>
             </p>
         @else
-            <p style="font-size: 20px; font-weight: bold">
+            <p style="font-size: 28px; font-weight: bold" class="text-right">
                 Total To Pay: ₱ 
                 {{number_format  ($order->total_price, 2) }}
             </p> 

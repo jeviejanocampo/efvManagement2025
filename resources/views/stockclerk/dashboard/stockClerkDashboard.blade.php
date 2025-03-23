@@ -22,23 +22,23 @@
     <div class="flex h-screen">
         
         <!-- Sidebar -->
-        <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-8 px-4 transform -translate-x-full 
+        <div id="sidebar" class="bg-gray-800 text-white w-64 px-4 transform -translate-x-full 
             md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40"
              style="margin: 10px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
 
             <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
-                <div class="flex justify-center items-center text-2xl font-bold">
-                    <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-16 h-16 ml-8">
-                </div>
+            <div class="flex justify-center items-center text-2xl font-bold mt-4">
+                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-32 ml-2 rounded-full">
+            </div>
                 <!-- <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Stock Clerk Panel</a></p> -->
-                <p class="border-b border-b-[1px] border-white mt-2">
-                    <!-- Your content here -->
-                </p>
+                <!-- <p class="border-b border-b-[1px] border-white mt-2">
+                     Your content here 
+                </p> -->
             </div>
             
             <!-- Navigation -->
-            <nav class="space-y-8">
+            <nav class="space-y-6">
                 <p class="text-white text-1xl font-bold">Main</p>
                 
                 <a href="{{ route('stockoverView') }}" class="flex items-center text-gray-300 hover:text-white relative ml-2">

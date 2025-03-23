@@ -162,7 +162,7 @@ class ProductController extends Controller
     {
         $brands = Brand::all();
         $categories = Category::all(); // Fetch all categories
-        return view('manager.content.ManagerAddBrand', compact('brands', 'categories'));
+        return view('manager.content.ManagerAddCategory', compact('brands', 'categories'));
     }
 
     public function StockClerkeditCategory($category_id)
@@ -233,6 +233,12 @@ class ProductController extends Controller
         $brands = Brand::all();
         $categories= Category::all();
         return view('stockclerk.content.StockClerkAddCategory', compact('brands', 'categories'));
+    }
+
+    public function ManagerkAddCategory (){
+        $brands = Brand::all();
+        $categories= Category::all();
+        return view('manager.content.ManagerAddCategory', compact('brands', 'categories'));
     }
 
     public function storeCategory(Request $request)
