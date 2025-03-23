@@ -66,7 +66,7 @@
                 <div class="ml-2">
                     <button onclick="toggleProducts()" class="flex items-center justify-between w-full text-gray-300 hover:text-white focus:outline-none">
                         <div class="flex items-center">
-                            <i class="fas fa-box mr-3"></i> View
+                            <i class="fas fa-eye mr-3"></i> View
                         </div>
                             <i id="products-arrow" class="fas fa-chevron-down transition-transform duration-300"></i>
                     </button>
@@ -79,9 +79,12 @@
                             <a href="{{ route('add.product') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
                                 <i class="fas fa-plus-square mr-2"></i> Add Product
                             </a>
-                            <a href="{{ route('stockclerk.add.brand') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
+                            <!-- <a href="{{ route('stockclerk.add.brand') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
                                 <i class="fas fa-tags mr-2"></i> Add New Brand
-                            </a>
+                            </a> -->
+                            <!-- <a href="{{ route('stockclerk.add.category') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
+                                <i class="fas fa-folder-plus mr-2"></i> Add Category
+                            </a> -->
                             <a href="{{ route('stockclerk.view.brands') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
                                 <i class="fas fa-eye mr-2"></i> View Brands
                             </a>

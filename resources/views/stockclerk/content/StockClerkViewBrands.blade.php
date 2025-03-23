@@ -8,7 +8,14 @@
         </button>
     </div>
 
-    <h2 class="text-2xl font-bold mb-4">View Brands</h2>
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-3xl font-bold">View Brands</h2>
+        <a href="{{ route('stockclerk.add.brand') }}" 
+        class="bg-violet-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-violet-900">
+            <i class="fas fa-plus"></i> Add Brand
+        </a>
+    </div>
+
 
     @if(session('success'))
         <div id="success-alert" class="mb-4 p-4 bg-green-100 text-green-700 border border-green-400 rounded-lg">
@@ -25,40 +32,57 @@
 
     <div class="overflow-x-auto">
         <table class="min-w-full bg-white border border-gray-300 rounded-lg ">
-            <thead>
+            <thead class="bg-gray-100">
                 <tr>
-                    <th class="px-2 py-1 border">#</th>
+                    <th class="px-2 py-1 border"></th>
+                    <th class="px-2 py-1 border"></th>
                     <th class="px-2 py-1 border">Brand Name</th>
                     <th class="px-2 py-1 border">Category</th>
-                    <th class="px-2 py-1 border">Image</th>
                     <th class="px-2 py-1 border">Status</th>
+                    <th class="px-2 py-1 border">Action</th> 
                 </tr>
             </thead>
             <tbody id="brandTableBody">
                 @forelse($brands as $index => $brand)
                 <tr class="text-center border brand-row">
-                    <td class="px-2 py-1 border">{{ $index + 1 }}</td>
-                    <td class="px-2 py-1 border brand-name">{{ $brand->brand_name }}</td>
-                    <td class="px-2 py-1 border category-name">
-                        {{ $brand->category ? $brand->category->category_name : 'N/A' }}
-                    </td>
-                    <<td class="px-2 py-1 border text-center">
+                    <td class="px-2 py-1 border">0000{{ $brand->brand_id }}</td>
+                    <td class="px-2 py-1 border text-center">
                         @if($brand->brand_image)
                             <img src="{{ asset('product-images/' . $brand->brand_image) }}" alt="Brand Image" class="w-16 h-16 rounded mx-auto">
                         @else
                             No Image
                         @endif
                     </td>
-
+                    <td class="px-2 py-1 border brand-name">{{ $brand->brand_name }}</td>
+                    <td class="px-2 py-1 border category-name">
+                        {{ $brand->category ? $brand->category->category_name : 'N/A' }}
+                    </td>         
                     <td class="px-2 py-1 border">
                         <span class="px-2 py-1 rounded-lg text-white {{ strtolower($brand->status) === 'active' ? 'bg-green-600' : 'bg-red-600' }}">
                             {{ $brand->status }}
                         </span>
                     </td>
+                    <td class="px-2 py-1 border">
+                        <div class="flex justify-center space-x-2">
+                            <!-- Edit Button -->
+                            <a href="{{ route('stockclerk.edit.brand', ['brand_id' => $brand->brand_id]) }}" 
+                            class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <!-- Delete Button -->
+                            <form action="{{ route('stockclerk.delete.brand', ['brand_id' => $brand->brand_id]) }}" method="POST" class="inline delete-brand-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-800 delete-brand-btn">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center py-4">No brands available.</td>
+                    <td colspan="6" class="text-center py-4">No brands available.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -66,6 +90,22 @@
     </div>
 </div>
 
+<script>
+    document.querySelectorAll('.delete-brand-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (confirm("Are you sure you want to delete this brand? This action cannot be undone.")) {
+                this.submit();
+            }
+        });
+    });
+
+    @if(session('success'))
+        alert("{{ session('success') }}");
+    @elseif(session('error'))
+        alert("{{ session('error') }}");
+    @endif
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('search');

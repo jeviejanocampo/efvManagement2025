@@ -45,14 +45,14 @@
     <!-- Activity Log Table -->
     <div class="overflow-x-auto">
         <table class="min-w-full table-auto border-collapse border border-gray-300">
-            <thead class="bg-white">
+            <thead class="bg-gray-100">
                 <tr class="border-b">
-                    <th class="px-4 py-2  text-sm font-medium">ID</th>
-                    <th class="px-4 py-2  text-sm font-medium">User ID</th>
-                    <th class="px-4 py-2  text-sm font-medium">Role</th>
-                    <th class="px-4 py-2  text-sm font-medium">Activity</th>
-                    <th class="px-4 py-2  text-sm font-medium">Created At</th>
-                    <th class="px-4 py-2  text-sm font-medium">Updated At</th>
+                    <th class="px-4 py-2  text-sm font-bold">ID</th>
+                    <th class="px-4 py-2  text-sm font-bold">User ID</th>
+                    <th class="px-4 py-2  text-sm font-bold">Role</th>
+                    <th class="px-4 py-2  text-sm font-bold">Activity</th>
+                    <th class="px-4 py-2  text-sm font-bold">Created At</th>
+                    <th class="px-4 py-2  text-sm font-bold">Updated At</th>
                 </tr>
             </thead>
             <tbody id="activityLogsTable">

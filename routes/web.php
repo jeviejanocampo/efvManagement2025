@@ -164,6 +164,14 @@ Route::get('/manager-products', [ProductController::class, 'Managerindex'])->nam
 
 Route::get('/manager-low-products', [ProductController::class, 'ManagerLowIndex'])->name('ManagerLowProducts');
 
+Route::get('/stockclerk/edit-brand/{brand_id}', [ProductController::class, 'StockClerkeditBrand'])
+->name('stockclerk.edit.brand');
+
+Route::post('/stockclerk/update-brand/{brand_id}', [ProductController::class, 'updateBrand'])
+->name('stockclerk.update.brand');
+
+Route::delete('/stockclerk/delete-brand/{brand_id}', [ProductController::class, 'StockClerkdeleteBrand'])
+->name('stockclerk.delete.brand');
 
 Route::get('/manager-view', [ProductController::class, 'Managerindex'])->name('managerproductsView');
 
@@ -179,7 +187,19 @@ Route::get('/stock-add-brand', [ProductController::class, 'Stockcreate'])->name(
 
 Route::get('/manager-add-brand', [ProductController::class, 'ManagerStockcreate'])->name('manager.add.brand');
 
+Route::delete('/stockclerk/delete-category/{category_id}', [ProductController::class, 'StockClerkdeleteCategory'])
+    ->name('stockclerk.delete.category');
+
 Route::get('/manager-add-category', [ProductController::class, 'ManagerAddBrand'])->name('manager.add.category');
+
+Route::get('/stockclerk-add-category', [ProductController::class, 'StockClerkAddBrand'])->name('stockclerk.add.category');
+
+Route::get('/stockclerk/edit-category/{category_id}', [ProductController::class, 'StockClerkeditCategory'])
+    ->name('stockclerk.edit.category');
+
+Route::post('/stockclerk/update-category/{category_id}', [ProductController::class, 'StockClerkupdateCategory'])
+->name('stockclerk.update.category');
+
 
 Route::post('/manager-store-category', [ProductController::class, 'storeCategory'])->name('manager.store.category');
 

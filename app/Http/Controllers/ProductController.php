@@ -25,6 +25,56 @@ class ProductController extends Controller
         return view('stockclerk.content.ProductsView', compact('products', 'brands', 'statuses'));
     }
 
+    public function StockClerkeditBrand($brand_id)
+    {
+        // Fetch the brand details by ID
+        $brand = Brand::findOrFail($brand_id);
+
+        // Pass brand data to the edit view
+        return view('stockclerk.content.StockClerkEditBrand', compact('brand'));
+    }
+
+    public function updateBrand(Request $request, $brand_id)
+    {
+        try {
+            // Validate the input data
+            $request->validate([
+                'brand_name' => 'required|string|max:255',
+                'category_name' => 'required|string|max:255',
+                'status' => 'required|in:Active,Inactive',
+            ]);
+
+            // Find the brand by ID
+            $brand = Brand::findOrFail($brand_id);
+
+            // Update the brand details
+            $brand->brand_name = $request->brand_name;
+            $brand->category->category_name = $request->category_name; // Assuming category exists
+            $brand->status = $request->status;
+            $brand->save();
+
+            return redirect()->back()->with('success', 'Brand updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update brand. Please try again.');
+        }
+    }
+
+    public function StockClerkdeleteBrand($brand_id)
+    {
+        try {
+            // Find the brand by ID
+            $brand = Brand::findOrFail($brand_id);
+    
+            // Delete the brand
+            $brand->delete();
+    
+            return redirect()->back()->with('success', 'Brand deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete brand. Please try again.');
+        }
+    }
+    
+
     public function lowUnitsProducts() {
         // Count the products with stocks_quantity between 0 and 5 from the 'products' table
         $lowStockProductsCount = Products::whereBetween('stocks_quantity', [0, 5])->count();
@@ -71,8 +121,6 @@ class ProductController extends Controller
         return view('stockclerk.content.stockClerkLowProductsView', compact('lowStockCount', 'brands', 'products', 'statuses'));
     }
     
-    
-
     public function Managerindex()
     {
         $products = Models::with(['brand.category'])->paginate(8); 
@@ -107,7 +155,7 @@ class ProductController extends Controller
     {
         $brands = Brand::all();
         $categories = Category::all(); // Fetch all categories
-        return view('stockclerk.content.StockClerkAddBrand', compact('brands', 'categories'));
+        return view('stockclerk.content.StockClerkAddCategory', compact('brands', 'categories'));
     }
 
     public function ManagerStockcreate()
@@ -117,11 +165,74 @@ class ProductController extends Controller
         return view('manager.content.ManagerAddBrand', compact('brands', 'categories'));
     }
 
+    public function StockClerkeditCategory($category_id)
+    {
+        // Fetch the category by ID
+        $category = Category::findOrFail($category_id);
 
-    public function ManagerAddBrand (){
+        // Pass the category data to the edit view
+        return view('stockclerk.content.StockClerkEditCategory', compact('category'));
+    }
+
+    public function StockClerkupdateCategory(Request $request, $category_id)
+    {
+        try {
+            $category = Category::findOrFail($category_id);
+
+            // Validate request
+            $request->validate([
+                'category_name' => 'required|string|max:255',
+                'cat_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            // Update category name and status
+            $category->category_name = $request->category_name;
+            $category->status = $request->status;
+
+            // Handle image upload if a new file is provided
+            if ($request->hasFile('cat_image')) {
+                $image = $request->file('cat_image');
+                $imageName = time() . '.' . $image->extension();
+                $image->move(public_path('product-images'), $imageName);
+                $category->cat_image = $imageName;
+            }
+
+            $category->save();
+
+            return redirect()->back()->with('success', 'Category updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update category. Please try again.');
+        }
+    }
+
+    public function StockClerkdeleteCategory($category_id)
+    {
+        try {
+            $category = Category::findOrFail($category_id);
+    
+            // Delete the image file from storage if it exists
+            if ($category->cat_image) {
+                $imagePath = public_path('product-images/' . $category->cat_image);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+    
+            // Delete the category from the database
+            $category->delete();
+    
+            return redirect()->back()->with('success', 'Category deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete category. Please try again.');
+        }
+    }
+    
+
+    public function StockClerkAddBrand (){
         $brands = Brand::all();
         $categories= Category::all();
-        return view('manager.content.ManagerAddCategory', compact('brands', 'categories'));
+        return view('stockclerk.content.StockClerkAddCategory', compact('brands', 'categories'));
     }
 
     public function storeCategory(Request $request)
@@ -943,7 +1054,6 @@ class ProductController extends Controller
 
         return redirect()->route('manager.add.variant', ['model_id' => $model_id])->with('success', 'Variant added successfully.');
     }
-
     
     public function editVariant($model_id, $variant_id, Request $request)
     {
@@ -988,7 +1098,6 @@ class ProductController extends Controller
     
         return view('manager.content.ManagerEditVariant', compact('variant', 'model_id', 'variant_id'));
     }
-    
     
 
     public function deleteVariant($id)
@@ -1104,9 +1213,6 @@ class ProductController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to update status.']);
         }
     }
-
-    
-    
 
 
 }
