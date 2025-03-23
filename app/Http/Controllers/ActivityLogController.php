@@ -65,11 +65,12 @@ class ActivityLogController extends Controller
 
     public function Stockindex()
     {
-        // Fetch all activity logs in descending order by created_at
-        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->get(); 
+        // Fetch activity logs with pagination (10 per page)
+        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->paginate(30); 
 
         return view('stockclerk.content.StockClerkActivityLogs', compact('activityLogs'));
     }
+
 
     public function ManagerStockindex()
     {

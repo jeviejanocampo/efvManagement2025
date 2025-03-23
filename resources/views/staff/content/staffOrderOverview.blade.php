@@ -20,9 +20,14 @@
 
 <div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
-    <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333;">
-        Reserved and Pre-Orders
+    <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333; display: flex; align-items: center;">
+        <i class="fas fa-box-open mr-3"></i> Reserved and Pre-Orders
+
+        <p class="border-b border-b-[1px] border-gray-300 mt-2">
+            <!-- Your content here -->
+        </p>
     </div>
+
 
     <div class="flex justify-between items-center mb-4 space-x-4">
         <!-- Search bar -->
@@ -62,34 +67,34 @@
     </div>
 
     <div class="overflow-x-auto">
-    <table class="table-auto w-full border-collapse border border-gray-300">
+    <table class="table-auto w-full border-collapse">
         <thead>
-            <tr class="bg-white">
-                <th class="border border-gray-300 px-4 py-2">Reference ID</th> 
-                <th class="border border-gray-300 px-4 py-2">User ID</th>
-                <th class="border border-gray-300 px-4 py-2">Total Items</th>
-                <th class="border border-gray-300 px-4 py-2">Total</th>
-                <th class="border border-gray-300 px-4 py-2">Created At</th>
-                <th class="border border-gray-300 px-4 py-2">Status</th>
-                <th class="border border-gray-300 px-4 py-2">Action</th>
+            <tr class="bg-gray-100 border-b border-gray-300">
+                <th class="px-4 py-2">Reference ID</th> 
+                <th class="px-4 py-2">User ID</th>
+                <th class="px-4 py-2">Total Items</th>
+                <th class="px-4 py-2">Total</th>
+                <th class="px-4 py-2">Created At</th>
+                <th class="px-4 py-2">Status</th>
+                <th class="px-4 py-2">Action</th>
             </tr>
         </thead>
         <tbody id="order-table">
             @if ($orders->isEmpty())
-                <tr>
-                    <td colspan="7" class="border border-gray-300 px-4 py-6 text-center text-gray-500">
+                <tr class="border-b border-gray-300">
+                    <td colspan="7" class="px-4 py-6 text-center text-gray-500">
                         No orders available.
                     </td>
                 </tr>
             @else
                 @foreach ($orders as $order)
-                    <tr class="border border-gray-300 transition-transform duration-300 hover:bg-gray-100 text-center">
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->user_id }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>
-                        <td class="border border-gray-300 px-4 py-2">₱ {{ number_format($order->total_price, 2) }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
-                        <td class="border border-gray-300 px-4 py-2">
+                    <tr class="border-b border-gray-300 transition-transform duration-300 hover:bg-gray-100 text-center">
+                        <td class="px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
+                        <td class="px-4 py-2">{{ $order->user_id }}</td>
+                        <td class="px-4 py-2">{{ $order->total_items }}</td>
+                        <td class="px-4 py-2">₱ {{ number_format($order->total_price, 2) }}</td>
+                        <td class="px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
+                        <td class="px-4 py-2">
                             <span class="
                                 px-4 py-1 rounded-full text-sm text-white text-center 
                                 flex items-center justify-center
@@ -104,7 +109,7 @@
                                 {{ $order->status }}
                             </span>
                         </td>
-                        <td class="border border-gray-300 px-4 py-2">
+                        <td class="px-4 py-2">
                             <p style="text-align: center;">
                                 <a href="{{ route('overViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
                                 class="text-black hover:underline">
@@ -116,7 +121,8 @@
                 @endforeach
             @endif
         </tbody>
-        </table>
+    </table>
+
     </div>
 </div>
 

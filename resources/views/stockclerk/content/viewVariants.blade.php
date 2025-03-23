@@ -2,23 +2,24 @@
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<div class="container mx-auto p-6 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-    <!-- Back Button -->
-    <div class="mb-4">
+<div class="mb-4">
     <a href="{{ url()->previous() }}" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
         ← Back
     </a>
-    </div>
+</div>
+
+<div class="container mx-auto p-6 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+    <!-- Back Button -->
 
     <div class="flex justify-between items-center mb-4">
         <!-- <h2 class="text-2xl font-bold">Model ID: {{ $model->model_id }}</h2> -->
-        <h2 class="text-2xl font-bold">Product Name: {{ $model->model_name }}</h2>
+        <h2 class="text-2xl font-bold">Primary Product: {{ $model->model_name }}</h2>
     </div>
 
     <div>
         <a href="{{ route('add.variant', ['model_id' => $model_id]) }}">
-            <button class="bg-violet-700 text-white px-2 py-1 rounded-lg hover:bg-violet-700 mb-4">
-                Add Variant
+            <button class="bg-violet-800 text-white px-2 py-1 rounded-lg hover:bg-violet-800 mb-4">
+                + Add Variant
             </button>
         </a>
     </div>
@@ -33,7 +34,7 @@
                     <th class="border border-gray-300 px-2 py-1">Part ID</th>
                     <th class="border border-gray-300 px-2 py-1"></th>
                     <th class="border border-gray-300 px-2 py-1">Variant Name</th>
-                    <th class="border border-gray-300 px-2 py-1">Price</th>
+                    <th class="border border-gray-300 px-2 py-1">Unit Price</th>
                     <th class="border border-gray-300 px-2 py-1">Stock Quantity</th>
                     <th class="border border-gray-300 px-2 py-1">Status</th>
                     <th class="border border-gray-300 px-2 py-1">Edit Status</th>
@@ -49,7 +50,7 @@
                             <img src="{{ asset('product-images/' . $variant->variant_image) }}" alt="Variant Image" class="w-16 h-16 object-cover rounded">
                         </td>
                         <td class="border border-gray-300 px-2 py-1">{{ $variant->product_name }}</td>
-                        <td class="border border-gray-300 px-2 py-1">{{ $variant->price }}</td>
+                        <td class="border border-gray-300 px-2 py-1">₱ {{ number_format($variant->price, 2) }}</td>
                         <td class="border border-gray-300 px-2 py-1">{{ $variant->stocks_quantity }}</td>
                         <td class="border border-gray-300 px-2 py-1 text-center
                             {{ $variant->status == 'active' ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }} 

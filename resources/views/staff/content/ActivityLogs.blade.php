@@ -9,11 +9,15 @@
 
 <div class ="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <h1 class="text-5xl font-semibold">Activity Logs</h1>
+        <p class="border-b border-b-[1px] border-gray-300 mt-2 mb-2">
+            <!-- Your content here -->
+        </p>
+
     <p style="margin-bottom: 12px; font-style: italic;color: gray">
         Note: All the activities that have been operated by the staff are logged here.
     </p>
     <!-- Filters Section -->
-    <div class="flex space-x-4 mb-2">
+    <div class="flex space-x-4 mb-4">
         <!-- Search Filter -->
         <div class="flex items-center">
             <!-- <label for="search" class="mr-2 text-sm">Search:</label> -->
@@ -47,7 +51,7 @@
     <!-- Activity Log Table -->
     <div class="overflow-x-auto">
         <table class="min-w-full table-auto border-collapse border border-gray-300">
-        <thead class="bg-white">
+        <thead class="bg-gray-100">
             <tr class="border-b">
                 <th id="column-0" class="px-4 py-2 text-sm font-bold cursor-pointer" onclick="sortTable(0, 'column-0')">
                     ID <span class="sort-icon" id="icon-0"></span>

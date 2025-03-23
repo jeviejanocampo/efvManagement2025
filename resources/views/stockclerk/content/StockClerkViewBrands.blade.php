@@ -1,7 +1,7 @@
 @extends('stockclerk.dashboard.stockClerkDashboard')
 
 @section('content')
-<div class="container mx-auto p-6 bg-white rounded-xl ">
+<div class="container mx-auto p-6 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <div class="mb-4">
         <button onclick="window.history.back()" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
             ← Back
@@ -10,7 +10,6 @@
 
     <h2 class="text-2xl font-bold mb-4">View Brands</h2>
 
-    <!-- Success Alert -->
     @if(session('success'))
         <div id="success-alert" class="mb-4 p-4 bg-green-100 text-green-700 border border-green-400 rounded-lg">
             {{ session('success') }}

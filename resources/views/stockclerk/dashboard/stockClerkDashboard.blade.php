@@ -33,12 +33,12 @@
                 </div>
                 <!-- <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Stock Clerk Panel</a></p> -->
                 <p class="border-b border-b-[1px] border-white mt-2">
-                        <!-- Your content here -->
-                    </p>
+                    <!-- Your content here -->
+                </p>
             </div>
             
             <!-- Navigation -->
-            <nav class="space-y-6">
+            <nav class="space-y-8">
                 <p class="text-white text-1xl font-bold">Main</p>
                 
                 <a href="{{ route('stockoverView') }}" class="flex items-center text-gray-300 hover:text-white relative ml-2">
@@ -73,19 +73,19 @@
 
                     <!-- Submenu -->
                     <div id="products-submenu" class="ml-6 mt-2 space-y-4 overflow-hidden max-h-0 transition-all duration-300">
-                            <a href="{{ route('productsView') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-2 ml-3">
+                            <a href="{{ route('productsView') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-2 ml-2">
                                 <i class="fas fa-box mr-2"></i> Products
                             </a>
-                            <a href="{{ route('add.product') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-3">
+                            <a href="{{ route('add.product') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
                                 <i class="fas fa-plus-square mr-2"></i> Add Product
                             </a>
-                            <a href="{{ route('stockclerk.add.brand') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-3">
+                            <a href="{{ route('stockclerk.add.brand') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
                                 <i class="fas fa-tags mr-2"></i> Add New Brand
                             </a>
-                            <a href="{{ route('stockclerk.view.brands') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-3">
+                            <a href="{{ route('stockclerk.view.brands') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
                                 <i class="fas fa-eye mr-2"></i> View Brands
                             </a>
-                            <a href="{{ route('stockclerk.view.category') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-3">
+                            <a href="{{ route('stockclerk.view.category') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
                                 <i class="fas fa-eye mr-2"></i> View Categories
                             </a>
                     </div>

@@ -12,13 +12,18 @@
     @section('content')
     <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         <div class="container mx-auto px-4 py-1">
-            <h1 style="font-size: 36px; font-weight: bold; margin-bottom: 2px">Scanned Items Queue</h1>
+            <h1 style="font-size: 36px; font-weight: bold">Scanned Items Queue</h1>
+
+            <p class="border-b border-b-[1px] border-gray-300 mb-2">
+                <!-- Your content here -->
+            </p>
+
             <p style="margin-bottom: 12px; font-style: italic;color: gray">
                 Note: Scanned qr code will be reflected here
             </p>
             <!-- Table with orders -->
             <table id="orders-table" class="table-auto w-full">
-                <thead class="bg-white">
+                <thead class="bg-gray-100">
                     <tr>  
                         <!-- <th class="px-4 py-2  border-b border-gray-300"></th> -->
                         <th class="px-4 py-2 border-b border-gray-300">Reference ID</th>

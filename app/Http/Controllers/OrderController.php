@@ -167,7 +167,7 @@ class OrderController extends Controller
     {
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(8); // Add pagination
 
         foreach ($orders as $order) {
             // Fetch the latest 2 part_id, variant_id, and brand_name from OrderDetail
@@ -223,7 +223,7 @@ class OrderController extends Controller
         session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
 
         return view('stockclerk.content.stockOrderOverview', compact('orders'));
-    }    
+    }
 
 
     public function ManagerstockOrderOverview()

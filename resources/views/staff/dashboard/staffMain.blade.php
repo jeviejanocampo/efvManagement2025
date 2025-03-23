@@ -18,15 +18,18 @@
 <body>
     <div class="flex h-screen" >
         
-    <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-6 px-4 transform -translate-x-full 
+    <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-8 px-4 transform -translate-x-full 
         md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40"
             style="margin: 10px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
-        <div class="flex justify-center items-center text-2xl font-bold">
-            <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-28 h-28 ml-8">
+        
+        <div class="flex justify-center items-center text-2xl font-bold border-b border-b-[1px] border-white">
+            <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-20 h-20 ml-8">
         </div>
 
-        <nav class="space-y-4">
+      
+
+        <nav class="space-y-6">
             <p class="text-white text-1xl font-bold">Main</p>
             <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
                 <i class="fa-solid fa-box mr-3"></i>

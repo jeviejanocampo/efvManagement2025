@@ -73,7 +73,7 @@
     <div class="overflow-x-auto">
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
-                <tr class="bg-white">
+                <tr class="bg-gray-100">
                     <th class="border border-gray-300 px-4 py-2">Reference ID</th>
                     <th class="border border-gray-300 px-4 py-2">User ID</th>
                     <th class="border border-gray-300 px-4 py-2">Total Items</th>
@@ -107,17 +107,21 @@
                             {{ $order->status }}
                         </span>
                         </td>
-                        <td class="border border-gray-300 px-4 py-2">
-                            <p style="text-align:center">
-                                <a href="{{ route('stockclerkoverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
-                                class="text-blue-600 hover:underline">view</a>
-                            </p>
+                        <td class="border border-gray-300 px-4 py-2 text-center">
+                            <a href="{{ route('stockclerkoverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
+                            class="text-black hover:underline flex items-center justify-center gap-2">
+                                <i class="fas fa-eye"></i> 
+                            </a>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
+    <div class="mt-4">
+        {{ $orders->links('pagination::tailwind') }}
+    </div>
+
 </div>
 
 <script>
