@@ -90,12 +90,12 @@
                         <td class="border border-gray-300 px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
                         <td class="border border-gray-300 px-4 py-2">
                             <span class="px-4 py-1 rounded-full text-sm text-white text-center flex items-center justify-center
-                                @if ($order->status === 'Pending') bg-yellow-500
-                                @elseif ($order->status === 'Ready to Pickup') bg-blue-500
-                                @elseif ($order->status === 'Cancelled') bg-red-500
-                                @elseif ($order->status === 'In Process') bg-orange-500
-                                @elseif ($order->status === 'Completed') bg-green-500
-                                @else bg-gray-500
+                                @if ($order->status === 'Pending') bg-yellow-700
+                                @elseif ($order->status === 'Ready to Pickup') bg-blue-700
+                                @elseif ($order->status === 'Cancelled') bg-red-700
+                                @elseif ($order->status === 'In Process') bg-orange-700
+                                @elseif ($order->status === 'Completed') bg-green-700
+                                @else bg-gray-700
                                 @endif
                             ">
                             {{ $order->status }}

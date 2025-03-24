@@ -31,14 +31,6 @@
 
     <div class="flex justify-between items-center mb-4 space-x-4">
 
-        <div class="w-full sm:w-1/2">
-            <input 
-                type="text" 
-                id="search-bar" 
-                class="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
-                placeholder="Search by Product Name">
-        </div>
-
         <div class="w-full sm:w-1/4">
             <select id="category-filter" class="w-full px-2 py-1 border border-gray-300 text-sm rounded-lg">
                 <option value="">All Categories</option>
@@ -90,7 +82,16 @@
             class="px-3 py-1 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:outline-none">
             Clear
         </button>
+        
     </div>
+
+    <div class="w-full sm:w-1/2">
+            <input 
+                type="text" 
+                id="search-bar" 
+                class="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+                placeholder="Search by Product Name">
+        </div>
 
     </div>
 
@@ -214,26 +215,26 @@
                             </span>
                         </td>
 
-                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">
-                        @if ($hasDetails)
-                            <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-5 h-5 inline mx-1" title="View Details">
-                            </a>
-                        @else
-                            <a href="{{ route('addDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="No Details" class="w-5 h-5 inline mx-1 opacity-50 cursor-not-allowed" title="No Details | Add Details">
-                            </a>
-                        @endif
+                        <td class="border border-gray-300 px-2 py-1 text-center">
+                            @if ($hasDetails)
+                                <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}" title="View Details">
+                                    <i class="fa-solid fa-eye text-blue-700 text-lg mx-1"></i>
+                                </a>
+                            @else
+                                <a href="{{ route('addDetails', ['model_id' => $product->model_id]) }}" title="No Details | Add Details">
+                                    <i class="fa-solid fa-eye text-gray-700 text-lg mx-1 cursor-not-allowed"></i>
+                                </a>
+                            @endif
 
-                        <!-- Edit Icon -->
-                        <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}">
-                            <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-5 h-5 inline mx-1" title="Edit Primary Product">
-                        </a>
+                            <!-- Edit Icon -->
+                            <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}" title="Edit Primary Product">
+                                <i class="fa-solid fa-pen-to-square text-green-700 text-lg mx-1"></i>
+                            </a>
 
-                        <!-- Delete Icon -->
-                        <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
-                            <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-5 h-5 inline mx-1" title="Delete">
-                        </a>
+                            <!-- Delete Icon -->
+                            <a href="#" class="delete-product" data-id="{{ $product->model_id }}" title="Delete">
+                                <i class="fa-solid fa-trash text-red-700 text-lg mx-1"></i>
+                            </a>
                         </td>
                     </tr>
                 @endforeach

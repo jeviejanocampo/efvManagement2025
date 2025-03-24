@@ -3,7 +3,7 @@
 @section('content')
 
 <div class ="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-    <h1 class="text-5xl font-semibold mb-4">Activity Log</h1>
+    <h1 class="text-4xl font-semibold mb-4">Activity Log</h1>
 
     <p class="border-b border-b-[1px] border-gray-300 mb-4">
         <!-- Your content here -->

@@ -20,7 +20,7 @@
         
     <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-8 px-4 transform -translate-x-full 
         md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40"
-            style="margin: 10px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
+            style="margin: 14px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
         
             <div class="flex justify-center items-center text-2xl font-bold">
@@ -29,11 +29,11 @@
 
       
 
-        <nav class="space-y-6">
+        <nav class="space-y-4">
             <p class="text-white text-1xl font-bold">Main</p>
-            <a href="{{ route('overView') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
+            <a href="{{ route('overView') }}" class="flex items-center text-white hover:text-white ml-2">
                 <i class="fa-solid fa-box mr-3"></i>
-                Reserved and Pre-Orders
+                ORDER REQUEST
                 @if(session('pendingCount') && session('pendingCount') > 0)
                     <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                         {{ session('pendingCount') }}
@@ -42,15 +42,15 @@
             </a>
 
             <p class="text-white text-1xl font-bold">Queue</p>
-            <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
+            <a href="{{ route('staffQueue') }}" class="flex items-center text-white hover:text-white ml-2">
                 <i class="fa-solid fa-list-check mr-3"></i>
-                Orders Queue
+                ORDERS QUEUE
             </a>
             
             <p class="text-white text-1xl font-bold">Logs</p>
-            <a href="{{ route('logs') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
+            <a href="{{ route('logs') }}" class="flex items-center text-white hover:text-white ml-2">
                 <i class="fa-solid fa-clipboard-list mr-3"></i>
-                Staff Activity Log
+                STAFF ACTIVITY LOG
             </a>
         </nav>
     </div>
@@ -61,7 +61,7 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col ml-0 md:ml-64 mt-1">
             <!-- Header -->
-            <header class="bg-gray-800 text-white py-6 px-8 flex justify-between items-center top-0 w-70" style="margin: 10px; border-radius: 24px; margin-left: 24px">
+            <header class="bg-gray-800 text-white py-6 px-8 flex justify-between items-center top-0 w-70" style="margin: 14px; border-radius: 24px; margin-left: 24px">
                 <div class="flex items-start space-x-4">
                     <!-- Hamburger for Small Screens -->
                     <button class="md:hidden focus:outline-none" onclick="toggleSidebar()">
@@ -111,7 +111,7 @@
         function setActiveLink(clickedLink) {
             navLinks.forEach(link => {
                 link.classList.remove("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
-                link.classList.add("text-gray-300", "hover:text-white"); 
+                link.classList.add("text-white", "hover:text-white"); 
 
                 const icon = link.querySelector("i");
                 if (icon) {
@@ -121,7 +121,7 @@
             });
 
             clickedLink.classList.add("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
-            clickedLink.classList.remove("text-gray-300", "hover:text-white");
+            clickedLink.classList.remove("text-white", "hover:text-white");
 
             const activeIcon = clickedLink.querySelector("i");
             if (activeIcon) {

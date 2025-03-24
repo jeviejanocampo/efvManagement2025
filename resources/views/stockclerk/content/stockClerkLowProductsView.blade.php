@@ -165,14 +165,14 @@
                             </span>
                         </td>
                         <td class="border border-gray-300 px-1 py-1" style="text-align: center">
-                            <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-5 h-4 inline mx-1" title="View Details">
+                            <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}" title="View Details">
+                                    <i class="fa-solid fa-eye text-blue-700 text-lg mx-1"></i>
+                                </a>
+                            <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}" title="Edit Primary Product">
+                                <i class="fa-solid fa-pen-to-square text-green-700 text-lg mx-1"></i>
                             </a>
-                            <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-5 h-4 inline mx-1" title="Edit">
-                            </a>
-                            <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
-                                <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-5 h-4 inline mx-1" title="Delete">
+                            <a href="#" class="delete-product" data-id="{{ $product->model_id }}" title="Delete">
+                                <i class="fa-solid fa-trash text-red-700 text-lg mx-1"></i>
                             </a>
                         </td>
                     </tr>

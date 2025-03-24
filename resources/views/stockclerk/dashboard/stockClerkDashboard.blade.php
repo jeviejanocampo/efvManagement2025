@@ -24,7 +24,7 @@
         <!-- Sidebar -->
         <div id="sidebar" class="bg-gray-800 text-white w-64 px-4 transform -translate-x-full 
             md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40"
-             style="margin: 10px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
+             style="margin: 14px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
 
             <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
@@ -38,11 +38,11 @@
             </div>
             
             <!-- Navigation -->
-            <nav class="space-y-6">
-                <p class="text-white text-1xl font-bold">Main</p>
+            <nav class="space-y-5">
+                <p class="text-white text-1xl font-bold">MAIN</p>
                 
-                <a href="{{ route('stockoverView') }}" class="flex items-center text-gray-300 hover:text-white relative ml-2">
-                    <i class="fas fa-box mr-3"></i> Overview Requests
+                <a href="{{ route('stockoverView') }}" class="flex items-center text-white hover:text-white relative ml-2">
+                    <i class="fas fa-box mr-3"></i> REQUESTS
 
                     @if(session('pendingCount') && session('pendingCount') > 0)
                         <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
@@ -51,8 +51,8 @@
                     @endif
                 </a>
 
-                <p class="text-white text-1xl font-bold">Products Management</p>
-                <!-- <a href="{{ route('productsView') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
+                <p class="text-white text-1xl font-bold">MANAGE</p>
+                <!-- <a href="{{ route('productsView') }}" class="flex items-center text-white hover:text-white ml-2">
                     <i class="fas fa-cube mr-3"></i> Products
 
                     
@@ -64,38 +64,38 @@
                 </a> -->
 
                 <div class="ml-2">
-                    <button onclick="toggleProducts()" class="flex items-center justify-between w-full text-gray-300 hover:text-white focus:outline-none">
+                    <button onclick="toggleProducts()" class="flex items-center justify-between w-full text-white hover:text-white focus:outline-none">
                         <div class="flex items-center">
-                            <i class="fas fa-eye mr-3"></i> View
+                            <i class="fas fa-eye mr-3"></i> VIEW
                         </div>
                             <i id="products-arrow" class="fas fa-chevron-down transition-transform duration-300"></i>
                     </button>
 
                     <!-- Submenu -->
                     <div id="products-submenu" class="ml-6 mt-2 space-y-4 overflow-hidden max-h-0 transition-all duration-300">
-                            <a href="{{ route('productsView') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-2 ml-2">
+                            <a href="{{ route('productsView') }}" class="flex items-center text-sm text-white hover:text-white mt-2 ml-2">
                                 <i class="fas fa-box mr-2"></i> Products
                             </a>
-                            <a href="{{ route('add.product') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
+                            <a href="{{ route('add.product') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
                                 <i class="fas fa-plus-square mr-2"></i> Add Product
                             </a>
-                            <!-- <a href="{{ route('stockclerk.add.brand') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
+                            <!-- <a href="{{ route('stockclerk.add.brand') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
                                 <i class="fas fa-tags mr-2"></i> Add New Brand
                             </a> -->
-                            <!-- <a href="{{ route('stockclerk.add.category') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
+                            <!-- <a href="{{ route('stockclerk.add.category') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
                                 <i class="fas fa-folder-plus mr-2"></i> Add Category
                             </a> -->
-                            <a href="{{ route('stockclerk.view.brands') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
+                            <a href="{{ route('stockclerk.view.brands') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
                                 <i class="fas fa-eye mr-2"></i> View Brands
                             </a>
-                            <a href="{{ route('stockclerk.view.category') }}" class="flex items-center text-sm text-gray-300 hover:text-white mt-6 ml-2">
+                            <a href="{{ route('stockclerk.view.category') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
                                 <i class="fas fa-eye mr-2"></i> View Categories
                             </a>
                     </div>
                 </div>
 
-                <a href="{{ route('stockclerkLow') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
-                    <i class="fas fa-exclamation-triangle mr-3"></i> Low Units
+                <a href="{{ route('stockclerkLow') }}" class="flex items-center text-white hover:text-white ml-2">
+                    <i class="fas fa-exclamation-triangle mr-3"></i> LOW UNITS
                     @if($lowStockCount > 0)
                         <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                             {{ $lowStockCount }}
@@ -103,16 +103,16 @@
                     @endif
                 </a>
 
-                <!-- <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white">
+                <!-- <a href="{{ route('staffQueue') }}" class="flex items-center text-white hover:text-white">
                     <i class="fas fa-list-ul mr-3"></i> Orders Queue
                 </a> -->
 
-                <p class="text-white text-1xl font-bold">Activity Log</p>
-                <a href="{{ route('Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white ml-2">
+                <p class="text-white text-1xl font-bold">ACTIVITY LOG</p>
+                <a href="{{ route('Stocklogs') }}" class="flex items-center text-white hover:text-white ml-2">
                     <i class="fas fa-history mr-3"></i> Stock Clerk Log
                 </a>
 
-                <!-- <a href="#" class="flex items-center text-gray-300 hover:text-white">
+                <!-- <a href="#" class="flex items-center text-white hover:text-white">
                     <i class="fas fa-users mr-3"></i> Customers
                 </a> -->
             </nav>
@@ -124,7 +124,7 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col ml-0 md:ml-64 mt-1">
             <!-- Header -->
-            <header class="bg-gray-800 text-white py-6 px-8 flex justify-between items-center top-0 w-70" style="margin: 10px; border-radius: 24px; margin-left: 24px">
+            <header class="bg-gray-800 text-white py-6 px-8 flex justify-between items-center top-0 w-70" style="margin: 14px; border-radius: 24px; margin-left: 24px;">
                 <div class="flex items-start space-x-4">
                     <!-- Hamburger for Small Screens -->
                     <button class="md:hidden focus:outline-none" onclick="toggleSidebar()">
@@ -203,7 +203,7 @@
         function setActiveLink(clickedLink) {
             navLinks.forEach(link => {
                 link.classList.remove("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
-                link.classList.add("text-gray-300", "hover:text-white"); 
+                link.classList.add("text-white", "hover:text-white"); 
 
                 const icon = link.querySelector("i");
                 if (icon) {
@@ -213,7 +213,7 @@
             });
 
             clickedLink.classList.add("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
-            clickedLink.classList.remove("text-gray-300", "hover:text-white");
+            clickedLink.classList.remove("text-white", "hover:text-white");
 
             const activeIcon = clickedLink.querySelector("i");
             if (activeIcon) {

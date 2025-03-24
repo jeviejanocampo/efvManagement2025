@@ -29,22 +29,14 @@
 
     </div>
 
-    <div class="flex justify-between items-center mb-4 space-x-4">
-        <!-- Search bar -->
-        <div class="w-full sm:w-1/3">
-            <input 
-                type="text" 
-                id="search-bar" 
-                class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
-                placeholder="Search by Order ID or User ID">
-        </div>
+    <div class="flex justify-between items-center mb-4 space-x-4">       
 
         <!-- Status filter -->
         <div class="w-full sm:w-1/3">
             <select 
                 id="status-filter" 
                 class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                <option value="">All Statuses</option>
+                <option value="None">All Statuses</option>
                 <option value="Pending">Pending</option>
                 <option value="In Process">In Process</option>
                 <option value="Ready to Pickup">Ready to Pickup</option>
@@ -64,6 +56,16 @@
                 id="end-date" 
                 class="w-full text-sm px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
         </div>
+
+        <div class="w-full sm:w-1/3">
+            <input 
+                type="text" 
+                id="search-bar" 
+                class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+                placeholder="Search by Order ID or User ID">
+        </div>
+
+
     </div>
 
     <div class="text-gray-500 italic text-sm mt-4">
@@ -96,12 +98,12 @@
                             class="
                                 px-4 py-1 rounded-full text-sm text-white text-center 
                                 flex items-center justify-center
-                                @if ($order->status === 'Pending') bg-yellow-500
-                                @elseif ($order->status === 'Ready to Pickup') bg-blue-500
-                                @elseif ($order->status === 'Cancelled') bg-red-500
-                                @elseif ($order->status === 'In Process') bg-orange-500
-                                @elseif ($order->status === 'Completed') bg-green-500
-                                @else bg-gray-500
+                                @if ($order->status === 'Pending') bg-yellow-700
+                                @elseif ($order->status === 'Ready to Pickup') bg-blue-700
+                                @elseif ($order->status === 'Cancelled') bg-red-700
+                                @elseif ($order->status === 'In Process') bg-orange-700
+                                @elseif ($order->status === 'Completed') bg-green-700
+                                @else bg-gray-700
                                 @endif
                             ">
                             {{ $order->status }}
