@@ -41,7 +41,7 @@ class ProductController extends Controller
             $request->validate([
                 'brand_name' => 'required|string|max:255',
                 'category_name' => 'required|string|max:255',
-                'status' => 'required|in:Active,Inactive',
+                'status' => 'required|in:active,inactive',
             ]);
 
             // Find the brand by ID
@@ -683,7 +683,7 @@ class ProductController extends Controller
             ]);
 
             // Return success alert and reload the page
-            return "<script>alert('Product updated successfully!'); window.location.href='" . route('manager.viewDetails', ['model_id' => $model_id]) . "';</script>";
+            return "<script>alert('Product updated successfully!'); window.location.href='" . route('viewDetails', ['model_id' => $model_id]) . "';</script>";
         } catch (\Exception $e) {
             return "<script>alert('Error: " . $e->getMessage() . "'); window.history.back();</script>";
         }

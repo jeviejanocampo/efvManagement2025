@@ -25,8 +25,8 @@
         <div class="mb-4">
             <label class="block font-semibold">Status</label>
             <select name="status" class="w-full border border-gray-300 p-2 rounded-lg" required>
-                <option value="Active" {{ strtolower($brand->status) === 'active' ? 'selected' : '' }}>Active</option>
-                <option value="Inactive" {{ strtolower($brand->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                <option value="active" {{ strtolower($brand->status) === 'active' ? 'selected' : '' }}>Active</option>
+                <option value="inactive" {{ strtolower($brand->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
             </select>
         </div>
 
