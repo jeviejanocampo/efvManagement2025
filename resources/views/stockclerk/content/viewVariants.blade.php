@@ -66,7 +66,7 @@
                         </td>
 
                         <td class="border border-gray-300 px-2 py-1 text-center">
-                            <a href="{{ route('edit.variant', ['model_id' => $variant->model_id, 'variant_id' => $variant->variant_id]) }}" 
+                            <a href="{{ route('', ['model_id' => $variant->model_id, 'variant_id' => $variant->variant_id]) }}" 
                             class="text-blue-500 hover:underline">
                                 <i class="fas fa-edit"></i> 
                             </a>

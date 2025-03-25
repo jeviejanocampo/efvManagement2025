@@ -89,7 +89,7 @@
             @else
                 @foreach ($orders as $order)
                     <tr class="border-b border-gray-300 transition-transform duration-300 hover:bg-gray-100 text-center">
-                        <td class="px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
+                        <td class="px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-ORD000{{ $order->order_id }}</td>
                         <td class="px-4 py-2">{{ $order->user_id }}</td>
                         <td class="px-4 py-2">{{ $order->total_items }}</td>
                         <td class="px-4 py-2">₱ {{ number_format($order->total_price, 2) }}</td>

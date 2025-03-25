@@ -49,7 +49,7 @@
                 $referenceId = request()->query('reference_id'); // Retrieve reference_id from URL
 
                 if ($referenceId) {
-                    $formattedRefId = substr($referenceId, 0, 3) . substr($referenceId, 3, -1) . '-' . substr($referenceId, -1);
+                    $formattedRefId = substr($referenceId, 0, 3) . substr($referenceId, 3, -1) . substr($referenceId, -1);
                 } else {
                     $formattedRefId = 'N/A';
                 }
@@ -57,7 +57,7 @@
 
             @if ($latestOrderDetail)
                 <p style="font-size: 28px; font-weight: 700;">
-                    REFERENCE ID: {{ $formattedRefId }}
+                    REFERENCE ID: {{ $formattedRefId }}-ORD000{{ $order->order_id }}
                 </p>
             @else
                 <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
