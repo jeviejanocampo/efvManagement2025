@@ -7,7 +7,7 @@
 </head>
 <style>
     body{
-        zoom: 90%;
+        /* zoom: 90%; */
     }
     .highlighted {
         background-color: gray !important; /* Change background color to gray */

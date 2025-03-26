@@ -11,7 +11,6 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            zoom: 90%;
         }
     </style>
 </head>
@@ -19,42 +18,52 @@
     <div class="flex h-screen" >
         
     <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-8 px-4 transform -translate-x-full 
-        md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40"
-            style="margin: 14px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
+            md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40 
+            rounded-r-2xl shadow-lg" 
+            style="margin-right: 14px; margin-top: 14px">
+
+
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
         
             <div class="flex justify-center items-center text-2xl font-bold">
-                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-32 ml-2 rounded-full">
+                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-32 ml-1 rounded-full">
             </div>
 
-      
-
+    
         <nav class="space-y-4">
             <p class="text-white text-1xl font-bold">Main</p>
-            <a href="{{ route('staff.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-2">
-                <i class="fa-solid fa-dashboard mr-3"></i>
-                DASHBOARD
+            <a href="{{ route('staff.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
+                <span class="bg-gray-600 p-2 rounded-lg">
+                    <i class="fa-solid fa-dashboard text-gray-200"></i>
+                </span>
+                Dashboard
             </a>
-            <a href="{{ route('overView') }}" class="flex items-center text-white hover:text-white ml-2">
-                <i class="fa-solid fa-box mr-3"></i>
-                ORDER REQUEST
+            <a href="{{ route('overView') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
+                <span class="bg-gray-600 p-2 rounded-lg">
+                    <i class="fa-solid fa-box text-gray-200"></i>
+                </span>
+                 Request
                 @if(session('pendingCount') && session('pendingCount') > 0)
-                    <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    <span class="ml-1 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                         {{ session('pendingCount') }}
                     </span>
                 @endif
             </a>
 
             <p class="text-white text-1xl font-bold">Queue</p>
-            <a href="{{ route('staffQueue') }}" class="flex items-center text-white hover:text-white ml-2">
-                <i class="fa-solid fa-list-check mr-3"></i>
-                ORDERS QUEUE
+            <a href="{{ route('staffQueue') }}" class="flex items-center text-gray hover:text-white ml-1 gap-2">
+                <span class="bg-gray-600 p-2 rounded-lg">
+                    <i class="fa-solid fa-list-check text-gray-200"></i>
+                </span>
+                Orders Queue
             </a>
             
             <p class="text-white text-1xl font-bold">Activity</p>
-            <a href="{{ route('logs') }}" class="flex items-center text-white hover:text-white ml-2">
-                <i class="fa-solid fa-clipboard-list mr-3"></i>
-                STAFF ACTIVITY LOG
+            <a href="{{ route('logs') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
+                <span class="bg-gray-600 p-2 rounded-lg">
+                    <i class="fa-solid fa-clipboard-list text-gray-200"></i>
+                </span>
+                Staff Activity Log
             </a>
         </nav>
     </div>
@@ -65,24 +74,27 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col ml-0 md:ml-64 mt-1">
             <!-- Header -->
-            <header class="bg-gray-800 text-white py-6 px-8 flex justify-between items-center top-0 w-70" style="margin: 14px; border-radius: 24px; margin-left: 24px">
-                <div class="flex items-start space-x-4">
+            <header class="text-white py-4 px-4 flex justify-between items-center top-0 w-70 rounded-tl-lg bg-cover bg-center"
+            style="margin: 12px; margin-left: 12px; background-image: url('{{ asset('assets/product-images/dashboarddisplay.png') }}');">
+
+            <div class="flex items-start space-x-2">
                     <!-- Hamburger for Small Screens -->
                     <button class="md:hidden focus:outline-none" onclick="toggleSidebar()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                    <i class="fa-solid fa-screwdriver-wrench text-xl md:text-6xl text-white mt-2"></i>
+                    <i class="fa-solid fa-screwdriver-wrench text-xl md:text-4xl text-white mt-3"></i>
                     <div class="space-x-2">
-                        <h1 class="text-lg md:text-4xl font-semibold mt-4">EFV AUTO PARTS MANAGEMENT SYSTEM</h1>
+                        <h1 class="text-lg md:text-2xl font-semibold mt-2">EFV AUTO PARTS MANAGEMENT SYSTEM</h1>
                         <h2 class="text-1xl font-medium">Staff Main</h2>
                     </div>
                 </div>
                 <div class="relative flex items-center space-x-4">
                     <!-- Greeting -->
                     <div class="text-white">
-                        <h2 class="text-1xl font-semibold">GOOD DAY!,  {{ Auth::user()->name ?? 'Guest' }}!</h2>
+                        <h2 class="text-1xl font-Regular text-right">{{ Auth::user()->name ?? 'Guest' }}</h2>
+                        <h2 class="text-1xl font-semibold">Staff</h2>
                     </div>
 
                     <!-- Profile Button -->
@@ -107,7 +119,7 @@
             </header>
 
             <!-- Dynamic Content -->
-            <main class="p-12 sm: pt-4">
+            <main class="p-4 sm: pt-4">
                 @yield('content')
             </main>
         </div>

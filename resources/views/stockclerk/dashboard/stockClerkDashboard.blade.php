@@ -22,14 +22,16 @@
     <div class="flex h-screen">
         
         <!-- Sidebar -->
-        <div id="sidebar" class="bg-gray-800 text-white w-64 px-4 transform -translate-x-full 
-            md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40"
-             style="margin: 14px; border-radius: 24px; box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);">
+        <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-8 px-4 transform -translate-x-full 
+            md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40 
+            rounded-r-2xl shadow-lg" 
+            style="margin-right: 14px; margin-top: 14px">
 
             <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
-            <div class="flex justify-center items-center text-2xl font-bold mt-4">
-                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-32  rounded-full">
+
+            <div class="flex justify-center items-center text-2xl font-bold">
+                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-32 ml-1 rounded-full">
             </div>
                 <!-- <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Stock Clerk Panel</a></p> -->
                 <!-- <p class="border-b border-b-[1px] border-white mt-2">
@@ -38,16 +40,21 @@
             </div>
             
             <!-- Navigation -->
-            <nav class="space-y-6">
-                <p class="text-white text-1xl font-bold pt-8">MAIN</p>
+            <nav class="space-y-5">
+                <p class="text-white text-1xl font-bold">MAIN</p>
 
-                <a href="{{ route('stockclerk.dashboard.page') }}" class="flex items-center text-white hover:text-white ">
-                    <i class="fas fa-dashboard mr-3"></i> Dashboard
+                <a href="{{ route('stockclerk.dashboard.page') }}" class="flex items-center text-white hover:text-white gap-2">
+                <span class="bg-gray-600 p-2 rounded-lg">
+                    <i class="fas fa-dashboard"></i>
+                </span>
+                    Dashboard
                 </a>
                 
-                <a href="{{ route('stockoverView') }}" class="flex items-center text-white hover:text-white relative ">
-                    <i class="fas fa-box mr-3"></i> Requests
-
+                <a href="{{ route('stockoverView') }}" class="flex items-center text-white hover:text-white relative gap-2 ">
+                    <span class="bg-gray-600 p-2 rounded-lg">
+                        <i class="fas fa-box"></i> 
+                    </span>
+                    Requests
                     @if(session('pendingCount') && session('pendingCount') > 0)
                         <span class=" bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                             {{ session('pendingCount') }}
@@ -69,8 +76,11 @@
 
                 <div class="">
                     <button onclick="toggleProducts()" class="flex items-center justify-between w-full text-white hover:text-white focus:outline-none">
-                        <div class="flex items-center">
-                            <i class="fas fa-eye mr-3"></i> VIEW
+                        <div class="flex items-center  gap-2">
+                        <span class="bg-gray-600 p-2 rounded-lg">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                             VIEW
                         </div>
                             <i id="products-arrow" class="fas fa-chevron-down transition-transform duration-300"></i>
                     </button>
@@ -78,7 +88,8 @@
                     <!-- Submenu -->
                     <div id="products-submenu" class="ml-6 mt-2 space-y-4 overflow-hidden max-h-0 transition-all duration-300">
                             <a href="{{ route('productsView') }}" class="flex items-center text-sm text-white hover:text-white mt-2 ">
-                                <i class="fas fa-box mr-2"></i> Products
+                            <i class="fas fa-box mr-2"></i>
+                                 Products
                             </a>
                             <!-- <a href="{{ route('add.product') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
                                 <i class="fas fa-plus-square mr-2"></i> Add Product
@@ -98,10 +109,13 @@
                     </div>
                 </div>
 
-                <a href="{{ route('stockclerkLow') }}" class="flex items-center text-white hover:text-white ">
-                    <i class="fas fa-exclamation-triangle mr-3"></i> Low Stocks
+                <a href="{{ route('stockclerkLow') }}" class="flex items-center text-white hover:text-white  gap-2">
+                    <span class="bg-gray-600 p-2 rounded-lg">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    Low Stocks
                     @if($lowStockCount > 0)
-                        <span class=" bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        <span class=" bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full ml-2">
                             {{ $lowStockCount }}
                         </span>
                     @endif
@@ -112,8 +126,11 @@
                 </a> -->
 
                 <p class="text-white text-1xl font-bold">ACTIVITY</p>
-                <a href="{{ route('Stocklogs') }}" class="flex items-center text-white hover:text-white ">
-                    <i class="fas fa-history mr-3"></i> Stock Clerk Log
+                <a href="{{ route('Stocklogs') }}" class="flex items-center text-white hover:text-white gap-2">
+                <span class="bg-gray-600 p-2 rounded-lg">
+                    <i class="fas fa-history"></i>
+                </span>
+                    Stock Clerk Log
                 </a>
 
                 <!-- <a href="#" class="flex items-center text-white hover:text-white">
@@ -128,24 +145,27 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col ml-0 md:ml-64 mt-1">
             <!-- Header -->
-            <header class="bg-gray-800 text-white py-6 px-8 flex justify-between items-center top-0 w-70" style="margin: 14px; border-radius: 24px; margin-left: 24px;">
-                <div class="flex items-start space-x-4">
+            <header class="text-white py-4 px-4 flex justify-between items-center top-0 w-70 rounded-tl-lg bg-cover bg-center"
+                    style="margin: 12px; margin-left: 12px; background-image: url('{{ asset('assets/product-images/dashboarddisplay.png') }}');">
+
+                    <div class="flex items-start space-x-4">
                     <!-- Hamburger for Small Screens -->
                     <button class="md:hidden focus:outline-none" onclick="toggleSidebar()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                    <i class="fa-solid fa-screwdriver-wrench text-xl md:text-6xl text-white mt-2"></i>
+                    <i class="fa-solid fa-screwdriver-wrench text-xl md:text-4xl text-white mt-4"></i>
                     <div class="space-x-2">
-                        <h1 class="text-lg md:text-4xl font-semibold mt-4">EFV AUTO PARTS MANAGEMENT SYSTEM</h1>
+                        <h1 class="text-lg md:text-2xl font-semibold mt-2">EFV AUTO PARTS MANAGEMENT SYSTEM</h1>
                         <h2 class="text-1xl font-medium">Stock Clerk Main</h2>
                     </div>
                 </div>
                 <div class="relative flex items-center space-x-4">
                     <!-- Greeting -->
                     <div class="text-white">
-                        <h2 class="text-1xl font-semibold">GOOD DAY!,  {{ Auth::user()->name ?? 'Guest' }}!</h2>
+                        <h2 class="text-1xl font-semibold text-right">{{ Auth::user()->name ?? 'Guest' }}</h2>
+                        <h2 class="text-1xl font-semibold">Stock Clerk</h2>
                     </div>
 
                     <!-- Profile Button -->
@@ -165,7 +185,7 @@
             </header>
 
             <!-- Dynamic Content -->
-            <main class="p-12 sm: pt-4">
+            <main class="p-5 sm: pt-4">
                 @yield('content')
             </main>
         </div>
