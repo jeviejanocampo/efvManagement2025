@@ -31,6 +31,10 @@
 
         <nav class="space-y-4">
             <p class="text-white text-1xl font-bold">Main</p>
+            <a href="{{ route('staff.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-2">
+                <i class="fa-solid fa-dashboard mr-3"></i>
+                DASHBOARD
+            </a>
             <a href="{{ route('overView') }}" class="flex items-center text-white hover:text-white ml-2">
                 <i class="fa-solid fa-box mr-3"></i>
                 ORDER REQUEST
@@ -47,7 +51,7 @@
                 ORDERS QUEUE
             </a>
             
-            <p class="text-white text-1xl font-bold">Logs</p>
+            <p class="text-white text-1xl font-bold">Activity</p>
             <a href="{{ route('logs') }}" class="flex items-center text-white hover:text-white ml-2">
                 <i class="fa-solid fa-clipboard-list mr-3"></i>
                 STAFF ACTIVITY LOG
@@ -92,7 +96,12 @@
 
                     <!-- Dropdown -->
                     <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg hidden opacity-0 transform scale-95 transition-all duration-200">
-                        <a href="/staff/login" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-gray-200">
+                                Logout
+                            </button>
+                        </form>
                     </div>
                 </div>
             </header>

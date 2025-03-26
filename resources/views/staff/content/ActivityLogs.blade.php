@@ -53,11 +53,11 @@
         <table class="min-w-full table-auto border-collapse border border-gray-300">
         <thead class="bg-gray-100">
             <tr class="border-b">
-                <th id="column-0" class="px-4 py-2 text-sm font-bold cursor-pointer" onclick="sortTable(0, 'column-0')">
+                <!-- <th id="column-0" class="px-4 py-2 text-sm font-bold cursor-pointer" onclick="sortTable(0, 'column-0')">
                     ID <span class="sort-icon" id="icon-0"></span>
-                </th>
+                </th> -->
                 <th id="column-1" class="px-4 py-2 text-sm font-bold cursor-pointer" onclick="sortTable(1, 'column-1')">
-                    User ID <span class="sort-icon" id="icon-1"></span>
+                    User <span class="sort-icon" id="icon-1"></span>
                 </th>
                 <th id="column-2" class="px-4 py-2 text-sm font-bold cursor-pointer" onclick="sortTable(2, 'column-2')">
                     Role <span class="sort-icon" id="icon-2"></span>
@@ -83,8 +83,10 @@
                 @foreach($activityLogs as $log)
                 @if($log->role === 'staff')
                     <tr class="border-b log-row" data-id="{{ $log->id }}" data-role="{{ $log->role }}" data-activity="{{ $log->activity }}" data-created="{{ $log->created_at }}">
-                        <td class="px-4 py-2 text-sm">{{ $log->id }}</td>
-                        <td class="px-4 py-2 text-sm">{{ $log->user_id }}</td>
+                        <!-- <td class="px-4 py-2 text-sm">{{ $log->id }}</td> -->
+                        <td class="px-4 py-2 text-sm">
+                            {{ $log->customer->full_name ?? 'N/A' }}
+                        </td>
                         <td class="px-4 py-2 text-sm">{{ $log->role }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->activity }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->created_at }}</td>

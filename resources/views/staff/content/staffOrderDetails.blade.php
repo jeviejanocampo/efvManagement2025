@@ -9,8 +9,8 @@
 
 <div class="p-4 rounded-xl" >
     <a href="{{ url('staff/overview') }}" 
-        class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-white-200 mb-5 custom-arrow">
-        Back
+        class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-gray-700 mb-5 items-center gap-2">
+        <i class="fas fa-arrow-left"></i> 
     </a>
 
     <div style="margin-top: 12px">
@@ -26,7 +26,7 @@
 
     <!-- Order Status Dropdown -->
     <div class="flex justify-between items-center mt-4 bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-        <h1 style="font-size: 24px">ORDER DETAILS</h1>
+        <h1 style="font-size: 34px; font-weight: bold">ORDER DETAILS</h1>
 
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
         <!-- Label and Dropdown for Edit Status for the whole order -->
@@ -93,10 +93,15 @@
             </p>
         </div>
         <p style="font-size: 12px">Created At: {{ $order->created_at }} </p> 
-        <div class="mt-4">
-            <p style="font-size: 13px">USER ID: 
-            {{ $order->user_id }} <a href="#" class="text-blue-600" onclick="openModal({{ $order->user_id }})">view details</a>
-            </p>
+        <div class="mt-4 space-y-4">
+        <p style="font-size: 13px">
+            USER DETAILS:
+            <a href="#" 
+            class="bg-blue-700 text-white font-bold px-2 py-1 rounded-md hover:bg-blue-700 transition"
+            onclick="openModal({{ $order->user_id }})">
+                View Details
+            </a>
+        </p>
             <p style="font-size: 13px">TOTAL ITEMS: {{ $order->total_items }}</p> 
             <p style="font-size: 13px">PAYMENT METHOD: {{ $order->payment_method }}</p> 
         </div>
@@ -184,7 +189,7 @@
             <p>
             </p>
         @else
-            <p style="font-size: 20px; font-weight: bold">
+            <p style="font-size: 24px; font-weight: bold; text-align: right">
                 Total To Pay: ₱ 
                 {{ number_format ( $order->total_price, 2 ) }}
             </p> 

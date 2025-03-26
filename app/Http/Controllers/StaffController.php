@@ -31,8 +31,6 @@ class StaffController extends Controller
         return view('stockclerk.stockClerkSignup', compact('roles')); // Pass roles to the view
     }
 
-
-
     public function signup(Request $request)
     {
         // Validate input
@@ -257,6 +255,37 @@ class StaffController extends Controller
         return response()->json(['message' => 'Scan statuses updated successfully!'], 200);
     }
     
+    public function getOrdersSummary()
+    {
+        $today = Carbon::today();
+
+        // Count orders where status is 'Pending' or 'pending'
+        $pendingOrders = Order::whereIn('status', ['Pending', 'pending'])->count();
+
+        // Count orders where scan_status is 'yes' (On Queue)
+        $onQueueOrders = Order::where('scan_status', 'yes')->count();
+
+        // Count orders where status is 'In Process'
+        $inProcessOrders = Order::where('status', 'In Process')->count();
+
+        // Calculate total sales for today
+        $totalSalesToday = Order::whereDate('created_at', $today)->sum('total_price');
+
+        // Fetch recent pending orders (only today's)
+        $recentPendingOrders = Order::whereIn('status', ['Pending', 'pending'])
+            ->whereDate('created_at', $today)
+            ->with('customer') // Assuming 'customer' is related via user_id
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'pending_orders' => $pendingOrders,
+            'on_queue_orders' => $onQueueOrders,
+            'in_process_orders' => $inProcessOrders,
+            'total_sales_today' => $totalSalesToday,
+            'recent_pending_orders' => $recentPendingOrders,
+        ]);
+    }
 
 
 }

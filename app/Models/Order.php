@@ -34,4 +34,9 @@ class Order extends Model
 
     // If your table has timestamps (created_at, updated_at), ensure the model knows
     public $timestamps = true;
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'user_id', 'id');
+    }
 }
