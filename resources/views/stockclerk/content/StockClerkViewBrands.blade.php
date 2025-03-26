@@ -10,10 +10,10 @@
 
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-3xl font-bold">View Brands</h2>
-        <a href="{{ route('stockclerk.add.brand') }}" 
+        <!-- <a href="{{ route('stockclerk.add.brand') }}" 
         class="bg-violet-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-violet-900">
             <i class="fas fa-plus"></i> Add Brand
-        </a>
+        </a> -->
     </div>
 
 
@@ -33,19 +33,19 @@
     <div class="overflow-x-auto">
         <table class="min-w-full bg-white border border-gray-300 rounded-lg ">
             <thead class="bg-gray-100">
-                <tr>
-                    <th class="px-2 py-1 border"></th>
-                    <th class="px-2 py-1 border"></th>
+                    <tr class="bg-gray-100">
+                    <!-- <th class="px-2 py-1 border">Image</th> -->
+                    <th class="px-2 py-1 border">Image</th>
                     <th class="px-2 py-1 border">Brand Name</th>
                     <th class="px-2 py-1 border">Category</th>
                     <th class="px-2 py-1 border">Status</th>
-                    <th class="px-2 py-1 border">Action</th> 
+                    <!-- <th class="px-2 py-1 border">Action</th>  -->
                 </tr>
             </thead>
             <tbody id="brandTableBody">
                 @forelse($brands as $index => $brand)
                 <tr class="text-center border brand-row">
-                    <td class="px-2 py-1 border">0000{{ $brand->brand_id }}</td>
+                    <!-- <td class="px-2 py-1 border">0000{{ $brand->brand_id }}</td> -->
                     <td class="px-2 py-1 border text-center">
                         @if($brand->brand_image)
                             <img src="{{ asset('product-images/' . $brand->brand_image) }}" alt="Brand Image" class="w-16 h-16 rounded mx-auto">
@@ -62,14 +62,14 @@
                             {{ $brand->status }}
                         </span>
                     </td>
-                    <td class="px-2 py-1 border">
+                    <!-- <td class="px-2 py-1 border">
                         <div class="flex justify-center space-x-2">
-                            <!-- Edit Button -->
+                            < Edit Button 
                             <a href="{{ route('stockclerk.edit.brand', ['brand_id' => $brand->brand_id]) }}" 
                             class="text-blue-600 hover:text-blue-800">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <!-- Delete Button -->
+                            <Delete Button 
                             <form action="{{ route('stockclerk.delete.brand', ['brand_id' => $brand->brand_id]) }}" method="POST" class="inline delete-brand-form">
                                 @csrf
                                 @method('DELETE')
@@ -78,7 +78,7 @@
                                 </button>
                             </form>
                         </div>
-                    </td>
+                    </td> -->
                 </tr>
                 @empty
                 <tr>

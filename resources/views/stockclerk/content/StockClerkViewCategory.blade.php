@@ -10,21 +10,21 @@
 
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-3xl font-bold">View Categories</h2>
-        <a href="{{ route('stockclerk.add.category') }}" 
+        <!-- <a href="{{ route('stockclerk.add.category') }}" 
         class="bg-violet-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-violet-900">
             <i class="fas fa-plus"></i> Add Category
-        </a>
+        </a> -->
     </div>
 
     <div class="overflow-x-auto">
         <table class="w-full border-collapse border border-gray-300">
             <thead>
-                <tr>
+                <tr class="bg-gray-100">
                     <th class="border border-gray-300 px-1 py-1">ID</th>
                     <th class="border border-gray-300 px-1 py-1">Category Name</th>
                     <th class="border border-gray-300 px-1 py-1">Image</th>
                     <th class="border border-gray-300 px-1 py-1">Status</th>
-                    <th class="px-2 py-1 border">Action</th> 
+                    <!-- <th class="px-2 py-1 border">Action</th>  -->
                 </tr>
             </thead>
             <tbody>
@@ -41,14 +41,14 @@
                             {{ ucfirst($category->status) }}
                         </span>
                     </td>
-                    <td class="px-2 py-1 border">
+                    <!-- <td class="px-2 py-1 border">
                         <div class="flex justify-center space-x-2">
-                            <!-- Edit Button -->
+                             Edit Button 
                             <a href="{{ route('stockclerk.edit.category', ['category_id' => $category->category_id]) }}" 
                                 class="text-blue-600 hover:text-blue-800">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                            <!-- Delete Button -->
+                             Delete Button
                             <form action="{{ route('stockclerk.delete.category', $category->category_id) }}" method="POST" class="inline delete-category-form">
                                 @csrf
                                 @method('DELETE')
@@ -57,7 +57,7 @@
                                 </button>
                             </form>
                         </div>
-                    </td>
+                    </td> -->
                 </tr>
                 @endforeach
             </tbody>

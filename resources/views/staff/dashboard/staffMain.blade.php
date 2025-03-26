@@ -76,7 +76,7 @@
                     <i class="fa-solid fa-screwdriver-wrench text-xl md:text-6xl text-white mt-2"></i>
                     <div class="space-x-2">
                         <h1 class="text-lg md:text-4xl font-semibold mt-4">EFV AUTO PARTS MANAGEMENT SYSTEM</h1>
-                        <!-- <h2 class="text-1xl font-medium">Here are your daily tasks for today</h2> -->
+                        <h2 class="text-1xl font-medium">Staff Main</h2>
                     </div>
                 </div>
                 <div class="relative flex items-center space-x-4">

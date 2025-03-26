@@ -29,7 +29,7 @@
             <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
             <div class="flex justify-center items-center text-2xl font-bold mt-4">
-                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-32 ml-2 rounded-full">
+                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-32  rounded-full">
             </div>
                 <!-- <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Stock Clerk Panel</a></p> -->
                 <!-- <p class="border-b border-b-[1px] border-white mt-2">
@@ -38,32 +38,36 @@
             </div>
             
             <!-- Navigation -->
-            <nav class="space-y-5">
-                <p class="text-white text-1xl font-bold">MAIN</p>
+            <nav class="space-y-6">
+                <p class="text-white text-1xl font-bold pt-8">MAIN</p>
+
+                <a href="{{ route('stockclerk.dashboard.page') }}" class="flex items-center text-white hover:text-white ">
+                    <i class="fas fa-dashboard mr-3"></i> Dashboard
+                </a>
                 
-                <a href="{{ route('stockoverView') }}" class="flex items-center text-white hover:text-white relative ml-2">
-                    <i class="fas fa-box mr-3"></i> REQUESTS
+                <a href="{{ route('stockoverView') }}" class="flex items-center text-white hover:text-white relative ">
+                    <i class="fas fa-box mr-3"></i> Requests
 
                     @if(session('pendingCount') && session('pendingCount') > 0)
-                        <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        <span class=" bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                             {{ session('pendingCount') }}
                         </span>
                     @endif
                 </a>
 
                 <p class="text-white text-1xl font-bold">MANAGE</p>
-                <!-- <a href="{{ route('productsView') }}" class="flex items-center text-white hover:text-white ml-2">
+                <!-- <a href="{{ route('productsView') }}" class="flex items-center text-white hover:text-white ">
                     <i class="fas fa-cube mr-3"></i> Products
 
                     
                      @if($lowStockCount > 0)
-                     <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                     <span class=" bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                             {{ $lowStockCount }}
                         </span>
                     @endif
                 </a> -->
 
-                <div class="ml-2">
+                <div class="">
                     <button onclick="toggleProducts()" class="flex items-center justify-between w-full text-white hover:text-white focus:outline-none">
                         <div class="flex items-center">
                             <i class="fas fa-eye mr-3"></i> VIEW
@@ -73,31 +77,31 @@
 
                     <!-- Submenu -->
                     <div id="products-submenu" class="ml-6 mt-2 space-y-4 overflow-hidden max-h-0 transition-all duration-300">
-                            <a href="{{ route('productsView') }}" class="flex items-center text-sm text-white hover:text-white mt-2 ml-2">
+                            <a href="{{ route('productsView') }}" class="flex items-center text-sm text-white hover:text-white mt-2 ">
                                 <i class="fas fa-box mr-2"></i> Products
                             </a>
-                            <a href="{{ route('add.product') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
+                            <!-- <a href="{{ route('add.product') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
                                 <i class="fas fa-plus-square mr-2"></i> Add Product
-                            </a>
-                            <!-- <a href="{{ route('stockclerk.add.brand') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
+                            </a> -->
+                            <!-- <a href="{{ route('stockclerk.add.brand') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
                                 <i class="fas fa-tags mr-2"></i> Add New Brand
                             </a> -->
-                            <!-- <a href="{{ route('stockclerk.add.category') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
+                            <!-- <a href="{{ route('stockclerk.add.category') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
                                 <i class="fas fa-folder-plus mr-2"></i> Add Category
                             </a> -->
-                            <a href="{{ route('stockclerk.view.brands') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
+                            <a href="{{ route('stockclerk.view.brands') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
                                 <i class="fas fa-eye mr-2"></i> View Brands
                             </a>
-                            <a href="{{ route('stockclerk.view.category') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ml-2">
+                            <a href="{{ route('stockclerk.view.category') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
                                 <i class="fas fa-eye mr-2"></i> View Categories
                             </a>
                     </div>
                 </div>
 
-                <a href="{{ route('stockclerkLow') }}" class="flex items-center text-white hover:text-white ml-2">
-                    <i class="fas fa-exclamation-triangle mr-3"></i> LOW UNITS
+                <a href="{{ route('stockclerkLow') }}" class="flex items-center text-white hover:text-white ">
+                    <i class="fas fa-exclamation-triangle mr-3"></i> Low Stocks
                     @if($lowStockCount > 0)
-                        <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        <span class=" bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                             {{ $lowStockCount }}
                         </span>
                     @endif
@@ -107,8 +111,8 @@
                     <i class="fas fa-list-ul mr-3"></i> Orders Queue
                 </a> -->
 
-                <p class="text-white text-1xl font-bold">ACTIVITY LOG</p>
-                <a href="{{ route('Stocklogs') }}" class="flex items-center text-white hover:text-white ml-2">
+                <p class="text-white text-1xl font-bold">ACTIVITY</p>
+                <a href="{{ route('Stocklogs') }}" class="flex items-center text-white hover:text-white ">
                     <i class="fas fa-history mr-3"></i> Stock Clerk Log
                 </a>
 
@@ -135,7 +139,7 @@
                     <i class="fa-solid fa-screwdriver-wrench text-xl md:text-6xl text-white mt-2"></i>
                     <div class="space-x-2">
                         <h1 class="text-lg md:text-4xl font-semibold mt-4">EFV AUTO PARTS MANAGEMENT SYSTEM</h1>
-                        <!-- <h2 class="text-1xl font-medium">Here are your daily tasks for today</h2> -->
+                        <h2 class="text-1xl font-medium">Stock Clerk Main</h2>
                     </div>
                 </div>
                 <div class="relative flex items-center space-x-4">

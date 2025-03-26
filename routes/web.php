@@ -206,13 +206,13 @@ Route::middleware(['stock-clerk'])->group(function () {
 
     Route::get('/stock-add-brand', [ProductController::class, 'Stockcreate'])->name('stockclerk.add.brand');
 
-    Route::get('/view-variants/{model_id}', [ProductController::class, 'indexVariant'])->name('variantsView');
-
     Route::get('/add-variant/{model_id}', [ProductController::class, 'IndexAddVariant'])->name('add.variant');
+
+    Route::get('/view-details/{model_id}', [ProductController::class, 'viewDetailsofProduct'])->name('viewDetails');
 
 });
 
-Route::get('/view-details/{model_id}', [ProductController::class, 'viewDetailsofProduct'])->name('viewDetails');
+Route::get('/view-variants/{model_id}', [ProductController::class, 'indexVariant'])->name('variantsView');
 
 Route::get('/add-product', [ProductController::class, 'create'])->name('add.product');
 
@@ -267,6 +267,9 @@ Route::put('/update-variant-status/{variant_id}', [ProductController::class, 'up
 Route::post('/variant/delete/{id}', [ProductController::class, 'deleteVariant'])->name('delete.variant');
 
 
+Route::get('/stock-clerk/main/dashboard', function () {
+    return view('stockclerk.content.stockClerkDashboard');
+})->name('stockclerk.dashboard.page');
 
 
 

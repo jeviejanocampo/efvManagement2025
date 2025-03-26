@@ -34,6 +34,11 @@ class ActivityLog extends Model
         return $this->belongsTo(Customer::class, 'user_id', 'id');
     }
 
+    public function employee()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
     // Disable timestamps if the table doesn't have `created_at` or `updated_at` columns
     // public $timestamps = false;
 }

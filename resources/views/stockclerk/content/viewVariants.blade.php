@@ -3,8 +3,8 @@
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="mb-4">
-    <a href="{{ url()->previous() }}" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
-        ← Back
+    <a href="{{ url()->previous() }}" class="bg-gray-700 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
+        ←
     </a>
 </div>
 
@@ -16,13 +16,13 @@
         <h2 class="text-2xl font-bold">Primary Product: {{ $model->model_name }}</h2>
     </div>
 
-    <div>
+    <!-- <div>
         <a href="{{ route('add.variant', ['model_id' => $model_id]) }}">
             <button class="bg-violet-800 text-white px-2 py-1 rounded-lg hover:bg-violet-800 mb-4">
                 + Add Variant
             </button>
         </a>
-    </div>
+    </div> -->
 
 
 
@@ -30,21 +30,21 @@
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-gray-200">
-                    <th class="border border-gray-300 px-2 py-1">Product ID</th>
+                    <!-- <th class="border border-gray-300 px-2 py-1">Product ID</th> -->
                     <th class="border border-gray-300 px-2 py-1">Part ID</th>
                     <th class="border border-gray-300 px-2 py-1"></th>
                     <th class="border border-gray-300 px-2 py-1">Variant Name</th>
                     <th class="border border-gray-300 px-2 py-1">Unit Price</th>
                     <th class="border border-gray-300 px-2 py-1">Stock Quantity</th>
                     <th class="border border-gray-300 px-2 py-1">Status</th>
-                    <th class="border border-gray-300 px-2 py-1">Edit Status</th>
-                    <th class="border border-gray-300 px-2 py-1">Action</th>
+                    <!-- <th class="border border-gray-300 px-2 py-1">Edit Status</th> -->
+                    <!-- <th class="border border-gray-300 px-2 py-1">Action</th> -->
                 </tr>
             </thead>
             <tbody>
                 @foreach ($variants as $variant)
                     <tr class="text-center">
-                        <td class="border border-gray-300 px-2 py-1">0000{{ $variant->variant_id }}</td>
+                        <!-- <td class="border border-gray-300 px-2 py-1">0000{{ $variant->variant_id }}</td> -->
                         <td class="border border-gray-300 px-2 py-1">{{ $variant->part_id }}</td>
                         <td class="border border-gray-300 px-2 py-1">
                             <img src="{{ asset('product-images/' . $variant->variant_image) }}" alt="Variant Image" class="w-16 h-16 object-cover rounded">
@@ -57,16 +57,16 @@
                             text-center" style="margin: 12px">
                             {{ ucfirst($variant->status) }}
                         </td>
-                        <td class="border border-gray-300 px-2 py-1 text-center">
-                            <!-- Edit Status Button -->
+                        <!-- <td class="border border-gray-300 px-2 py-1 text-center">
+                             Edit Status Button
                             <button onclick="openModal({{ $variant->variant_id }})" 
                                     class="bg-yellow-500 text-white px-2 py-1 rounded-lg hover:bg-yellow-600">
                                 Edit Status
                             </button>
-                        </td>
+                        </td> -->
 
-                        <td class="border border-gray-300 px-2 py-1 text-center">
-                            <a href="{{ route('', ['model_id' => $variant->model_id, 'variant_id' => $variant->variant_id]) }}" 
+                        <!-- <td class="border border-gray-300 px-2 py-1 text-center">
+                            <a href="{{ route('edit.variant', ['model_id' => $variant->model_id, 'variant_id' => $variant->variant_id]) }}" 
                             class="text-blue-500 hover:underline">
                                 <i class="fas fa-edit"></i> 
                             </a>
@@ -79,7 +79,7 @@
                                     <i class="fas fa-trash-alt"></i> 
                                 </button>
                             </form>
-                        </td>
+                        </td> -->
                     </tr>
                 @endforeach
             </tbody>

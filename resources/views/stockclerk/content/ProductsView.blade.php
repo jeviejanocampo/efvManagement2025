@@ -132,12 +132,12 @@
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-gray-100">
-                    <th class="border border-gray-300 px-2 py-1"></th>
-                    <th class="border border-gray-300 px-2 py-1"></th>
+                    <!-- <th class="border border-gray-300 px-2 py-1"></th> -->
+                    <th class="border border-gray-300 px-2 py-1">Image</th>
                     <!-- <th class="border border-gray-300 px-2 py-1">Category</th> -->
                     <th class="border border-gray-300 px-2 py-1">Brand </th>
                     <th class="border border-gray-300 px-2 py-1">Product </th>
-                    <th class="border border-gray-300 px-2 py-1">Unit Price</th>
+                    <th class="border border-gray-300 px-2 py-1">Price</th>
                     <th class="border border-gray-300 px-2 py-1">Qty</th>
                     <!-- <th class="border border-gray-300 px-2 py-1">W/Variant</th> -->
                     <!-- <th class="border border-gray-300 px-2 py-1">Details</th> -->
@@ -151,7 +151,7 @@
                     <tr data-category="{{ $product->brand->category->category_name ?? 'N/A' }}"
                         data-brand="{{ $product->brand->brand_name ?? 'N/A' }}"
                         data-name="{{ $product->model_name }}">
-                        <td class="border border-gray-300 px-2 py-1">0000{{ $product->model_id }}</td>
+                        <!-- <td class="border border-gray-300 px-2 py-1">0000{{ $product->model_id }}</td> -->
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="80" class="mx-auto">
                         </td>
@@ -202,7 +202,7 @@
                                 View
                                 </a>
                             @else
-                                <span class="text-white bg-gray-500 px-3 py-1 rounded-lg">No Variant</span>
+                                <span class="text-white bg-gray-700 px-3 py-1 rounded-lg">No Variant</span>
                             @endif
                         </td>
 
@@ -227,14 +227,14 @@
                             @endif
 
                             <!-- Edit Icon -->
-                            <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}" title="Edit Primary Product">
+                            <!-- <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}" title="Edit Primary Product">
                                 <i class="fa-solid fa-pen-to-square text-green-700 text-lg mx-1"></i>
-                            </a>
+                            </a> -->
 
                             <!-- Delete Icon -->
-                            <a href="#" class="delete-product" data-id="{{ $product->model_id }}" title="Delete">
+                            <!-- <a href="#" class="delete-product" data-id="{{ $product->model_id }}" title="Delete">
                                 <i class="fa-solid fa-trash text-red-700 text-lg mx-1"></i>
-                            </a>
+                            </a> -->
                         </td>
                     </tr>
                 @endforeach

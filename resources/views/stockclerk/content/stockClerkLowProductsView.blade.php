@@ -108,12 +108,12 @@
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-gray-100">
-                    <th class="border border-gray-300 px-2 py-1">Id</th>
+                    <!-- <th class="border border-gray-300 px-2 py-1">Id</th> -->
                     <th class="border border-gray-300 px-2 py-1"></th>
                     <!-- <th class="border border-gray-300 px-2 py-1">Category</th> -->
                     <th class="border border-gray-300 px-2 py-1">Brand Name</th>
                     <th class="border border-gray-300 px-2 py-1">Product Name</th>
-                    <th class="border border-gray-300 px-2 py-1">Unit Price</th>
+                    <th class="border border-gray-300 px-2 py-1">Price</th>
                     <th class="border border-gray-300 px-2 py-1">Quantity</th>
                     <!-- <th class="border border-gray-300 px-2 py-1">W/Variant</th> -->
                     <!-- <th class="border border-gray-300 px-2 py-1">Details</th> -->
@@ -132,7 +132,7 @@
                     <tr data-category="{{ $product->brand->category->category_name ?? 'N/A' }}"
                         data-brand="{{ $product->brand->brand_name ?? 'N/A' }}"
                         data-name="{{ $product->model_name }}">
-                        <td class="border border-gray-300 px-2 py-1">{{ $product->model_id }}</td>
+                        <!-- <td class="border border-gray-300 px-2 py-1">{{ $product->model_id }}</td> -->
                         <td class="border border-gray-300 px-2 py-1">
                             <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="50">
                         </td>
@@ -151,9 +151,14 @@
                         </td>
                         <td class="border border-gray-300 px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
-                                <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
+                                <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" 
+                                class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600">
+                                    View
+                                </a>
                             @else
-                                <span class="text-gray-500">No Variant</span>
+                                <span class="bg-gray-700 text-white px-2 py-1 rounded-md">
+                                    No Variant
+                                </span>
                             @endif
                         </td>
                         <td class="border border-gray-300 px-2 py-1 text-center">
@@ -166,14 +171,14 @@
                         </td>
                         <td class="border border-gray-300 px-1 py-1" style="text-align: center">
                             <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}" title="View Details">
-                                    <i class="fa-solid fa-eye text-blue-700 text-lg mx-1"></i>
-                                </a>
-                            <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}" title="Edit Primary Product">
+                                <i class="fa-solid fa-eye text-blue-700 text-lg mx-1"></i>
+                            </a>
+                            <!-- <a href="{{ route('viewModelDetails', ['model_id' => $product->model_id]) }}" title="Edit Primary Product">
                                 <i class="fa-solid fa-pen-to-square text-green-700 text-lg mx-1"></i>
                             </a>
                             <a href="#" class="delete-product" data-id="{{ $product->model_id }}" title="Delete">
                                 <i class="fa-solid fa-trash text-red-700 text-lg mx-1"></i>
-                            </a>
+                            </a> -->
                         </td>
                     </tr>
                 @endif

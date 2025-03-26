@@ -47,8 +47,8 @@
         <table class="min-w-full table-auto border-collapse border border-gray-300">
             <thead class="bg-gray-100">
                 <tr class="border-b">
-                    <th class="px-4 py-2  text-sm font-bold">ID</th>
-                    <th class="px-4 py-2  text-sm font-bold">User ID</th>
+                    <!-- <th class="px-4 py-2  text-sm font-bold">ID</th> -->
+                    <th class="px-4 py-2  text-sm font-bold">User</th>
                     <th class="px-4 py-2  text-sm font-bold">Role</th>
                     <th class="px-4 py-2  text-sm font-bold">Activity</th>
                     <th class="px-4 py-2  text-sm font-bold">Created At</th>
@@ -59,12 +59,14 @@
             @foreach($activityLogs as $log)
                 @if($log->role === 'stock clerk')
                     <tr class="border-b log-row" data-id="{{ $log->id }}" data-role="{{ $log->role }}" data-activity="{{ $log->activity }}" data-created="{{ $log->created_at }}">
-                        <td class="px-4 py-2 text-sm">{{ $log->id }}</td>
-                        <td class="px-4 py-2 text-sm">{{ $log->user_id }}</td>
+                        <!-- <td class="px-4 py-2 text-sm">{{ $log->id }}</td> -->
+                        <td class="px-4 py-2 text-sm">
+                            {{ $log->employee->name ?? 'N/A' }}
+                        </td> 
                         <td class="px-4 py-2 text-sm">{{ $log->role }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->activity }}</td>
-                        <td class="px-4 py-2 text-sm">{{ $log->created_at }}</td>
-                        <td class="px-4 py-2 text-sm">{{ $log->updated_at }}</td>
+                        <td class="px-4 py-2 text-sm">{{ $log->created_at->format('F d, Y - h:i A') }}</td>
+                        <td class="px-4 py-2 text-sm">{{ $log->updated_at->format('F d, Y - h:i A') }}</td>
                     </tr>
                 @endif
             @endforeach

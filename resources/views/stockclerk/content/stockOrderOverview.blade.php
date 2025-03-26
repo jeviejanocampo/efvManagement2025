@@ -21,7 +21,7 @@
 <div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
     <div style="margin-bottom: 6px; font-size: 36px; font-weight: 800; color: #333;">
-        Overview
+        In Process Requests
 
         <p class="border-b border-b-[1px] border-gray-300 mb-4">
             <!-- Your content here -->
@@ -77,7 +77,7 @@
             <thead>
                 <tr class="bg-gray-100">
                     <th class="border border-gray-300 px-4 py-2">Reference ID</th>
-                    <th class="border border-gray-300 px-4 py-2">User ID</th>
+                    <th class="border border-gray-300 px-4 py-2">User</th>
                     <th class="border border-gray-300 px-4 py-2">Total Items</th>
                     <th class="border border-gray-300 px-4 py-2">Total</th>
                     <th class="border border-gray-300 px-4 py-2">Created At</th>
@@ -89,7 +89,9 @@
                 @foreach ($orders as $order)
                     <tr class="border border-gray-300 transition-transform duration-300 hover:bg-gray-100">
                         <td class="border border-gray-300 px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->user_id }}</td>
+                        <td class="px-4 py-2">
+                            {{ $order->customer ? $order->customer->full_name : 'N/A' }}
+                        </td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>
                         <td class="border border-gray-300 px-4 py-2">₱ {{ number_format ($order->total_price, 2) }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
@@ -97,7 +99,6 @@
                         <span 
                             class="
                                 px-4 py-1 rounded-full text-sm text-white text-center 
-                                flex items-center justify-center
                                 @if ($order->status === 'Pending') bg-yellow-700
                                 @elseif ($order->status === 'Ready to Pickup') bg-blue-700
                                 @elseif ($order->status === 'Cancelled') bg-red-700

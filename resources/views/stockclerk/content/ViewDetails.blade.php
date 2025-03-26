@@ -13,9 +13,9 @@
         <h2 class="text-2xl font-bold">Product Details</h2>
         
         <!-- Edit Button -->
-        <button id="editButton" class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">
+        <!-- <button id="editButton" class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">
             Edit
-        </button>
+        </button> -->
     </div>
 
     <p style="font-size: 16px; margin-top: 4px">To add stocks just simply click edit</p>
