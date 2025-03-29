@@ -10,6 +10,9 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SalesController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Models\Product;
+use App\Models\Variant;
+
 
 
 Route::get('/', function () {
@@ -37,6 +40,11 @@ Route::middleware(['staff'])->group(function () {
         return view('staff.content.staffOrders');
     })->name('staffQueue');
 
+    Route::get('/staff/refund-requests', [OrderController::class, 'refundRequests'])->name('staff.refundRequests');
+
+    Route::get('/staff/refund-request/{order_id}', [OrderController::class, 'showRefundRequestForm'])
+    ->name('staff.refundRequestForm');
+
     Route::get('/staff/order-details/{order_id}', [OrderController::class, 'show'])->name('orders.show');
 
     Route::get('/staff/overview', [OrderController::class, 'staffOrderOverview'])->name('overView');
@@ -49,7 +57,11 @@ Route::middleware(['staff'])->group(function () {
 
     Route::get('/orders/fetch', [OrderController::class, 'fetchOrders'])->name('orders.fetch');
     
+    
 });
+
+Route::post('/order/update-status-refunded', [OrderController::class, 'updateProductStatusRefunded'])->name('order.updateStatus.refunded');
+
 
 Route::get('/staff/main/dashboard', function () {
     return view('staff.content.staffDashboard');

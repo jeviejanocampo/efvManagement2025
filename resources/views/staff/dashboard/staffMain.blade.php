@@ -11,6 +11,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            zoom: 90%;
         }
     </style>
 </head>
@@ -57,6 +58,14 @@
                 </span>
                 Orders Queue
             </a>
+
+            <a href="{{ route('staff.refundRequests') }}" class="flex items-center text-gray hover:text-white ml-1 gap-2">
+                <span class="bg-gray-600 p-2 rounded-lg">
+                    <i class="fa-solid fa-file text-gray-200"></i>
+                </span>
+                Refund Request
+            </a>
+
             
             <p class="text-white text-1xl font-bold">Activity</p>
             <a href="{{ route('logs') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Products; // Ensure this is imported at the top
 
 class Models extends Model
 {
@@ -33,4 +34,11 @@ class Models extends Model
     {
         return $this->belongsTo(Brand::class, 'brand_id', 'brand_id');
     }
+
+    public function products()
+    {
+        return $this->hasMany(Products::class, 'model_id', 'model_id');
+    }
+
+
 }

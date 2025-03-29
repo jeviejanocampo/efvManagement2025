@@ -9,7 +9,9 @@ use App\Models\OrderDetail;
 use App\Models\Models;  
 use App\Models\Products;  
 use App\Models\ActivityLog;  
+use App\Models\Variant;  
 use Carbon\Carbon;
+use App\Models\RefundOrder;
 
 
 class OrderController extends Controller
@@ -75,8 +77,86 @@ class OrderController extends Controller
         return response()->json($orders);
     }
     
+    public function refundRequests()
+    {
+        // Fetch all refund requests    
+        $refunds = RefundOrder::select('refund_id', 'order_id', 'user_id', 'status')->get();
+
+        $refunds = RefundOrder::with('customer')->get(); // Load customer details
+
+
+        return view('staff.content.staffRequestRefundList', compact('refunds'));
+    }
     
+    public function showRefundRequestForm($order_id)
+    {
+        $refund = RefundOrder::where('order_id', $order_id)
+            ->with('customer')
+            ->first();
+
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+
+        if (!$refund) {
+            return redirect()->route('staff.refundRequests')->with('error', 'Refund request not found.');
+        }
+
+        // Fetch all models where w_variant is NOT "YES" and include stock count
+        $models = Models::where('status', 'active')
+            ->where('w_variant', '!=', 'YES')
+            ->with(['products' => function ($query) {
+                $query->selectRaw('model_id, SUM(stocks_quantity) as total_quantity')->groupBy('model_id');
+            }])
+            ->get(); // Removed pagination
+
+        // Fetch all variants where the related model has w_variant = "YES"
+        $variants = Variant::whereHas('model', function ($query) {
+            $query->where('w_variant', 'YES')->where('status', 'active');
+        })->get(); // Removed pagination
+
+        return view('staff.content.staffRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants'));
+    }
+
+
+    public function updateProductStatusRefunded(Request $request)
+    {
+        $order_id = $request->input('order_id');
+        $product_ids = $request->input('product_id');
+        $product_statuses = $request->input('product_status');
+        $product_prices = $request->input('product_price');
+
+        $total_deduction = 0;
+
+        foreach ($product_ids as $index => $product_id) {
+            $status = $product_statuses[$index];
+            $price = $product_prices[$index];
+
+            $orderDetail = OrderDetail::where('order_id', $order_id)
+                ->where('model_id', $product_id)
+                ->first();
+
+            if ($orderDetail) {
+                $orderDetail->product_status = $status;
+                $orderDetail->save();
+
+                if ($status === 'refunded') {
+                    $total_deduction += $price;
+                }
+            }
+        }
+
+        $order = Order::find($order_id);
+        if ($order && $total_deduction > 0) {
+            $order->total_price -= $total_deduction;
+            $order->save();
+            return back()->with('success', 'Product status updated successfully.');
+        }
+
+        return back()->with('error', 'Failed to update product status.');
+    }
+
     
+            
+
     
     public function show($order_id, Request $request)
     {
