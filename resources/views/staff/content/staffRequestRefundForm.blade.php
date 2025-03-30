@@ -55,6 +55,9 @@
 </style>
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="user-id" content="{{ $refund->user_id ?? '' }}">
+<meta name="auth-id" content="{{ Auth::id() ?? '' }}">
+
 
 <div class="bg-gray-200 p-6" style="zoom: 85%">
 
@@ -153,9 +156,9 @@
 
 
             <!-- Display Total Price -->
-            <div class="mt-4 text-right font-semibold text-lg">
-                <p>Total Amount: <span id="total_price">₱ {{ number_format($total_price, 2) }}</span></p>
-            </div>
+                <div class="mt-4 text-right font-semibold text-lg">
+                    <p>Total Amount: <span id="total_price">₱ {{ number_format($total_price, 2) }}</span></p>
+                </div>
 
         </div>
 
@@ -300,6 +303,9 @@
     window.processedBy = "{{ Auth::id() }}"; // Authenticated user
     window.userId = "{{ $refund->customer->id ?? 'null' }}"; // Customer's user ID
 </script>
+
+<input type="hidden" id="refundUserId" value="{{ $refund->user_id }}">
+<input type="hidden" id="authUserId" value="{{ Auth::id() }}">
 
 <script>
     
@@ -571,33 +577,72 @@ document.getElementById("confirmButton").addEventListener("click", function () {
     let originalTotalElement = document.getElementById("originalOrderPrice");
     let originalTotal = originalTotalElement ? parseFloat(originalTotalElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
 
-    let amountAddedElement = document.getElementById("amountAdded");
-    let customersChangeElement = document.getElementById("customersChange");
+    let amountAddedElement = document.querySelector(".text-red-600 strong");
+    let customersChangeElement = document.querySelector(".text-green-600 strong");
 
     let amountAdded = amountAddedElement ? parseFloat(amountAddedElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
     let changeGiven = customersChangeElement ? parseFloat(customersChangeElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
 
-    document.querySelectorAll("#detailsContainer [data-detail-id]").forEach(item => {
-        let originalModelId = item.getAttribute("data-detail-id");
-        let selectedModelId = item.querySelector("select") ? item.querySelector("select").value : originalModelId;
+    let userIdElement = document.querySelector("meta[name='user-id']");
+    let processedByElement = document.querySelector("meta[name='auth-id']");
+
+    let userId = userIdElement ? userIdElement.getAttribute("content") : null;
+    let processedBy = processedByElement ? processedByElement.getAttribute("content") : null;
+
+    console.log("✅ User ID:", userId);
+    console.log("✅ Processed By:", processedBy);
+
+    document.querySelectorAll("#detailsContainer").forEach(item => {
+        let idElement = item.querySelector("p.text-gray-600 span.font-bold.text-black"); 
+        let selectedId = idElement ? idElement.textContent.trim() : "N/A";
+
+        let selectedIdElement = item.querySelector("input.id-selector");
+        let originalId = selectedIdElement && selectedIdElement.value.trim() !== "" 
+            ? selectedIdElement.value.trim() 
+            : selectedId;
+
         let subtotalText = item.querySelector(".price-label") ? item.querySelector(".price-label").textContent : "₱0";
         let subtotal = parseFloat(subtotalText.replace(/[₱,]/g, '')) || 0;
         let productName = item.querySelector("h3:nth-of-type(2)") ? item.querySelector("h3:nth-of-type(2)").textContent.trim() : "Unknown Product";
 
-        console.log("original_model_id:", originalModelId);
-        console.log("selected_model_id:", selectedModelId);
-        console.log("subtotal:", subtotal);
-        console.log("product_name:", productName);
-
-        insertedData.push({
-            original_model_id: originalModelId,
-            selected_model_id: selectedModelId,
+        let isVariant = item.querySelector("p.text-gray-600").textContent.includes("Variant ID");
+        
+        let dataEntry = {
             subtotal: subtotal,
-            product_name: productName
-        });
+            product_name: productName,
+            type: isVariant ? "variant" : "model"
+        };
+
+        if (isVariant) {
+            dataEntry.variant_original_id = originalId;
+            dataEntry.variant_passed_id = selectedId;
+        } else {
+            dataEntry.model_original_id = originalId;
+            dataEntry.model_passed_id = selectedId;
+        }
+
+        insertedData.push(dataEntry);
+
+        console.log("🔍 Original ID:", selectedId);
+        console.log("✅ Selected ID:", originalId);
+        console.log("🛒 Product Name:", productName);
+        console.log("💰 Subtotal:", subtotal);
+        console.log("📌 Type:", isVariant ? "Variant" : "Model");
     });
 
-    console.log("Final insertedData:", insertedData);
+    let finalData = {
+        order_id: orderId,
+        original_total: originalTotal,
+        updated_total_price: total,
+        change_given: changeGiven,
+        amount_added: amountAdded,
+        processed_by: processedBy,
+        user_id: userId,
+        details_selected: insertedData,
+        status: "Completed"
+    };
+
+    console.log("📝 Final Data Sent:", finalData);
 
     fetch('/update-refund', {
         method: 'POST',
@@ -605,30 +650,18 @@ document.getElementById("confirmButton").addEventListener("click", function () {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({
-            order_id: orderId,
-            original_total: originalTotal,
-            final_total: total,
-            change_given: changeGiven,
-            amount_added: amountAdded,
-            processed_by: window.processedBy,
-            user_id: window.userId,
-            details_selected: JSON.stringify(insertedData),
-            refund_reason: "Customer requested refund",
-            refund_method: "Cash",
-            status: "pending"
-        })
+        body: JSON.stringify(finalData)
     })
     .then(response => response.json())
     .then(data => {
-        console.log("Server Response:", data);
+        console.log("✅ Server Response:", data);
         if (data.success) {
             alert("Refund updated successfully!");
         } else {
             alert("Failed to update refund.");
         }
     })
-    .catch(error => console.error("Error:", error));
+    .catch(error => console.error("❌ Error:", error));
 });
 
 
@@ -657,7 +690,7 @@ document.getElementById("confirmButton").addEventListener("click", function () {
                 }
             });
         });
- </script>
+</script>
 
 <script>
     function confirmRefund(selectElement, productId, productPrice) {

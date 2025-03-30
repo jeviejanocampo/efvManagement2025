@@ -157,113 +157,172 @@ class OrderController extends Controller
         return back()->with('error', 'Failed to update product status.');
     }
 
+
     public function updateRefund(Request $request)
-{
-    try {
-            Log::info('updateRefund called', ['request' => $request->all()]);
-
-            // Validate request data
-            $validated = $request->validate([
-                'order_id' => 'required|exists:orders,order_id',
-                'original_total' => 'required|numeric',
-                'final_total' => 'required|numeric',
-                'change_given' => 'required|numeric',
-                'amount_added' => 'required|numeric',
-                'processed_by' => 'required|exists:users,id',
-                'user_id' => 'required|exists:users,id',
-                'details_selected' => 'nullable|json',
-                'refund_reason' => 'nullable|string',
-                'refund_method' => 'nullable|string',
-                'status' => 'nullable|string'
-            ]);
-
-            Log::info('Validated request data', ['validated' => $validated]);
-
-            // Decode the details_selected JSON data
-            $detailsSelected = json_decode($validated['details_selected'], true);
-
-        if (!empty($detailsSelected)) {
-        foreach ($detailsSelected as $detail) {
-            if (isset($detail['original_model_id'])) {
-                Log::info('Fetching model_name for new model_id', ['model_id' => $detail['original_model_id']]);
-
-                // Get the model_name from models table
-                $model = DB::table('models')
-                    ->where('model_id', $detail['original_model_id'])
-                    ->first();
-
-                if (!$model) {
-                    Log::error('Model not found', ['model_id' => $detail['original_model_id']]);
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Model not found for ID: " . $detail['original_model_id']
-                    ], 404);
-                }
-
-                Log::info('Updating order_details', ['order_id' => $validated['order_id'], 'model_id' => $detail['selected_model_id'], 'new_model_name' => $model->model_name]);
-
-                $modelData = DB::table('models')
-                ->where('model_id', $detail['original_model_id'])
-                ->select('model_name', 'price')
-                ->first();
-
-
-                // Update the model_id and replace product_name with the new model_name
-                DB::table('order_details')
-                ->where('order_id', $validated['order_id'])
-                ->where('model_id', $detail['selected_model_id']) // Change the previous model
+    {
+        try {
+            // Log the received data
+            Log::info("✅ Refund Update Request Received:", $request->all());
+    
+            // Extract main order data
+            $orderId = $request->order_id;
+            $userId = $request->user_id;
+            $processedBy = $request->processed_by;
+            $originalTotal = $request->original_total;
+            $updatedTotalPrice = $request->updated_total_price;
+            $amountAdded = $request->amount_added;
+            $changeGiven = $request->change_given;
+            $status = "Completed";
+            $detailsSelected = $request->details_selected;
+    
+            Log::info("🔍 Order Update Info", compact(
+                'orderId', 'userId', 'processedBy', 'originalTotal', 
+                'updatedTotalPrice', 'amountAdded', 'changeGiven', 'status'
+            ));
+    
+            // Update orders table
+            $orderUpdated = DB::table('orders')
+                ->where('order_id', $orderId)
                 ->update([
-                    'model_id' => $detail['original_model_id'], // Set the new model
-                    'product_name' => $modelData->model_name, // Update product_name with model_name
-                    'price' => $modelData->price // Update price
+                    'total_price' => $updatedTotalPrice,
+                    'status' => $status,
+                    'updated_at' => now()
                 ]);
-            
+    
+            Log::info("✅ Orders table updated:", ['status' => $orderUpdated]);
+    
+            // Update refund_order table
+            $refundUpdated = DB::table('refund_order')
+                ->where('order_id', $orderId)
+                ->where('user_id', $userId)
+                ->update([
+                    'original_total' => $originalTotal,
+                    'final_total' => $updatedTotalPrice,
+                    'amount_added' => $amountAdded,
+                    'change_given' => $changeGiven,
+                    'status' => $status,
+                    'processed_by' => $processedBy,
+                    'updated_at' => now()
+                ]);
+    
+            Log::info("✅ refund_order updated:", ['status' => $refundUpdated]);
+    
+            // Loop through details and update order_details table
+            foreach ($detailsSelected as $detail) {
+                $type = $detail['type'];
+                $subtotal = $detail['subtotal'];
+                $productName = $detail['product_name'];
+    
+                if ($type === "model" && isset($detail['model_original_id'], $detail['model_passed_id'])) {
+                    $originalId = $detail['model_original_id'];
+                    $passedId = $detail['model_passed_id'];
+                
+                    Log::info("🛠 Checking for existing model order_details entry", [
+                        'order_id' => $orderId,
+                        'model_id' => $originalId 
+                    ]);
+                
+                    $existingModel = DB::table('order_details')
+                        ->where('order_id', $orderId)
+                        ->where('model_id', $originalId)
+                        ->first();
+                
+                    if ($existingModel) {
+                        // 🔥 Fetch the new price from the models table
+                        $newPrice = DB::table('models')
+                            ->where('model_id', $passedId)
+                            ->value('price');
+                
+                        Log::info("💰 Fetched New Model Price:", ['model_id' => $passedId, 'price' => $newPrice]);
+                
+                        if (!is_null($newPrice)) {
+                            Log::info("🔍 Found existing entry. Proceeding with update:", (array) $existingModel);
+                            $modelUpdated = DB::table('order_details')
+                                ->where('order_id', $orderId)
+                                ->where('model_id', $originalId)
+                                ->update([
+                                    'model_id' => $passedId,
+                                    'product_name' => $productName,
+                                    'total_price' => $subtotal,
+                                    'price' => $newPrice,
+                                    'updated_at' => now()
+                                ]);
+                            Log::info("✅ Model Update Result:", ['status' => $modelUpdated]);
+                        } else {
+                            Log::warning("⚠️ No price found for model_id $passedId in models table.");
+                        }
+                    } else {
+                        Log::warning("⚠️ No matching model_id found in order_details. Skipping update.");
+                    }
+                }
+    
+                // ✅ Fixed Variant Block (No Duplicate)
+                elseif ($type === "variant" && isset($detail['variant_original_id'], $detail['variant_passed_id'])) {
+                    $originalId = $detail['variant_original_id'];
+                    $passedId = $detail['variant_passed_id'];
+                
+                    Log::info("🛠 Checking for existing variant order_details entry", [
+                        'order_id' => $orderId,
+                        'variant_id' => $originalId
+                    ]);
+                
+                    $existingVariant = DB::table('order_details')
+                        ->where('order_id', $orderId)
+                        ->where('variant_id', $originalId)
+                        ->first();
+                
+                    if ($existingVariant) {
+                        // 🔥 Fetch the new price from the variants table
+                        $newPrice = DB::table('variants')
+                            ->where('variant_id', $passedId)
+                            ->value('price');
+                
+                        Log::info("💰 Fetched New Variant Price:", ['variant_id' => $passedId, 'price' => $newPrice]);
+                
+                        if (!is_null($newPrice)) {
+                            Log::info("🔍 Found existing entry. Proceeding with update:", (array) $existingVariant);
+                            $variantUpdated = DB::table('order_details')
+                                ->where('order_id', $orderId)
+                                ->where('variant_id', $originalId)
+                                ->update([
+                                    'variant_id' => $passedId,  // ✅ Now correctly updates to passedId
+                                    'product_name' => $productName,
+                                    'total_price' => $subtotal,
+                                    'price' => $newPrice,
+                                    'updated_at' => now()
+                                ]);
+                            Log::info("✅ Variant Update Result:", ['status' => $variantUpdated]);
+                        } else {
+                            Log::warning("⚠️ No price found for variant_id $passedId in variants table.");
+                        }
+                    } else {
+                        Log::warning("⚠️ No matching variant_id found in order_details. Skipping update.");
+                    }
+                }
             }
-        }   
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Refund updated successfully!',
+                'data' => $request->all()
+            ]);
+    
+        } catch (\Exception $e) {
+            Log::error("❌ Refund Update Failed:", ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update refund.',
+                'error' => $e->getMessage()
+            ]);
+        }
     }
-        // Update orders table: Set total_price to final_total where order_id matches
-        Log::info('Updating orders table', ['order_id' => $validated['order_id'], 'final_total' => $validated['final_total']]);
+    
+    
+    
+    
 
-        DB::table('orders')
-            ->where('order_id', $validated['order_id'])
-            ->update(['total_price' => $validated['final_total']]);
-
-        // Find or Create Refund Record
-        Log::info('Updating or creating RefundOrder', ['order_id' => $validated['order_id']]);
-
-        $refund = RefundOrder::updateOrCreate(
-            ['order_id' => $validated['order_id']],
-            [
-                'user_id' => $validated['user_id'],
-                'original_total' => $validated['original_total'],
-                'final_total' => $validated['final_total'],
-                'change_given' => $validated['change_given'],
-                'amount_added' => $validated['amount_added'],
-                'processed_by' => $validated['processed_by'],
-                'refund_reason' => $validated['refund_reason'] ?? null,
-                'refund_method' => $validated['refund_method'] ?? null,
-                'status' => $validated['status'] ?? 'pending',
-                'details_selected' => $validated['details_selected'] ?? null,
-                'updated_at' => now(),
-            ]
-        );
-
-        Log::info('RefundOrder updated successfully', ['refund' => $refund]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Refund order updated successfully!',
-            'refund' => $refund
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error in updateRefund', ['error' => $e->getMessage()]);
-
-        return response()->json([
-            'success' => false,
-            'message' => 'An error occurred: ' . $e->getMessage()
-        ], 500);
-    }
-}
+    
+    
 
     
     
