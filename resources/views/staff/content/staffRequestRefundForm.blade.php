@@ -156,6 +156,7 @@
             <div class="mt-4 text-right font-semibold text-lg">
                 <p>Total Amount: <span id="total_price">₱ {{ number_format($total_price, 2) }}</span></p>
             </div>
+
         </div>
 
     </div>
@@ -265,6 +266,13 @@
             
             <h2 class="text-2xl font-semibold mb-4 border-b-2 border-gray-300">DIFFERENCE
 
+            <div class="flex justify-between items-center bg-gray-100 p-3 rounded-lg shadow-md">
+                <p class="text-lg font-semibold text-gray-700">Chosen Model/Variant Subtotal:</p>
+                <strong id="chosenSubtotal" class="text-2xl font-bold text-gray-900">₱ 0.00</strong>
+            </div>
+
+
+
             </h2>
             <div class="flex justify-between">
                 <p class="text-1xl text-red-600">AMOUNT ADDED:</p>
@@ -308,7 +316,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const totalPriceElement = document.getElementById("totalPrice");
     const updatedTotalPriceElement = document.getElementById("updatedTotalPrice");
-    const customersChangeElement = document.getElementById("customersChange");
     const summaryDetailsElement = document.getElementById("summaryDetails");
 
     const originalOrderPrice = parseFloat(
@@ -317,14 +324,94 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const orderData = {};
     document.querySelectorAll("tbody tr").forEach(row => {
-        const modelId = row.children[0].textContent.trim();
-        const productName = row.children[1].querySelector("span").textContent.trim();
-        const brand = row.children[2].textContent.trim();
-        const quantity = parseInt(row.children[3].textContent.trim());
-        const price = parseFloat(row.children[4].textContent.replace(/[₱,]/g, ''));
-        const subtotal = parseFloat(row.children[5].textContent.replace(/[₱,]/g, ''));
-        if (modelId) {
-            orderData[modelId] = { productName, brand, price, quantity, subtotal };
+        const modelId = row.children[1].textContent.trim(); // Model ID
+        const variantId = row.children[0].textContent.trim(); // Variant ID
+        const productName = row.children[2].querySelector("span").textContent.trim();
+        const brand = row.children[3].textContent.trim();
+        const quantity = parseInt(row.children[4].textContent.trim());
+        const price = parseFloat(row.children[5].textContent.replace(/[₱,]/g, ''));
+        const subtotal = parseFloat(row.children[6].textContent.replace(/[₱,]/g, ''));
+
+        if (modelId || variantId) {
+            orderData[modelId || variantId] = { modelId, variantId, productName, brand, price, quantity, subtotal };
+        }
+    });
+
+    document.getElementById("cardContainer").addEventListener("click", function (event) {
+        if (event.target.classList.contains("add-to-details")) {
+            const card = event.target.closest(".card");
+            const productType = card.hasAttribute("data-variant-id") ? "variant" : "model";
+            const modelId = card.getAttribute("data-id");
+            const variantId = card.getAttribute("data-variant-id") || null;
+            const productName = card.getAttribute("data-name");
+            const newPrice = parseFloat(card.getAttribute("data-price")) || 0;
+
+            if (!modelId) {
+                alert("Error: Model ID not found.");
+                return;
+            }
+
+            let label = productType === "variant" ? "Variant Product" : "Model Product";
+            let idLabel = productType === "variant" ? "Variant ID" : "Model ID";
+            let availableIds = productType === "variant"
+                ? Object.values(orderData).filter(item => item.variantId).map(item => item.variantId)
+                : Object.values(orderData).filter(item => item.modelId).map(item => item.modelId);
+
+            let selectedId = availableIds.length ? availableIds[0] : "";
+            let oldSubtotal = orderData[selectedId]?.subtotal || 0;
+            let newTotalPrice = newPrice;
+
+            let detailItem = document.createElement("div");
+            detailItem.classList.add("bg-white", "p-6", "rounded-lg", "mb-3", "border", "relative", "shadow-md");
+            detailItem.setAttribute("data-detail-id", selectedId);
+            detailItem.setAttribute("data-old-subtotal", oldSubtotal);
+            detailItem.setAttribute("data-price", newTotalPrice);
+
+            let dropdownOptions = availableIds.map(id => `<option value="${id}">${id}</option>`).join("");
+
+            detailItem.innerHTML = `
+                <div class="flex justify-between items-center space-y-4">
+                    <div>
+                        <h3 class="text-2xl font-semibold">${label}</h3>
+                        <h3 class="text-lg font-semibold">${productName}</h3>
+                        <p class="text-gray-600">${idLabel}: 
+                            <span class="font-bold text-black">${productType === "variant" ? variantId : modelId}</span>
+                        </p>
+                        <p class="text-gray-600 mt-2">Choose ${productType === "variant" ? "Variant ID" : "Model ID"} to replace:  
+                            <select class="border rounded p-1 id-selector">
+                                ${dropdownOptions}
+                            </select>
+                        </p>
+                        <p class="text-gray-600 mt-2">Quantity: 
+                            <input type="number" class="border rounded p-1 w-20 text-center quantity-input" value="1" min="1">
+                        </p>
+                    </div>
+                    <h3 class="text-lg font-semibold">Subtotal</h3>
+                    <p class="text-gray-800 text-2xl font-bold price-label">₱ ${newTotalPrice.toLocaleString()}</p>
+                </div>
+                <button class="absolute top-5 right-5 text-red-500 remove-item font-bold">Remove</button>
+            `;
+
+
+            document.getElementById("detailsContainer").appendChild(detailItem);
+            updateTotalPrice();
+
+            detailItem.querySelector(".id-selector").addEventListener("change", function () {
+                let selectedNewId = this.value;
+                let newSubtotal = orderData[selectedNewId]?.subtotal || 0;
+
+                detailItem.setAttribute("data-old-subtotal", newSubtotal);
+                updateTotalPrice();
+            });
+
+            detailItem.querySelector(".quantity-input").addEventListener("input", function () {
+                let newQuantity = parseInt(this.value) || 1;
+                let updatedPrice = newPrice * newQuantity;
+
+                detailItem.querySelector(".price-label").textContent = `₱ ${updatedPrice.toLocaleString()}`;
+                detailItem.setAttribute("data-price", updatedPrice);
+                updateTotalPrice();
+            });
         }
     });
 
@@ -335,151 +422,39 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll("#detailsContainer [data-detail-id]").forEach(item => {
             const oldSubtotal = parseFloat(item.getAttribute("data-old-subtotal")) || 0;
             const newTotalPrice = parseFloat(item.getAttribute("data-price")) || 0;
-            const productName = item.querySelector("h3").textContent;
+            const productName = item.querySelector("h3:nth-child(2)").textContent;
 
-            // Subtract the original subtotal and add the new price for each replaced item
-            total = (total - oldSubtotal) + newTotalPrice;
 
             summaryDetailsHTML += `
-            <div class="flex justify-between">
-                <p class="text-gray-700">${productName} <span class="text-1xl text-black">(Subtotal)</span></p>
-                <strong class="text-gray-900 text-2xl">₱${newTotalPrice.toLocaleString()}</strong>
-            </div>`;
-
+                <div class="flex justify-between">
+                    <p class="text-gray-700">${productName} <span class="text-1xl text-black">(Subtotal)</span></p>
+                    <strong class="text-gray-900 text-2xl">₱${newTotalPrice.toLocaleString()}</strong>
+                </div>`;
         });
 
         totalPriceElement.textContent = `₱${total.toLocaleString()}`;
         updatedTotalPriceElement.textContent = `₱${total.toLocaleString()}`;
         summaryDetailsElement.innerHTML = summaryDetailsHTML;
-
-        let difference = total - originalOrderPrice;
-        
-        if (difference > 0) {
-            document.getElementById("amountAdded").textContent = `₱${difference.toLocaleString()}`;
-            document.getElementById("customersChange").textContent = `₱0.00`;
-        } else {
-            document.getElementById("customersChange").textContent = `₱${Math.abs(difference).toLocaleString()}`;
-            document.getElementById("amountAdded").textContent = `₱0.00`;
-        }
     }
 
+    document.getElementById("detailsContainer").addEventListener("change", function (event) {
+        if (event.target.classList.contains("id-selector")) {
+            let selectedId = event.target.value; // Selected Variant/Model ID
+            let chosenSubtotalElement = document.getElementById("chosenSubtotal");
 
-    document.getElementById("cardContainer").addEventListener("click", function (event) {
-        if (event.target.classList.contains("add-to-details")) {
-            const card = event.target.closest(".card");
-            const modelId = card.getAttribute("data-id");
-            const productName = card.getAttribute("data-name");
-            const productType = card.hasAttribute("data-variant-id") ? "variant" : "model";
-            const variantId = card.getAttribute("data-variant-id") || null;
-            // newPrice from the card is the replacement price you want for models
-            const newPrice = parseFloat(card.getAttribute("data-price")) || 0;
+            // Find the corresponding row in the table
+            let matchingRow = [...document.querySelectorAll("tbody tr")].find(row => {
+                let variantIdCell = row.children[0].textContent.trim(); // Get Variant ID from first column
+                return variantIdCell === selectedId;
+            });
 
-            if (!modelId) {
-                alert("Error: Model ID not found.");
-                return;
-            }
-
-            if (document.querySelector(`[data-detail-id="${modelId}"]`)) {
-                alert("This product is already added!");
-                return;
-            }
-
-            let idLabel = productType === "variant" ? "Variant ID" : "Model ID";
-            let idValue = productType === "variant" ? variantId : modelId;
-
-            // For models, get original subtotal and quantity from orderData
-            let originalSubtotal = orderData[modelId]?.subtotal || 0;
-            let quantity = orderData[modelId]?.quantity || 1;
-            // For models, the initial replacement price should come from the card (newPrice)
-            let newTotalPrice = newPrice * quantity;
-
-            let modelOptions = Object.keys(orderData)
-                .map(id => `<option value="${id}">${id}</option>`)
-                .join("");
-
-                let detailItem = document.createElement("div");
-                detailItem.classList.add("bg-white", "p-6", "rounded-lg", "mb-3", "border", "relative", "shadow-md");
-                detailItem.setAttribute("data-detail-id", modelId);
-                detailItem.setAttribute("data-old-subtotal", originalSubtotal);
-                detailItem.setAttribute("data-price", newTotalPrice);
-
-                if (productType === "model" && modelOptions.length <= 1) {
-                    // Separate card for models (no merging)
-                    detailItem.innerHTML = `
-                        <div class="flex justify-between items-center space-y-4">
-                            <div>
-                                <h3 class="text-2xl font-semibold">Product</h3>
-                                <h3 class="text-lg font-semibold">${productName}</h3>
-                                <p class="text-gray-600">Model ID: <span class="font-bold">${modelId}</span></p>
-                                <p class="text-blue-500 font-semibold mt-1">This is a direct replacement for Model ID: ${modelId}</p>
-                                <p class="text-gray-600 mt-2">Quantity: <span class="quantity-label">${quantity}</span></p>
-                            </div>
-                             <h3 class="text-lg font-semibold">Subtotal</h3>
-                            <p class="text-gray-800 text-2xl font-bold price-label">₱ ${newTotalPrice.toLocaleString()}</p>
-                        </div>
-                        <button class="absolute top-5 right-5 text-red-500 remove-item font-bold">Remove</button>
-                    `;
-                } else {
-                    // Card for variants or models with multiple choices (merging case)
-                    detailItem.innerHTML = `
-                        <div class="flex justify-between items-center space-y-4">
-                            <div>
-                                <h3 class="text-2xl font-semibold mb-2">Product</h3>
-                                <h3 class="text-lg font-semibold">${productName}</h3>
-                                <p class="text-gray-600">${idLabel}: <span class="font-bold">${idValue}</span></p>
-                                <p class="text-gray-600 mt-2">Select New ${productType === "variant" ? "Variant" : "Model"} ID To Replace:</p>
-                                <select class="border rounded p-1 w-32 text-center text-sm ${productType === "variant" ? "variant-id-select" : "model-id-select"}">
-                                    ${modelOptions}
-                                </select>
-                                <p class="text-gray-600 mt-2">Quantity: <span class="quantity-label">${quantity}</span></p>
-                            </div>
-                             <h3 class="text-lg font-semibold">Subtotal</h3>
-                            <p class="text-gray-800 text-2xl font-bold price-label">₱ ${newTotalPrice.toLocaleString()}</p>
-                        </div>
-                        <button class="absolute top-5 right-5 text-red-500 remove-item font-bold">Remove</button>
-                    `;
-                }
-
-                document.getElementById("detailsContainer").appendChild(detailItem);
-                updateTotalPrice();
-
-
-        detailItem.querySelector("select").addEventListener("change", function () {
-            const selectedId = this.value; // New selected Model ID
-            const newSelectedQuantity = orderData[selectedId]?.quantity || 1;
-            let newSelectedPrice;
-
-            if (productType === "model") {
-                const defaultId = detailItem.getAttribute("data-detail-id");
-
-                if (selectedId === defaultId) {
-                    // If the selected model ID is the original, use the passed replacement price
-                    newSelectedPrice = parseFloat(detailItem.getAttribute("data-default-price"));
-                } else {
-                    // Otherwise, use the replacement price instead of falling back to orderData
-                    newSelectedPrice = newPrice; 
-                }
-
-                // Ensure we update the correct old subtotal when switching models
-                const newOldSubtotal = selectedId === defaultId 
-                    ? (newSelectedPrice * newSelectedQuantity) 
-                    : (orderData[selectedId]?.subtotal || 0);
-                    
-                detailItem.setAttribute("data-old-subtotal", newOldSubtotal);
+            if (matchingRow) {
+                let subtotalText = matchingRow.children[6].textContent.replace(/[₱,]/g, '').trim(); // Get Subtotal column
+                let chosenSubtotal = parseFloat(subtotalText) || 0;
+                chosenSubtotalElement.textContent = `₱ ${chosenSubtotal.toLocaleString()}`;
             } else {
-                // For variants, keep the given newPrice
-                newSelectedPrice = newPrice;
+                chosenSubtotalElement.textContent = "₱ 0.00"; // Default if not found
             }
-
-            // Update the total price calculation
-            const newSelectedTotalPrice = newSelectedPrice * newSelectedQuantity;
-
-            detailItem.querySelector(".quantity-label").textContent = newSelectedQuantity;
-            detailItem.querySelector(".price-label").textContent = `₱ ${newSelectedTotalPrice.toLocaleString()}`;
-            detailItem.setAttribute("data-price", newSelectedTotalPrice);
-
-            updateTotalPrice();
-        });
         }
     });
 
