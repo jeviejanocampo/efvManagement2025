@@ -60,7 +60,10 @@ Route::middleware(['staff'])->group(function () {
     
 });
 
+Route::post('/update-refund', [OrderController::class, 'updateRefund']);
+
 Route::post('/order/update-status-refunded', [OrderController::class, 'updateProductStatusRefunded'])->name('order.updateStatus.refunded');
+
 
 
 Route::get('/staff/main/dashboard', function () {

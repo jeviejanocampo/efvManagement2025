@@ -54,26 +54,27 @@
     }
 </style>
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <div class="bg-gray-200 p-6" style="zoom: 85%">
 
-        <a href="{{ route('staff.refundRequests') }}" class="text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4 text-sm">
-            <i class="fa-solid fa-arrow-left"></i> Back to Refund List
+        <a href="{{ route('staff.refundRequests') }}" class="text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4 text-3">
+            <i class="fa-solid fa-arrow-left"></i> 
         </a>
 
-        <h1 class="text-2xl font-semibold mb-4">Refund Details</h1>
+        <h1 class="text-4xl font-semibold mb-4">Refund Details</h1>
 
     <div>
     
-        <!-- Left Side: Order Details -->
         @php
         $total_price = 0;
         @endphp
 
         <div class="order-details">
-            <h2 class="text-xl font-semibold mb-4">Original Order Details</h2>
+            <h2 class="text-3xl font-semibold mb-4">Original Order Details</h2>
 
             <div class="mb-4 mt-4 space-y-4">
-                <p class="text-sm"><strong>Order ID:</strong> 0000{{ $refund->order_id }}</p>
+                <p class="text-2xl"><strong>Order ID:</strong> {{ $refund->order_id }}</p>
                 <p class="text-sm"><strong>Customer:</strong> {{ $refund->customer->full_name ?? 'Unknown' }}</p>
                 <p class="text-sm"><strong>Status:</strong> {{ ucfirst($refund->status) }}</p>
                 <p class="text-sm"><strong>Refund Reason:</strong> {{ $refund->refund_reason }}</p>
@@ -84,6 +85,7 @@
                 <table class="w-full border-collapse border border-gray-300 text-sm">
                     <thead>
                         <tr class="bg-gray-200">
+                            <th class="p-1 border">Variant ID</th>
                             <th class="p-1 border">Model ID</th>
                             <th class="p-1 border">Product</th>
                             <th class="p-1 border">Brand</th>
@@ -114,6 +116,7 @@
                             @endphp
 
                             <tr class="border">
+                                <td class="p-1 border">{{ $detail->variant_id }}</td>
                                 <td class="p-1 border">{{ $detail->model_id }}</td>
                                 <td class="p-1 border flex items-center gap-2">
                                     <img src="{{ $imagePath }}" alt="Product Image" class="w-16 h-16 object-cover rounded-md">
@@ -295,9 +298,14 @@
 </div>
 
 
+<script>
+    window.processedBy = "{{ Auth::id() }}"; // Authenticated user
+    window.userId = "{{ $refund->customer->id ?? 'null' }}"; // Customer's user ID
+</script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    
+document.addEventListener("DOMContentLoaded", function () {
     const totalPriceElement = document.getElementById("totalPrice");
     const updatedTotalPriceElement = document.getElementById("updatedTotalPrice");
     const customersChangeElement = document.getElementById("customersChange");
@@ -476,12 +484,93 @@
     });
 
     document.getElementById("detailsContainer").addEventListener("click", function (event) {
-        if (event.target.classList.contains("remove-item")) {
-            event.target.closest("div").remove();
-            updateTotalPrice();
+    if (event.target.classList.contains("remove-item")) {
+        event.target.closest("div").remove();
+        updateTotalPrice();
+    }
+});
+
+document.getElementById("confirmButton").addEventListener("click", function () {
+    let insertedData = [];
+
+    let orderIdElement = document.querySelector("p.text-2xl strong");
+    let orderIdText = orderIdElement ? orderIdElement.parentElement.textContent.trim() : null;
+    let orderId = orderIdText ? orderIdText.replace("Order ID:", "").trim().replace(/^0+/, "") : null;
+
+    if (!orderId) {
+        alert("Error: Order ID is missing.");
+        return;
+    }
+
+    let updatedTotalPriceElement = document.getElementById("updatedTotalPrice");
+    let total = updatedTotalPriceElement ? parseFloat(updatedTotalPriceElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
+
+    let originalTotalElement = document.getElementById("originalOrderPrice");
+    let originalTotal = originalTotalElement ? parseFloat(originalTotalElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
+
+    let amountAddedElement = document.getElementById("amountAdded");
+    let customersChangeElement = document.getElementById("customersChange");
+
+    let amountAdded = amountAddedElement ? parseFloat(amountAddedElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
+    let changeGiven = customersChangeElement ? parseFloat(customersChangeElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
+
+    document.querySelectorAll("#detailsContainer [data-detail-id]").forEach(item => {
+        let originalModelId = item.getAttribute("data-detail-id");
+        let selectedModelId = item.querySelector("select") ? item.querySelector("select").value : originalModelId;
+        let subtotalText = item.querySelector(".price-label") ? item.querySelector(".price-label").textContent : "₱0";
+        let subtotal = parseFloat(subtotalText.replace(/[₱,]/g, '')) || 0;
+        let productName = item.querySelector("h3:nth-of-type(2)") ? item.querySelector("h3:nth-of-type(2)").textContent.trim() : "Unknown Product";
+
+        console.log("original_model_id:", originalModelId);
+        console.log("selected_model_id:", selectedModelId);
+        console.log("subtotal:", subtotal);
+        console.log("product_name:", productName);
+
+        insertedData.push({
+            original_model_id: originalModelId,
+            selected_model_id: selectedModelId,
+            subtotal: subtotal,
+            product_name: productName
+        });
+    });
+
+    console.log("Final insertedData:", insertedData);
+
+    fetch('/update-refund', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            order_id: orderId,
+            original_total: originalTotal,
+            final_total: total,
+            change_given: changeGiven,
+            amount_added: amountAdded,
+            processed_by: window.processedBy,
+            user_id: window.userId,
+            details_selected: JSON.stringify(insertedData),
+            refund_reason: "Customer requested refund",
+            refund_method: "Cash",
+            status: "pending"
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Server Response:", data);
+        if (data.success) {
+            alert("Refund updated successfully!");
+        } else {
+            alert("Failed to update refund.");
         }
-    });
-    });
+    })
+    .catch(error => console.error("Error:", error));
+});
+
+
+
+});
 
 </script>
 
