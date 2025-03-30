@@ -274,17 +274,7 @@
 
 
             </h2>
-            <div class="flex justify-between">
-                <p class="text-1xl text-red-600">AMOUNT ADDED:</p>
-                <strong id="amountAdded" class="text-right text-red-600 text-2xl">₱ 0.00</strong>
-            </div>
-
-            <div class="flex justify-between border-b-2 border-gray-300">
-                <p class="text-1xl text-green-600 ">CUSTOMER's CHANGE:</p>
-                <strong id="customersChange" class="text-right text-green-600 text-2xl">₱ 0.00</strong>
-            </div>
-
-
+            
             <!-- Updated Total Price -->
             <div class="flex justify-between text-1xl mt-3">
                 <p class="font-bold text-2xl">UPDATED TOTAL PRICE:</p>
@@ -333,8 +323,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const subtotal = parseFloat(row.children[6].textContent.replace(/[₱,]/g, ''));
 
         if (modelId || variantId) {
-            orderData[modelId || variantId] = { modelId, variantId, productName, brand, price, quantity, subtotal };
+            let uniqueKey = `${modelId}-${variantId}`; // Ensures unique storage
+            orderData[uniqueKey] = { modelId, variantId, productName, brand, price, quantity, subtotal };
         }
+
+        console.log("Stored Order Data:", orderData);
+        console.log("Available Model IDs:", Object.values(orderData).map(item => item.modelId));
+        console.log("Available Variant IDs:", Object.values(orderData).map(item => item.variantId));
+
+
     });
 
     document.getElementById("cardContainer").addEventListener("click", function (event) {
@@ -370,39 +367,71 @@ document.addEventListener("DOMContentLoaded", function () {
             let dropdownOptions = availableIds.map(id => `<option value="${id}">${id}</option>`).join("");
 
             detailItem.innerHTML = `
-                <div class="flex justify-between items-center space-y-4">
-                    <div>
-                        <h3 class="text-2xl font-semibold">${label}</h3>
-                        <h3 class="text-lg font-semibold">${productName}</h3>
-                        <p class="text-gray-600">${idLabel}: 
-                            <span class="font-bold text-black">${productType === "variant" ? variantId : modelId}</span>
-                        </p>
-                        <p class="text-gray-600 mt-2">Choose ${productType === "variant" ? "Variant ID" : "Model ID"} to replace:  
-                            <select class="border rounded p-1 id-selector">
-                                ${dropdownOptions}
-                            </select>
-                        </p>
-                        <p class="text-gray-600 mt-2">Quantity: 
-                            <input type="number" class="border rounded p-1 w-20 text-center quantity-input" value="1" min="1">
-                        </p>
-                    </div>
-                    <h3 class="text-lg font-semibold">Subtotal</h3>
-                    <p class="text-gray-800 text-2xl font-bold price-label">₱ ${newTotalPrice.toLocaleString()}</p>
+            <div class="flex justify-between items-center space-y-4">
+                <div>
+                    <h3 class="text-2xl font-semibold">${label}</h3>
+                    <h3 class="text-lg font-semibold">${productName}</h3>
+                    <p class="text-gray-600">${idLabel}: 
+                        <span class="font-bold text-black">${productType === "variant" ? variantId : modelId}</span>
+                    </p>
+                    <p class="text-gray-600 mt-2">Choose ${productType === "variant" ? "Variant ID" : "Model ID"} to replace:  
+                        <input type="text" class="border rounded p-1 id-selector" placeholder="Enter ID" />
+                        <span class="text-red-500 text-sm hidden invalid-id-msg">Invalid ID</span>
+                    </p>
+                    <p class="text-gray-600 mt-2">Quantity: 
+                        <input type="number" class="border rounded p-1 w-20 text-center quantity-input" value="1" min="1">
+                    </p>
                 </div>
-                <button class="absolute top-5 right-5 text-red-500 remove-item font-bold">Remove</button>
-            `;
+                <h3 class="text-lg font-semibold">Subtotal</h3>
+                <p class="text-gray-800 text-2xl font-bold price-label">₱ ${newTotalPrice.toLocaleString()}</p>
+            </div>
+            <button class="absolute top-5 right-5 text-red-500 remove-item font-bold">Remove</button>
+        `;
 
 
             document.getElementById("detailsContainer").appendChild(detailItem);
             updateTotalPrice();
 
-            detailItem.querySelector(".id-selector").addEventListener("change", function () {
-                let selectedNewId = this.value;
-                let newSubtotal = orderData[selectedNewId]?.subtotal || 0;
+            const modelOrderData = {};   // Store only model products
+            const variantOrderData = {}; // Store only variant products
 
-                detailItem.setAttribute("data-old-subtotal", newSubtotal);
-                updateTotalPrice();
+            // ✅ Event: Validate Input Model/Variant ID (Handles multiple matching IDs)
+            detailItem.querySelector(".id-selector").addEventListener("input", function () {
+                let enteredId = this.value.trim();
+                let invalidMsg = this.nextElementSibling;
+
+                let matchingItems = Object.values(orderData).filter(item => {
+                    // 🔥 FIXED: Now checking the correct type (modelId or variantId)
+                    return productType === "variant" ? item.variantId === enteredId : item.modelId === enteredId;
+                });
+
+                console.log("Matching Items Found:", matchingItems);
+
+
+                if (matchingItems.length > 0) {
+                    this.classList.remove("border-red-500");
+                    this.classList.add("border-green-500");
+                    invalidMsg.classList.add("hidden");
+
+                    // 🔥 FIXED: Get correct subtotal based on the selected type
+                    let newSubtotal = matchingItems.reduce((sum, item) => sum + item.subtotal, 0);
+                    console.log("✅ New Subtotal Found:", newSubtotal);
+                    detailItem.setAttribute("data-old-subtotal", newSubtotal);
+                    updateTotalPrice();
+                } else {
+                    this.classList.remove("border-green-500");
+                    this.classList.add("border-red-500");
+                    invalidMsg.classList.remove("hidden");
+                }
+
+                console.log("Available Model IDs:", Object.values(orderData).map(item => item.modelId));
+                console.log("Available Variant IDs:", Object.values(orderData).map(item => item.variantId));
             });
+
+
+
+
+
 
             detailItem.querySelector(".quantity-input").addEventListener("input", function () {
                 let newQuantity = parseInt(this.value) || 1;
@@ -416,44 +445,102 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function updateTotalPrice() {
-        let total = originalOrderPrice;
-        let summaryDetailsHTML = "";
+        let newSubtotal = 0;
+        let replacedSubtotal = 0; // The subtotal of the item being replaced
+        let remainingSubtotal = 0;
+        let replacedIds = new Set();
 
+        // ✅ Step 1: Get the chosen new subtotal
         document.querySelectorAll("#detailsContainer [data-detail-id]").forEach(item => {
-            const oldSubtotal = parseFloat(item.getAttribute("data-old-subtotal")) || 0;
-            const newTotalPrice = parseFloat(item.getAttribute("data-price")) || 0;
-            const productName = item.querySelector("h3:nth-child(2)").textContent;
+            let selectedId = item.querySelector(".id-selector")?.value.trim(); // Selected Model ID
+            let oldSubtotal = parseFloat(item.getAttribute("data-old-subtotal")) || 0;
+            let newTotalPrice = parseFloat(item.getAttribute("data-price")) || 0;
 
+            if (selectedId) {
+                replacedIds.add(selectedId); // Track replaced IDs
+                replacedSubtotal += oldSubtotal; // Add the old subtotal of the replaced item
+            }
 
-            summaryDetailsHTML += `
-                <div class="flex justify-between">
-                    <p class="text-gray-700">${productName} <span class="text-1xl text-black">(Subtotal)</span></p>
-                    <strong class="text-gray-900 text-2xl">₱${newTotalPrice.toLocaleString()}</strong>
-                </div>`;
+            newSubtotal += newTotalPrice;
         });
 
-        totalPriceElement.textContent = `₱${total.toLocaleString()}`;
-        updatedTotalPriceElement.textContent = `₱${total.toLocaleString()}`;
+        // ✅ Step 2: Calculate remaining subtotal from non-replaced items
+        document.querySelectorAll("tbody tr").forEach(row => {
+            let variantId = row.children[0].textContent.trim(); // Variant ID
+            let modelId = row.children[1].textContent.trim(); // Model ID
+            let subtotal = parseFloat(row.children[6].textContent.replace(/[₱,]/g, '')) || 0;
+
+            // ✅ Keep only the subtotal of non-replaced items
+            if (!replacedIds.has(variantId) && !replacedIds.has(modelId)) {
+                remainingSubtotal += subtotal;
+            }
+        });
+
+        // ✅ Step 3: Calculate the correct updated total price
+        let totalWithReplacement = (originalOrderPrice - replacedSubtotal) + newSubtotal;
+        let difference = originalOrderPrice - totalWithReplacement;
+        let amountAdded = difference < 0 ? Math.abs(difference) : 0;
+        let customerChange = difference > 0 ? difference : 0;
+
+        // ✅ Step 4: Update the UI
+        let summaryDetailsHTML = `
+            <div class="flex justify-between">
+                <p class="text-gray-700">Original Order Total Amount:</p>
+                <strong class="text-gray-900 text-2xl">₱ ${originalOrderPrice.toLocaleString()}</strong>
+            </div>
+            <div class="flex justify-between">
+                <p class="text-gray-700">Chosen Model/Variant Subtotal:</p>
+                <strong class="text-gray-900 text-2xl">₱ ${newSubtotal.toLocaleString()}</strong>
+            </div>
+            <div class="flex justify-between">
+                <p class="text-gray-700">Remaining Subtotal:</p>
+                <strong class="text-gray-900 text-2xl">₱ ${remainingSubtotal.toLocaleString()}</strong>
+            </div>
+            <div class="flex justify-between ${amountAdded > 0 ? 'text-red-600' : ''}">
+                <p class="text-red font-bold">Amount Added:</p>
+                <strong class="text-gray-900 text-2xl">₱ ${amountAdded.toLocaleString()}</strong>
+            </div>
+            <div class="flex justify-between ${customerChange > 0 ? 'text-green-600' : ''}">
+                <p class=" text-green font-bold">Customer's Change:</p>
+                <strong class="text-green text-2xl">₱ ${customerChange.toLocaleString()}</strong>
+            </div>
+            <div class="flex justify-between mt-4 border-t pt-2">
+                <p class="text-gray-700 font-bold">Updated Total Price:</p>
+                <strong class="text-gray-900 text-2xl">₱ ${totalWithReplacement.toLocaleString()}</strong>
+            </div>`;
+
+        // ✅ Update the displayed values correctly
+        updatedTotalPriceElement.textContent = `₱${totalWithReplacement.toLocaleString()}`;
         summaryDetailsElement.innerHTML = summaryDetailsHTML;
     }
 
+
+
     document.getElementById("detailsContainer").addEventListener("change", function (event) {
         if (event.target.classList.contains("id-selector")) {
-            let selectedId = event.target.value; // Selected Variant/Model ID
+            let selectedId = event.target.value.trim(); // Get entered Model/Variant ID
+            let detailItem = event.target.closest("[data-detail-id]");
+            let productType = detailItem.querySelector("h3").textContent.includes("Model") ? "model" : "variant";
             let chosenSubtotalElement = document.getElementById("chosenSubtotal");
 
-            // Find the corresponding row in the table
+            // Find the correct subtotal based on the type (Model ID or Variant ID)
             let matchingRow = [...document.querySelectorAll("tbody tr")].find(row => {
-                let variantIdCell = row.children[0].textContent.trim(); // Get Variant ID from first column
-                return variantIdCell === selectedId;
+                let variantIdCell = row.children[0].textContent.trim(); // Variant ID
+                let modelIdCell = row.children[1].textContent.trim();   // Model ID
+                return productType === "variant" ? variantIdCell === selectedId : modelIdCell === selectedId;
             });
 
             if (matchingRow) {
-                let subtotalText = matchingRow.children[6].textContent.replace(/[₱,]/g, '').trim(); // Get Subtotal column
-                let chosenSubtotal = parseFloat(subtotalText) || 0;
-                chosenSubtotalElement.textContent = `₱ ${chosenSubtotal.toLocaleString()}`;
+                let subtotalText = matchingRow.children[6].textContent.replace(/[₱,]/g, '').trim(); // Subtotal
+                let correctSubtotal = parseFloat(subtotalText) || 0;
+                
+                // ✅ Update the correct subtotal in the selected detail item
+                chosenSubtotalElement.textContent = `₱ ${correctSubtotal.toLocaleString()}`;
+                detailItem.setAttribute("data-old-subtotal", correctSubtotal);
+
+                updateTotalPrice();
             } else {
-                chosenSubtotalElement.textContent = "₱ 0.00"; // Default if not found
+                chosenSubtotalElement.textContent = "₱ 0.00"; // Reset if not found
             }
         }
     });
@@ -464,6 +551,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateTotalPrice();
     }
 });
+
 
 document.getElementById("confirmButton").addEventListener("click", function () {
     let insertedData = [];
