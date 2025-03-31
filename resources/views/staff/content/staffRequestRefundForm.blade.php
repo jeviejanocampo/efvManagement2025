@@ -118,6 +118,7 @@
                                 }
                             @endphp
 
+                            <input type="hidden" name="variant_id[]" value="{{ $detail->variant_id }}">
                             <tr class="border">
                                 <td class="p-1 border">{{ $detail->variant_id }}</td>
                                 <td class="p-1 border">{{ $detail->model_id }}</td>

@@ -123,19 +123,29 @@ class OrderController extends Controller
     public function updateProductStatusRefunded(Request $request)
     {
         $order_id = $request->input('order_id');
-        $product_ids = $request->input('product_id');
+        $product_ids = $request->input('product_id'); // This will contain model_id or variant_id
         $product_statuses = $request->input('product_status');
         $product_prices = $request->input('product_price');
+        $variant_ids = $request->input('variant_id'); // New input for variant IDs
 
         $total_deduction = 0;
 
         foreach ($product_ids as $index => $product_id) {
             $status = $product_statuses[$index];
             $price = $product_prices[$index];
+            $variant_id = $variant_ids[$index];
 
-            $orderDetail = OrderDetail::where('order_id', $order_id)
-                ->where('model_id', $product_id)
-                ->first();
+            // Check if the product has a variant_id first
+            if ($variant_id != 0) {
+                $orderDetail = OrderDetail::where('order_id', $order_id)
+                    ->where('variant_id', $variant_id)
+                    ->first();
+            } else {
+                // If variant_id is 0, use model_id
+                $orderDetail = OrderDetail::where('order_id', $order_id)
+                    ->where('model_id', $product_id)
+                    ->first();
+            }
 
             if ($orderDetail) {
                 $orderDetail->product_status = $status;
