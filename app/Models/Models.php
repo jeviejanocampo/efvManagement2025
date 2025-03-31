@@ -40,5 +40,11 @@ class Models extends Model
         return $this->hasMany(Products::class, 'model_id', 'model_id');
     }
 
+    public function getTotalStockQuantityAttribute()
+    {
+        return $this->products()->sum('stocks_quantity');
+    }
+
+
 
 }

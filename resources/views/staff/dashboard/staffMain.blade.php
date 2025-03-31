@@ -43,7 +43,7 @@
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-box text-gray-200"></i>
                 </span>
-                 Request
+                 Order Overview
                 @if(session('pendingCount') && session('pendingCount') > 0)
                     <span class="ml-1 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                         {{ session('pendingCount') }}
@@ -51,7 +51,7 @@
                 @endif
             </a>
 
-            <p class="text-white text-1xl font-bold">Queue</p>
+            <!-- <p class="text-white text-1xl font-bold">Queue</p> -->
             <a href="{{ route('staffQueue') }}" class="flex items-center text-gray hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-list-check text-gray-200"></i>
@@ -63,7 +63,7 @@
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-file text-gray-200"></i>
                 </span>
-                Refund Request
+                Order Details
             </a>
 
             

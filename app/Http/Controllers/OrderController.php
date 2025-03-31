@@ -85,8 +85,10 @@ class OrderController extends Controller
         // Fetch all refund requests    
         $refunds = RefundOrder::select('refund_id', 'order_id', 'user_id', 'status')->get();
 
-        $refunds = RefundOrder::with('customer')->get(); // Load customer details
-
+       // Fetch refund requests with pagination (10 per page)
+        $refunds = RefundOrder::with('customer')
+        ->orderBy('created_at', 'desc') // Sort by newest first
+        ->paginate(10); // Show 10 per page
 
         return view('staff.content.staffRequestRefundList', compact('refunds'));
     }
@@ -127,14 +129,14 @@ class OrderController extends Controller
         $product_statuses = $request->input('product_status');
         $product_prices = $request->input('product_price');
         $variant_ids = $request->input('variant_id'); // New input for variant IDs
-
-        $total_deduction = 0;
-
+    
+        $total_adjustment = 0;
+    
         foreach ($product_ids as $index => $product_id) {
             $status = $product_statuses[$index];
             $price = $product_prices[$index];
             $variant_id = $variant_ids[$index];
-
+    
             // Check if the product has a variant_id first
             if ($variant_id != 0) {
                 $orderDetail = OrderDetail::where('order_id', $order_id)
@@ -146,26 +148,34 @@ class OrderController extends Controller
                     ->where('model_id', $product_id)
                     ->first();
             }
-
+    
             if ($orderDetail) {
-                $orderDetail->product_status = $status;
-                $orderDetail->save();
-
-                if ($status === 'refunded') {
-                    $total_deduction += $price;
+                // Check if the status is changing
+                if ($orderDetail->product_status !== $status) {
+                    if ($status === 'refunded') {
+                        $total_adjustment -= $price; // Deduct price if refunded
+                    } elseif ($orderDetail->product_status === 'refunded' && $status === 'pending') {
+                        $total_adjustment += $price; // Add back price if undoing refund
+                    }
+                    
+                    // Update the product status
+                    $orderDetail->product_status = $status;
+                    $orderDetail->save();
                 }
             }
         }
-
+    
+        // Adjust order total price accordingly
         $order = Order::find($order_id);
-        if ($order && $total_deduction > 0) {
-            $order->total_price -= $total_deduction;
+        if ($order && $total_adjustment !== 0) {
+            $order->total_price += $total_adjustment; // Apply the change (add or subtract)
             $order->save();
             return back()->with('success', 'Product status updated successfully.');
         }
-
-        return back()->with('error', 'Failed to update product status.');
+    
+        return back()->with('error', 'No changes were made.');
     }
+    
 
 
     public function updateRefund(Request $request)

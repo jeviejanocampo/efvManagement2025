@@ -65,23 +65,33 @@
             <i class="fa-solid fa-arrow-left"></i> 
         </a>
 
-        <h1 class="text-4xl font-semibold mb-4">Refund Details</h1>
-
     <div>
     
         @php
         $total_price = 0;
         @endphp
 
-        <div class="order-details">
-            <h2 class="text-3xl font-semibold mb-4">Original Order Details</h2>
+        <h2 class="text-3xl font-semibold mb-4">Original Order Details</h2>
 
-            <div class="mb-4 mt-4 space-y-4">
-                <p class="text-2xl"><strong>Order ID:</strong> {{ $refund->order_id }}</p>
+        <div class="order-details">
+
+            <div class="mb-4 space-y-6">
+              <div class="flex justify-between items-center border-b border-gray pb-2">
+                    <p class="text-2xl"><strong>Order ID:</strong> {{ $refund->order_id }}</p> <!--Importante kaau ni for update-->
+                    <p class="text-2xl">
+                        <strong>Status:</strong> 
+                        <span class="px-3 py-1 rounded-lg 
+                            {{ strtolower($refund->status) === 'completed' ? 'bg-green-500 text-white' : '' }}">
+                            {{ strtolower($refund->status) === 'completed' ? 'Requested for Refund/Replacement' : ucfirst($refund->status) }}
+                        </span>
+                    </p>
+                </div>
                 <p class="text-sm"><strong>Customer:</strong> {{ $refund->customer->full_name ?? 'Unknown' }}</p>
-                <p class="text-sm"><strong>Status:</strong> {{ ucfirst($refund->status) }}</p>
                 <p class="text-sm"><strong>Refund Reason:</strong> {{ $refund->refund_reason }}</p>
+                <p class="text-sm"><strong>Created:</strong> {{ $refund->created_at->format('F j, Y') }}</p>
             </div>
+
+            <h2 class="text-3xl font-semibold mb-4 border-b border-gray pb-2 pt-2">Product Details</h2>
 
             <form method="POST" action="{{ route('order.updateStatus.refunded') }}">
                 @csrf
@@ -131,12 +141,12 @@
                                 <td class="p-1 border">₱ {{ number_format($detail->price, 2) }}</td>
                                 <td class="p-1 border">₱ {{ number_format($detail->price * $detail->quantity, 2) }}</td>
                                 <td class="p-1 border 
-                                    @if($detail->product_status == 'pending') bg-yellow-200 
-                                    @elseif($detail->product_status == 'refunded') bg-red-200 
-                                    @elseif($detail->product_status == 'Completed') bg-green-200 
+                                    @if(strtolower($detail->product_status) == 'pending') bg-yellow-200 
+                                    @elseif(strtolower($detail->product_status) == 'refunded') bg-red-200 
+                                    @elseif(strtolower($detail->product_status) == 'completed') bg-green-200 
                                     @endif
                                 ">
-                                    {{ ucfirst($detail->product_status) }}
+                                    {{ strtolower($detail->product_status) == 'pending' ? 'Completed' : ucfirst($detail->product_status) }}
                                 </td>
                                 <td class="p-1 border">
                                     <input type="hidden" name="order_id" value="{{ $refund->order_id }}">
@@ -144,10 +154,11 @@
                                     <input type="hidden" name="product_price[]" value="{{ $itemTotal }}">
                                     
                                     <select name="product_status[]" class="border p-1" 
-                                        onchange="confirmRefund(this, '{{ $detail->model_id }}', '{{ $itemTotal }}')">
-                                        <option value="pending" {{ $detail->product_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                            onchange="confirmRefund(this, '{{ $detail->model_id }}', '{{ $itemTotal }}')">
+                                        <option value="pending" {{ $detail->product_status == 'pending' ? 'selected' : '' }}>Undo Refunded</option>
                                         <option value="refunded" {{ $detail->product_status == 'refunded' ? 'selected' : '' }}>Refunded</option>
                                     </select>
+
                                 </td>
                             </tr>
                         @endforeach
@@ -166,6 +177,8 @@
     </div>
 
    <br>
+
+   <h2 class="text-3xl font-semibold mb-4 border-b border-gray pt-6">Replacement Process Section</h2>
 
     <div class="grid-container" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px;">
         
@@ -695,25 +708,40 @@ document.getElementById("confirmButton").addEventListener("click", function () {
 
 <script>
     function confirmRefund(selectElement, productId, productPrice) {
-        if (selectElement.value === 'refunded') {
-            const isConfirmed = confirm("Are you sure you want to mark this product as refunded?");
+        let newStatus = selectElement.value;
+        let confirmationMessage = "";
 
-            if (!isConfirmed) {
-                // Reset dropdown selection if user cancels
-                selectElement.value = "pending";
-                return;
-            }
-
-            // Show loading alert (optional)
-            alert("Processing refund...");
-
-            // Submit the form
-            selectElement.form.submit();
+        if (newStatus === "refunded") {
+            confirmationMessage = "Are you sure you want to mark this product as REFUNDED?";
+        } else if (newStatus === "pending") {
+            confirmationMessage = "Are you sure you want to UNDO the refund?";
         }
+
+        const isConfirmed = confirm(confirmationMessage);
+
+        if (!isConfirmed) {
+            // If user cancels, revert to the previous selection
+            selectElement.value = selectElement.dataset.previousValue;
+            return;
+        }
+
+        // Save the new value as the previous value
+        selectElement.dataset.previousValue = newStatus;
+
+        // Show processing message
+        alert("Processing...");
+
+        // Submit the form
+        selectElement.form.submit();
     }
 
-    // Show success or error messages after form submission
     document.addEventListener("DOMContentLoaded", function() {
+        // Store initial value of select elements
+        document.querySelectorAll("select[name='product_status[]']").forEach(select => {
+            select.dataset.previousValue = select.value;
+        });
+
+        // Show success or error messages after form submission
         @if(session('success'))
             alert("✅ {{ session('success') }}");
         @endif
@@ -723,6 +751,7 @@ document.getElementById("confirmButton").addEventListener("click", function () {
         @endif
     });
 </script>
+
 
 
 </div> 
