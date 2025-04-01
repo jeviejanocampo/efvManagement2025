@@ -125,10 +125,10 @@ class OrderController extends Controller
     public function updateProductStatusRefunded(Request $request)
     {
         $order_id = $request->input('order_id');
-        $product_ids = $request->input('product_id'); // This will contain model_id or variant_id
+        $product_ids = $request->input('product_id');
         $product_statuses = $request->input('product_status');
         $product_prices = $request->input('product_price');
-        $variant_ids = $request->input('variant_id'); // New input for variant IDs
+        $variant_ids = $request->input('variant_id');
     
         $total_adjustment = 0;
     
@@ -137,44 +137,67 @@ class OrderController extends Controller
             $price = $product_prices[$index];
             $variant_id = $variant_ids[$index];
     
-            // Check if the product has a variant_id first
             if ($variant_id != 0) {
                 $orderDetail = OrderDetail::where('order_id', $order_id)
                     ->where('variant_id', $variant_id)
                     ->first();
             } else {
-                // If variant_id is 0, use model_id
                 $orderDetail = OrderDetail::where('order_id', $order_id)
                     ->where('model_id', $product_id)
                     ->first();
             }
     
             if ($orderDetail) {
-                // Check if the status is changing
                 if ($orderDetail->product_status !== $status) {
                     if ($status === 'refunded') {
-                        $total_adjustment -= $price; // Deduct price if refunded
+                        $total_adjustment -= $price;
+    
+                        if ($variant_id != 0) {
+                            $variant = Variant::find($variant_id);
+                            if ($variant) {
+                                $variant->stocks_quantity += $orderDetail->quantity;
+                                $variant->save();
+                            }
+                        } else {
+                            $product = Products::where('model_id', $product_id)->first();
+                            if ($product) {
+                                $product->stocks_quantity += $orderDetail->quantity;
+                                $product->save();
+                            }
+                        }
                     } elseif ($orderDetail->product_status === 'refunded' && $status === 'pending') {
-                        $total_adjustment += $price; // Add back price if undoing refund
+                        $total_adjustment += $price;
+    
+                        if ($variant_id != 0) {
+                            $variant = Variant::find($variant_id);
+                            if ($variant) {
+                                $variant->stocks_quantity -= $orderDetail->quantity;
+                                $variant->save();
+                            }
+                        } else {
+                            $product = Products::where('model_id', $product_id)->first();
+                            if ($product) {
+                                $product->stocks_quantity -= $orderDetail->quantity;
+                                $product->save();
+                            }
+                        }
                     }
-                    
-                    // Update the product status
+    
                     $orderDetail->product_status = $status;
                     $orderDetail->save();
                 }
             }
         }
     
-        // Adjust order total price accordingly
         $order = Order::find($order_id);
         if ($order && $total_adjustment !== 0) {
-            $order->total_price += $total_adjustment; // Apply the change (add or subtract)
+            $order->total_price += $total_adjustment;
             $order->save();
             return back()->with('success', 'Product status updated successfully.');
         }
     
         return back()->with('error', 'No changes were made.');
-    }
+    }    
     
 
 
@@ -227,99 +250,107 @@ class OrderController extends Controller
     
             Log::info("✅ refund_order updated:", ['status' => $refundUpdated]);
     
-            // Loop through details and update order_details table
-            foreach ($detailsSelected as $detail) {
-                $type = $detail['type'];
-                $subtotal = $detail['subtotal'];
-                $productName = $detail['product_name'];
-    
-                if ($type === "model" && isset($detail['model_original_id'], $detail['model_passed_id'])) {
-                    $originalId = $detail['model_original_id'];
-                    $passedId = $detail['model_passed_id'];
+           // Loop through details and update order_details table
+           foreach ($detailsSelected as $detail) {
+            $type = $detail['type'];
+            $subtotal = $detail['subtotal'];
+            $productName = $detail['product_name'];
+            
+            if ($type === "model" && isset($detail['model_original_id'], $detail['model_passed_id'])) {
+                $originalId = $detail['model_original_id'];
+                $passedId = $detail['model_passed_id'];
                 
-                    Log::info("🛠 Checking for existing model order_details entry", [
-                        'order_id' => $orderId,
-                        'model_id' => $originalId 
-                    ]);
+                Log::info("🛠 Checking for existing model order_details entry", [
+                    'order_id' => $orderId,
+                    'model_id' => $originalId
+                ]);
                 
-                    $existingModel = DB::table('order_details')
-                        ->where('order_id', $orderId)
-                        ->where('model_id', $originalId)
-                        ->first();
+                $existingModel = DB::table('order_details')
+                    ->where('order_id', $orderId)
+                    ->where('model_id', $originalId)
+                    ->first();
                 
-                    if ($existingModel) {
-                        // 🔥 Fetch the new price from the models table
-                        $newPrice = DB::table('models')
-                            ->where('model_id', $passedId)
-                            ->value('price');
+                if ($existingModel) {
+                    // Fetch the model_name and price from the products table (not models)
+                    $modelName = DB::table('products')
+                        ->where('model_id', $passedId)  // fetch based on passed model_id
+                        ->value('model_name');  // Fetch the model_name, not product_name
+                    
+                    // Fetch the price from the models table
+                    $modelPrice = DB::table('models')
+                        ->where('model_id', $passedId)
+                        ->value('price');
+                    
+                    Log::info("💡 Fetched New Model Name and Price:", ['model_name' => $modelName, 'price' => $modelPrice]);
                 
-                        Log::info("💰 Fetched New Model Price:", ['model_id' => $passedId, 'price' => $newPrice]);
-                
-                        if (!is_null($newPrice)) {
-                            Log::info("🔍 Found existing entry. Proceeding with update:", (array) $existingModel);
-                            $modelUpdated = DB::table('order_details')
-                                ->where('order_id', $orderId)
-                                ->where('model_id', $originalId)
-                                ->update([
-                                    'model_id' => $passedId,
-                                    'product_name' => $productName,
-                                    'total_price' => $subtotal,
-                                    'price' => $newPrice,
-                                    'updated_at' => now()
-                                ]);
-                            Log::info("✅ Model Update Result:", ['status' => $modelUpdated]);
-                        } else {
-                            Log::warning("⚠️ No price found for model_id $passedId in models table.");
-                        }
+                    // Proceed with the update
+                    if (!is_null($modelName) && !is_null($modelPrice)) {
+                        $modelUpdated = DB::table('order_details')
+                            ->where('order_id', $orderId)
+                            ->where('model_id', $originalId)
+                            ->update([
+                                'model_id' => $passedId,
+                                'product_name' => $modelName,  // Update product_name based on the correct table (model_name)
+                                'price' => $modelPrice,  // Update price based on the correct table (models)
+                                'updated_at' => now()
+                            ]);
+                        Log::info("✅ Model Update Result:", ['status' => $modelUpdated]);
                     } else {
-                        Log::warning("⚠️ No matching model_id found in order_details. Skipping update.");
+                        Log::warning("⚠️ No model_name or price found for model_id $passedId in products or models table.");
                     }
-                }
-    
-                // ✅ Fixed Variant Block (No Duplicate)
-                elseif ($type === "variant" && isset($detail['variant_original_id'], $detail['variant_passed_id'])) {
-                    $originalId = $detail['variant_original_id'];
-                    $passedId = $detail['variant_passed_id'];
-                
-                    Log::info("🛠 Checking for existing variant order_details entry", [
-                        'order_id' => $orderId,
-                        'variant_id' => $originalId
-                    ]);
-                
-                    $existingVariant = DB::table('order_details')
-                        ->where('order_id', $orderId)
-                        ->where('variant_id', $originalId)
-                        ->first();
-                
-                    if ($existingVariant) {
-                        // 🔥 Fetch the new price from the variants table
-                        $newPrice = DB::table('variants')
-                            ->where('variant_id', $passedId)
-                            ->value('price');
-                
-                        Log::info("💰 Fetched New Variant Price:", ['variant_id' => $passedId, 'price' => $newPrice]);
-                
-                        if (!is_null($newPrice)) {
-                            Log::info("🔍 Found existing entry. Proceeding with update:", (array) $existingVariant);
-                            $variantUpdated = DB::table('order_details')
-                                ->where('order_id', $orderId)
-                                ->where('variant_id', $originalId)
-                                ->update([
-                                    'variant_id' => $passedId,  // ✅ Now correctly updates to passedId
-                                    'product_name' => $productName,
-                                    'total_price' => $subtotal,
-                                    'price' => $newPrice,
-                                    'updated_at' => now()
-                                ]);
-                            Log::info("✅ Variant Update Result:", ['status' => $variantUpdated]);
-                        } else {
-                            Log::warning("⚠️ No price found for variant_id $passedId in variants table.");
-                        }
-                    } else {
-                        Log::warning("⚠️ No matching variant_id found in order_details. Skipping update.");
-                    }
+                } else {
+                    Log::warning("⚠️ No matching model_id found in order_details. Skipping update.");
                 }
             }
+        
+            // For the variant-based updates
+            elseif ($type === "variant" && isset($detail['variant_original_id'], $detail['variant_passed_id'])) {
+                $originalId = $detail['variant_original_id'];
+                $passedId = $detail['variant_passed_id'];
+                
+                Log::info("🛠 Checking for existing variant order_details entry", [
+                    'order_id' => $orderId,
+                    'variant_id' => $originalId
+                ]);
+                
+                $existingVariant = DB::table('order_details')
+                    ->where('order_id', $orderId)
+                    ->where('variant_id', $originalId)
+                    ->first();
+                
+                if ($existingVariant) {
+                    // Fetch the product_name and price from the variants table
+                    $variantName = DB::table('variants')
+                        ->where('variant_id', $passedId)  // Fetch based on passed variant_id
+                        ->value('product_name');  // Fetch the product_name from variants table
+                    
+                    $variantPrice = DB::table('variants')
+                        ->where('variant_id', $passedId)
+                        ->value('price');  // Fetch the price from variants table
+                    
+                    Log::info("💡 Fetched New Variant Name and Price:", ['variant_name' => $variantName, 'price' => $variantPrice]);
+                
+                    // Proceed with the update
+                    if (!is_null($variantName) && !is_null($variantPrice)) {
+                        $variantUpdated = DB::table('order_details')
+                            ->where('order_id', $orderId)
+                            ->where('variant_id', $originalId)
+                            ->update([
+                                'variant_id' => $passedId,
+                                'product_name' => $variantName,  // Update product_name based on the correct table (variant_name)
+                                'price' => $variantPrice,  // Update price based on the correct table (variants)
+                                'updated_at' => now()
+                            ]);
+                        Log::info("✅ Variant Update Result:", ['status' => $variantUpdated]);
+                    } else {
+                        Log::warning("⚠️ No product_name or price found for variant_id $passedId in variants table.");
+                    }
+                } else {
+                    Log::warning("⚠️ No matching variant_id found in order_details. Skipping update.");
+                }
+            }
+        }
+               
     
             return response()->json([
                 'success' => true,

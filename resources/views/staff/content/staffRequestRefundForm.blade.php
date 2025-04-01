@@ -98,15 +98,15 @@
                 <table class="w-full border-collapse border border-gray-300 text-sm">
                     <thead>
                         <tr class="bg-gray-200">
-                            <th class="p-1 border">Variant ID</th>
-                            <th class="p-1 border">Model ID</th>
-                            <th class="p-1 border">Product</th>
-                            <th class="p-1 border">Brand</th>
-                            <th class="p-1 border">Quantity</th>
-                            <th class="p-1 border">Price</th>
-                            <th class="p-1 border">Subtotal</th>
-                            <th class="p-1 border">Status</th>
-                            <th class="p-1 border">Action</th> <!-- NEW COLUMN -->
+                            <th class="p-1 ">Variant ID</th>
+                            <th class="p-1 ">Model ID</th>
+                            <th class="p-1 ">Product</th>
+                            <th class="p-1 ">Brand</th>
+                            <th class="p-1 ">Quantity</th>
+                            <th class="p-1 ">Price</th>
+                            <th class="p-1 ">Subtotal</th>
+                            <th class="p-1 ">Status</th>
+                            <th class="p-1 ">Action</th> <!-- NEW COLUMN -->
                         </tr>
                     </thead>
                     <tbody>
@@ -129,18 +129,18 @@
                             @endphp
 
                             <input type="hidden" name="variant_id[]" value="{{ $detail->variant_id }}">
-                            <tr class="border">
-                                <td class="p-1 border">{{ $detail->variant_id }}</td>
-                                <td class="p-1 border">{{ $detail->model_id }}</td>
-                                <td class="p-1 border flex items-center gap-2">
+                            <tr class="">
+                                <td class="p-1 ">{{ $detail->variant_id }}</td>
+                                <td class="p-1 ">{{ $detail->model_id }}</td>
+                                <td class="p-1  flex items-center gap-2">
                                     <img src="{{ $imagePath }}" alt="Product Image" class="w-16 h-16 object-cover rounded-md">
                                     <span class="text-sm">{{ $detail->product_name }}</span>
                                 </td>
-                                <td class="p-1 border">{{ $detail->brand_name }}</td>
-                                <td class="p-1 border">{{ $detail->quantity }}</td>
-                                <td class="p-1 border">₱ {{ number_format($detail->price, 2) }}</td>
-                                <td class="p-1 border">₱ {{ number_format($detail->price * $detail->quantity, 2) }}</td>
-                                <td class="p-1 border  
+                                <td class="p-1 ">{{ $detail->brand_name }}</td>
+                                <td class="p-1 ">{{ $detail->quantity }}</td>
+                                <td class="p-1 ">₱ {{ number_format($detail->price, 2) }}</td>
+                                <td class="p-1 ">₱ {{ number_format($detail->price * $detail->quantity, 2) }}</td>
+                                <td class="p-1   
                                     @if(strtolower($detail->product_status) == 'pending') bg-yellow-200 
                                     @elseif(strtolower($detail->product_status) == 'refunded') bg-red-200 
                                     @elseif(strtolower($detail->product_status) == 'completed') bg-green-200 
@@ -148,12 +148,12 @@
                                 ">
                                     {{ strtolower($detail->product_status) == 'pending' ? 'Completed' : ucfirst($detail->product_status) }}
                                 </td>
-                                <td class="p-1 border">
+                                <td class="p-1 ">
                                     <input type="hidden" name="order_id" value="{{ $refund->order_id }}">
                                     <input type="hidden" name="product_id[]" value="{{ $detail->model_id }}">
                                     <input type="hidden" name="product_price[]" value="{{ $itemTotal }}">
                                     
-                                    <select name="product_status[]" class="border p-1" 
+                                    <select name="product_status[]" class=" p-1" 
                                             onchange="confirmRefund(this, '{{ $detail->model_id }}', '{{ $itemTotal }}')">
                                         <option value="pending" {{ $detail->product_status == 'pending' ? 'selected' : '' }}>Undo Refunded</option>
                                         <option value="refunded" {{ $detail->product_status == 'refunded' ? 'selected' : '' }}>Refunded</option>
@@ -577,6 +577,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 document.getElementById("confirmButton").addEventListener("click", function () {
+
+    if (!confirm("Are you sure you want to proceed with updating the product?")) {
+        return; 
+    }
+
     let insertedData = [];
 
     let orderIdElement = document.querySelector("p.text-2xl strong");
@@ -674,6 +679,7 @@ document.getElementById("confirmButton").addEventListener("click", function () {
         console.log("✅ Server Response:", data);
         if (data.success) {
             alert("Refund updated successfully!");
+            location.reload(); 
         } else {
             alert("Failed to update refund.");
         }
