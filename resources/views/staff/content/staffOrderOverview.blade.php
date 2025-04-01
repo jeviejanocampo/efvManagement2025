@@ -114,7 +114,7 @@
                         <td class="px-4 py-2">
                             <p style="text-align: center;">
                                 <a href="{{ route('overViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
-                                class="text-black hover:underline">
+                                class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-2">
                                     <i class="fas fa-eye"></i>
                                 </a>
                             </p>

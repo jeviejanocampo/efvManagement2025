@@ -59,6 +59,7 @@
                 Orders Queue
             </a>
 
+            <p class="text-white text-1xl font-bold pt-3">Replacement/Refund Details</p>
             <a href="{{ route('staff.refundRequests') }}" class="flex items-center text-gray hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-file text-gray-200"></i>

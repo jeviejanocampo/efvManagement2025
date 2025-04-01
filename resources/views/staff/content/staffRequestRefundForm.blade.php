@@ -76,7 +76,7 @@
         <div class="order-details">
 
             <div class="mb-4 space-y-6">
-              <div class="flex justify-between items-center border-b border-gray pb-2">
+              <div class="flex justify-between items-center border-b border-gray pb-4">
                     <p class="text-2xl"><strong>Order ID:</strong> {{ $refund->order_id }}</p> <!--Importante kaau ni for update-->
                     <p class="text-2xl">
                         <strong>Status:</strong> 
@@ -86,12 +86,12 @@
                         </span>
                     </p>
                 </div>
-                <p class="text-sm"><strong>Customer:</strong> {{ $refund->customer->full_name ?? 'Unknown' }}</p>
-                <p class="text-sm"><strong>Refund Reason:</strong> {{ $refund->refund_reason }}</p>
-                <p class="text-sm"><strong>Created:</strong> {{ $refund->created_at->format('F j, Y') }}</p>
+                <p class="text-1xl"><strong>Customer:</strong> {{ $refund->customer->full_name ?? 'Unknown' }}</p>
+                <p class="text-1xl"><strong>Refund Reason:</strong> {{ $refund->refund_reason }}</p>
+                <p class="text-1xl"><strong>Created:</strong> {{ $refund->created_at->format('F j, Y') }}</p>
             </div>
 
-            <h2 class="text-3xl font-semibold mb-4 border-b border-gray pb-2 pt-2">Product Details</h2>
+            <h2 class="text-3xl font-semibold mb-4 border-b border-gray pb-4 pt-2">Product Details</h2>
 
             <form method="POST" action="{{ route('order.updateStatus.refunded') }}">
                 @csrf
@@ -140,7 +140,7 @@
                                 <td class="p-1 border">{{ $detail->quantity }}</td>
                                 <td class="p-1 border">₱ {{ number_format($detail->price, 2) }}</td>
                                 <td class="p-1 border">₱ {{ number_format($detail->price * $detail->quantity, 2) }}</td>
-                                <td class="p-1 border 
+                                <td class="p-1 border  
                                     @if(strtolower($detail->product_status) == 'pending') bg-yellow-200 
                                     @elseif(strtolower($detail->product_status) == 'refunded') bg-red-200 
                                     @elseif(strtolower($detail->product_status) == 'completed') bg-green-200 
@@ -281,9 +281,9 @@
                 <span id="totalPrice" class="font-bold text-2xl hidden">₱ 0.00</span>
             </div>       
             
-            <h2 class="text-2xl font-semibold mb-4 border-b-2 border-gray-300">DIFFERENCE
+            <h2 class="text-2xl font-semibold mb-4 border-b-2 border-gray-300">
 
-            <div class="flex justify-between items-center bg-gray-100 p-3 rounded-lg shadow-md">
+            <div class="flex justify-between items-center p-3">
                 <p class="text-lg font-semibold text-gray-700">Chosen Model/Variant Subtotal:</p>
                 <strong id="chosenSubtotal" class="text-2xl font-bold text-gray-900">₱ 0.00</strong>
             </div>
@@ -293,9 +293,9 @@
             </h2>
             
             <!-- Updated Total Price -->
-            <div class="flex justify-between text-1xl mt-3">
-                <p class="font-bold text-2xl">UPDATED TOTAL PRICE:</p>
-                <span id="updatedTotalPrice" class="text-blue-600 text-2xl">₱ 0.00</span>
+            <div class="flex justify-between text-1xl mt-3 bg-white">
+                <p class="font-bold text-1xl">Updated Total Amount:</p>
+                <span id="updatedTotalPrice" class="text-blue-600 text-2xl font-bold">₱ 0.00</span>
             </div>
 
           
@@ -402,7 +402,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <input type="number" class="border rounded p-1 w-20 text-center quantity-input" value="1" min="1">
                     </p>
                 </div>
-                <h3 class="text-lg font-semibold">Subtotal</h3>
+                <h3 class="text-lg font-semibold"></h3>
                 <p class="text-gray-800 text-2xl font-bold price-label">₱ ${newTotalPrice.toLocaleString()}</p>
             </div>
             <button class="absolute top-5 right-5 text-red-500 remove-item font-bold">Remove</button>
@@ -516,10 +516,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p class="text-gray-700">Remaining Subtotal:</p>
                 <strong class="text-gray-900 text-2xl">₱ ${remainingSubtotal.toLocaleString()}</strong>
             </div>
-            <div class="flex justify-between ${amountAdded > 0 ? 'text-red-600' : ''}">
+            <p class="font-bold text-2xl pb-2 border-b border-gray">Difference</p>
+
+             <div class="flex justify-between ${amountAdded > 0 ? 'text-red-600' : ''}">
                 <p class="text-red font-bold">Amount Added:</p>
                 <strong class="text-gray-900 text-2xl">₱ ${amountAdded.toLocaleString()}</strong>
             </div>
+
             <div class="flex justify-between ${customerChange > 0 ? 'text-green-600' : ''}">
                 <p class=" text-green font-bold">Customer's Change:</p>
                 <strong class="text-green text-2xl">₱ ${customerChange.toLocaleString()}</strong>

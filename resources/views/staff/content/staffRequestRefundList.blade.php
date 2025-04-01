@@ -50,7 +50,7 @@
 
 
     <!-- TABLE -->
-    <table class="w-full border-collapse border border-gray-300">
+    <table class="w-full border-collapse border border-gray-200">
         <thead>
             <tr class="bg-gray-200">
                 <th class="p-2 border">Order ID</th>
@@ -67,10 +67,10 @@
                 <td class="p-2 border">{{ $refund->customer->full_name ?? 'Unknown' }}</td>
                 <td class="p-2 border created-date" data-date="{{ $refund->created_at }}">{{ $refund->created_at->format('M d, Y - h:i A') }}</td>
                 <td class="p-2 border text-center status-cell" data-status="{{ strtolower($refund->status) }}">
-                    <span class="font-semibold rounded-md px-2 py-1 
-                        @if(strtolower($refund->status) == 'pending') bg-yellow-200 
-                        @elseif(strtolower($refund->status) == 'completed') bg-green-200 
-                        @elseif(strtolower($refund->status) == 'refunded') bg-red-200 
+                    <span class="px-2 py-1 border rounded-full text-white 
+                        @if(strtolower($refund->status) == 'pending') bg-yellow-500 
+                        @elseif(strtolower($refund->status) == 'completed') bg-green-600 
+                        @elseif(strtolower($refund->status) == 'refunded') bg-red-600 
                         @endif 
                         w-fit inline-block"
                     >
@@ -79,8 +79,8 @@
                 </td>
                 <td class="p-2 border">
                     <a href="{{ route('staff.refundRequestForm', ['order_id' => $refund->order_id]) }}" 
-                    class="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-600">
-                        View Details
+                        class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-2">
+                        <i class="fas fa-eye"></i>
                     </a>
                 </td>
             </tr>
