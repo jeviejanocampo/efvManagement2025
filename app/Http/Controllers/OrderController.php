@@ -269,8 +269,18 @@ class OrderController extends Controller
                     ->where('order_id', $orderId)
                     ->where('model_id', $originalId)
                     ->first();
+
+                Log::info("🔍 Fetched Order Details Row:", ['existingModel' => $existingModel]);
+
                 
                 if ($existingModel) {
+
+                    Log::info("🔍 Fetched Order Details Fields:", [
+                        'quantity' => $existingModel->quantity ?? 'N/A',  // Check if quantity exists
+                        'product_name' => $existingModel->product_name ?? 'N/A', // Check if product_name exists
+                        'subtotal' => $existingModel->subtotal ?? 'N/A' // Check if subtotal exists
+                    ]);
+
                     // Fetch the model_name and price from the products table (not models)
                     $modelName = DB::table('products')
                         ->where('model_id', $passedId)  // fetch based on passed model_id
@@ -295,6 +305,22 @@ class OrderController extends Controller
                                 'updated_at' => now()
                             ]);
                         Log::info("✅ Model Update Result:", ['status' => $modelUpdated]);
+
+                        $quantity = $existingModel->quantity;  // Use the quantity from the order_details row
+
+                        $stockDeducted = DB::table('products')
+                        ->where('model_id', $passedId)
+                        ->decrement('stocks_quantity', $quantity);  // Deduct the quantity from passed model
+        
+                        Log::info("🔽 Deducted stock from model_id $passedId (quantity: $quantity).");
+            
+                        // Add stock to the original model
+                        $stockAdded = DB::table('products')
+                            ->where('model_id', $originalId)
+                            ->increment('stocks_quantity', $quantity);  // Add the quantity to original model
+        
+                        Log::info("🔼 Added stock to model_id $originalId (quantity: $quantity).");
+                        
                     } else {
                         Log::warning("⚠️ No model_name or price found for model_id $passedId in products or models table.");
                     }
@@ -320,6 +346,16 @@ class OrderController extends Controller
                 
                 if ($existingVariant) {
                     // Fetch the product_name and price from the variants table
+
+                    Log::info("🔍 Fetched Order Details Row:", ['existingVariant' => $existingVariant]);
+
+                    Log::info("🔍 Fetched Order Details Fields:", [
+                        'quantity' => $existingVariant->quantity ?? 'N/A',  // Check if quantity exists
+                        'product_name' => $existingVariant->product_name ?? 'N/A', // Check if product_name exists
+                        'subtotal' => $existingVariant->subtotal ?? 'N/A' // Check if subtotal exists
+                    ]);
+
+
                     $variantName = DB::table('variants')
                         ->where('variant_id', $passedId)  // Fetch based on passed variant_id
                         ->value('product_name');  // Fetch the product_name from variants table
@@ -342,6 +378,26 @@ class OrderController extends Controller
                                 'updated_at' => now()
                             ]);
                         Log::info("✅ Variant Update Result:", ['status' => $variantUpdated]);
+
+                        // Fetch the current stock levels of the original and passed variants
+                        $originalStockQuantity = DB::table('variants')->where('variant_id', $originalId)->value('stocks_quantity');
+                        $passedStockQuantity = DB::table('variants')->where('variant_id', $passedId)->value('stocks_quantity');
+
+                        Log::info("🔍 Original Variant Stock Quantity: $originalStockQuantity, Passed Variant Stock Quantity: $passedStockQuantity");
+
+                         // Deduct from passed variant and add to original variant in the variants table
+                        $stockDeducted = DB::table('variants')
+                        ->where('variant_id', $passedId)
+                        ->decrement('stocks_quantity', $existingVariant->quantity);  // Deduct the quantity from passed variant
+
+                        Log::info("🔽 Deducted stock from variant_id $passedId (quantity: " . $existingVariant->quantity . "). New stock quantity for passed variant: " . ($passedStockQuantity - $existingVariant->quantity));
+
+                        $stockAdded = DB::table('variants')
+                            ->where('variant_id', $originalId)
+                            ->increment('stocks_quantity', $existingVariant->quantity);  // Add the quantity to original variant
+
+                        Log::info("🔼 Added stock to variant_id $originalId (quantity: " . $existingVariant->quantity . "). New stock quantity for original variant: " . ($originalStockQuantity + $existingVariant->quantity));
+
                     } else {
                         Log::warning("⚠️ No product_name or price found for variant_id $passedId in variants table.");
                     }
