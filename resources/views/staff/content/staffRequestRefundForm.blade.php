@@ -180,7 +180,7 @@
 
    <h2 class="text-3xl font-semibold mb-4 border-b border-gray pt-6">Replacement Process Section</h2>
 
-    <div class="grid-container" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px;">
+    <div class="grid-container" style="display: grid; grid-template-columns: 2.1fr 0.8fr; gap: 20px;">
         
     <div class="order-details">
         <h2 class="text-xl font-semibold mb-4">Change Product</h2>
@@ -191,7 +191,7 @@
 
         <!-- Grid Container -->
         <div class="scroll-container">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="cardContainer">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6" id="cardContainer">
             @foreach ($models as $model)
                 @if ($model->w_variant !== 'YES')
                     <!-- Render Model Card -->

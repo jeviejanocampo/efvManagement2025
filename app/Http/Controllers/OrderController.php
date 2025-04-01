@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use App\Models\RefundLog;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\OrderDetail;  
@@ -12,7 +14,6 @@ use App\Models\ActivityLog;
 use App\Models\Variant;  
 use Carbon\Carbon;
 use App\Models\RefundOrder;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 
@@ -124,81 +125,140 @@ class OrderController extends Controller
 
     public function updateProductStatusRefunded(Request $request)
     {
-        $order_id = $request->input('order_id');
-        $product_ids = $request->input('product_id');
-        $product_statuses = $request->input('product_status');
-        $product_prices = $request->input('product_price');
-        $variant_ids = $request->input('variant_id');
+        try {
+            
+            Log::info('updateProductStatusRefunded function triggered', ['request' => $request->all()]);
+
+            $order_id = $request->input('order_id');
+            $product_ids = $request->input('product_id');
+            $product_statuses = $request->input('product_status');
+            $product_prices = $request->input('product_price');
+            $variant_ids = $request->input('variant_id');
     
-        $total_adjustment = 0;
+            $total_adjustment = 0;
+            $refunded_items = [];
     
-        foreach ($product_ids as $index => $product_id) {
-            $status = $product_statuses[$index];
-            $price = $product_prices[$index];
-            $variant_id = $variant_ids[$index];
+            foreach ($product_ids as $index => $product_id) {
+                $status = $product_statuses[$index];
+                $price = $product_prices[$index];
+                $variant_id = $variant_ids[$index];
     
-            if ($variant_id != 0) {
-                $orderDetail = OrderDetail::where('order_id', $order_id)
-                    ->where('variant_id', $variant_id)
-                    ->first();
-            } else {
-                $orderDetail = OrderDetail::where('order_id', $order_id)
-                    ->where('model_id', $product_id)
-                    ->first();
-            }
-    
-            if ($orderDetail) {
-                if ($orderDetail->product_status !== $status) {
-                    if ($status === 'refunded') {
-                        $total_adjustment -= $price;
-    
-                        if ($variant_id != 0) {
-                            $variant = Variant::find($variant_id);
-                            if ($variant) {
-                                $variant->stocks_quantity += $orderDetail->quantity;
-                                $variant->save();
-                            }
-                        } else {
-                            $product = Products::where('model_id', $product_id)->first();
-                            if ($product) {
-                                $product->stocks_quantity += $orderDetail->quantity;
-                                $product->save();
-                            }
-                        }
-                    } elseif ($orderDetail->product_status === 'refunded' && $status === 'pending') {
-                        $total_adjustment += $price;
-    
-                        if ($variant_id != 0) {
-                            $variant = Variant::find($variant_id);
-                            if ($variant) {
-                                $variant->stocks_quantity -= $orderDetail->quantity;
-                                $variant->save();
-                            }
-                        } else {
-                            $product = Products::where('model_id', $product_id)->first();
-                            if ($product) {
-                                $product->stocks_quantity -= $orderDetail->quantity;
-                                $product->save();
-                            }
-                        }
-                    }
-    
-                    $orderDetail->product_status = $status;
-                    $orderDetail->save();
+                if ($variant_id != 0) {
+                    $orderDetail = OrderDetail::where('order_id', $order_id)
+                        ->where('variant_id', $variant_id)
+                        ->first();
+                } else {
+                    $orderDetail = OrderDetail::where('order_id', $order_id)
+                        ->where('model_id', $product_id)
+                        ->first();
                 }
+    
+                if ($orderDetail) {
+                    if ($orderDetail->product_status !== $status) {
+                        if ($status === 'refunded') {
+                            $total_adjustment -= $price;
+                            $refunded_items[] = "Product ID: $product_id, Variant ID: $variant_id, Price: $price";
+                
+                            if ($variant_id != 0) {
+                                $variant = Variant::find($variant_id);
+                                if ($variant) {
+                                    $variant->stocks_quantity += $orderDetail->quantity;
+                                    $variant->save();
+                                }
+                            } else {
+                                $product = Products::where('model_id', $product_id)->first();
+                                if ($product) {
+                                    $product->stocks_quantity += $orderDetail->quantity;
+                                    $product->save();
+                                }
+                            }
+                
+                            // Insert into RefundLog when status is updated to 'refunded'
+                            try {
+                                RefundLog::create([
+                                    'user_id' => Auth::id(),
+                                    'activity' => "Product ID: $product_id, Variant ID: $variant_id marked as refunded. Price: $price",
+                                    'role' => Auth::user()->role,
+                                    'refunded_at' => now(),
+                                ]);
+                                Log::info("Refund log created for Product ID: $product_id, Variant ID: $variant_id.");
+                            } catch (\Exception $e) {
+                                Log::error("Error inserting refund log for Product ID: $product_id, Variant ID: $variant_id: " . $e->getMessage());
+                            }
+                
+                        } elseif ($orderDetail->product_status === 'refunded' && $status === 'pending') {
+                            $total_adjustment += $price;
+                
+                            if ($variant_id != 0) {
+                                $variant = Variant::find($variant_id);
+                                if ($variant) {
+                                    $variant->stocks_quantity -= $orderDetail->quantity;
+                                    $variant->save();
+                                }
+                            } else {
+                                $product = Products::where('model_id', $product_id)->first();
+                                if ($product) {
+                                    $product->stocks_quantity -= $orderDetail->quantity;
+                                    $product->save();
+                                }
+                            }
+                
+                            // Insert into RefundLog when status is updated from 'refunded' to 'pending'
+                            try {
+                                RefundLog::create([
+                                    'user_id' => Auth::id(),
+                                    'activity' => "Product ID: $product_id, Variant ID: $variant_id changed from refunded to pending. Price: $price",
+                                    'role' => Auth::user()->role,
+                                    'refunded_at' => now(),
+                                ]);
+                                Log::info("Refund log created for Product ID: $product_id, Variant ID: $variant_id.");
+                            } catch (\Exception $e) {
+                                Log::error("Error inserting refund log for Product ID: $product_id, Variant ID: $variant_id: " . $e->getMessage());
+                            }
+                        }
+                
+                        $orderDetail->product_status = $status;
+                        $orderDetail->save();
+                    }
+                }                
             }
+    
+            $order = Order::find($order_id);
+            if ($order) {
+                if ($total_adjustment !== 0) {
+                    $order->total_price += $total_adjustment;
+                    $order->save();
+                }
+    
+                if ($order->total_price == 0.00) {
+                    $order->status = 'Refunded';
+                    $order->save();
+    
+                    try {
+                        RefundLog::create([
+                            'user_id' => Auth::id(),
+                            'activity' => "Order ID: $order_id marked as Refunded. Items: " . implode(', ', $refunded_items),
+                            'role' => Auth::user()->role,
+                            'refunded_at' => now(),
+                        ]);
+                        
+                        Log::info("Refund log created successfully for Order ID: $order_id");
+    
+                    } catch (\Exception $e) {
+                        Log::error("Error inserting refund log: " . $e->getMessage());
+                    }
+                }
+    
+                return back()->with('success', 'Product status updated successfully.');
+            }
+    
+            return back()->with('error', 'No changes were made.');
+        
+        } catch (\Exception $e) {
+            Log::error("Error in updateProductStatusRefunded: " . $e->getMessage());
+            return back()->with('error', 'An error occurred. Check logs.');
         }
-    
-        $order = Order::find($order_id);
-        if ($order && $total_adjustment !== 0) {
-            $order->total_price += $total_adjustment;
-            $order->save();
-            return back()->with('success', 'Product status updated successfully.');
-        }
-    
-        return back()->with('error', 'No changes were made.');
-    }    
-    
+    }   
 
 
     public function updateRefund(Request $request)
@@ -249,6 +309,18 @@ class OrderController extends Controller
                 ]);
     
             Log::info("✅ refund_order updated:", ['status' => $refundUpdated]);
+
+            try {
+                RefundLog::create([
+                    'user_id' => Auth::id(),
+                    'activity' => "Refund updated for Order ID: $orderId. Status: Completed. Total Price: $updatedTotalPrice",
+                    'role' => Auth::user()->role,
+                    'refunded_at' => now(),
+                ]);
+                Log::info("Refund log created for Order ID: $orderId");
+            } catch (\Exception $e) {
+                Log::error("Error inserting refund log for Order ID: $orderId: " . $e->getMessage());
+            }
     
            // Loop through details and update order_details table
            foreach ($detailsSelected as $detail) {
@@ -304,6 +376,20 @@ class OrderController extends Controller
                                 'price' => $modelPrice,  // Update price based on the correct table (models)
                                 'updated_at' => now()
                             ]);
+                            
+                        // Insert refund log for model update
+                        try {
+                            RefundLog::create([
+                                'user_id' => Auth::id(),
+                                'activity' => "Model ID $originalId updated to Model ID $passedId for Order ID: $orderId. New Price: $modelPrice. Updated Total Price: $updatedTotalPrice",
+                                'role' => Auth::user()->role,
+                                'refunded_at' => now(),
+                            ]);
+                            Log::info("Refund log created for Model update in Order ID: $orderId");
+                        } catch (\Exception $e) {
+                            Log::error("Error inserting refund log for Model update in Order ID: $orderId: " . $e->getMessage());
+                        }                        
+
                         Log::info("✅ Model Update Result:", ['status' => $modelUpdated]);
 
                         $quantity = $existingModel->quantity;  // Use the quantity from the order_details row
@@ -377,7 +463,20 @@ class OrderController extends Controller
                                 'price' => $variantPrice,  // Update price based on the correct table (variants)
                                 'updated_at' => now()
                             ]);
+
                         Log::info("✅ Variant Update Result:", ['status' => $variantUpdated]);
+
+                        try {
+                            RefundLog::create([
+                                'user_id' => Auth::id(),
+                                'activity' => "Variant ID $originalId updated to Variant ID $passedId for Order ID: $orderId. New Price: $variantPrice. Updated Total Price: $updatedTotalPrice",
+                                'role' => Auth::user()->role,
+                                'refunded_at' => now(),
+                            ]);
+                            Log::info("Refund log created for Variant update in Order ID: $orderId");
+                        } catch (\Exception $e) {
+                            Log::error("Error inserting refund log for Variant update in Order ID: $orderId: " . $e->getMessage());
+                        }                        
 
                         // Fetch the current stock levels of the original and passed variants
                         $originalStockQuantity = DB::table('variants')->where('variant_id', $originalId)->value('stocks_quantity');
