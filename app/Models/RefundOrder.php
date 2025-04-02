@@ -25,6 +25,7 @@ class RefundOrder extends Model
         'processed_by',
         'refund_method',
         'status',
+        'overall_status',
         'refund_completed_at',
         'extra_details',
         'details_selected'

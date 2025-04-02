@@ -20,7 +20,17 @@
 </style>
 
 <div class="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-    <h1 class="text-4xl font-semibold mb-4 border-b border-gray pb-2">Order Details</h1>
+
+    <div class="p-4 bg-white flex items-center justify-between">
+        <h1 class="text-4xl font-semibold border-b border-gray-300 pb-2">Order Details</h1>
+
+        <a href="{{ route('request.replacement.form') }}">
+            <button class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 flex items-center gap-1">
+                <i class="fas fa-plus"></i> Add Replacement
+            </button>
+        </a>
+
+    </div>
 
     <!-- FILTERS -->
     <div class="filter-container">
@@ -53,20 +63,20 @@
     <table class="w-full border-collapse border border-gray-200">
         <thead>
             <tr class="bg-gray-200">
-                <th class="p-2 border">Order ID</th>
-                <th class="p-2 border">User</th>
-                <th class="p-2 border">Created</th>
-                <th class="p-2 border">Status</th>
-                <th class="p-2 border">Action</th>
+                <th class="p-1 border">Order ID</th>
+                <th class="p-1 border">User</th>
+                <th class="p-1 border">Created</th>
+                <th class="p-1 border">Status</th>
+                <th class="p-1 border">Action</th>
             </tr>
         </thead>
         <tbody id="tableBody">
             @foreach ($refunds as $refund)
             <tr class="border">
-                <td class="p-2 border">OR0000{{ $refund->order_id }}</td>
-                <td class="p-2 border">{{ $refund->customer->full_name ?? 'Unknown' }}</td>
-                <td class="p-2 border created-date" data-date="{{ $refund->created_at }}">{{ $refund->created_at->format('M d, Y - h:i A') }}</td>
-                <td class="p-2 border text-center status-cell" data-status="{{ strtolower($refund->status) }}">
+                <td class="p-1 border">OR0000{{ $refund->order_id }}</td>
+                <td class="p-1 border">{{ $refund->customer->full_name ?? 'Unknown' }}</td>
+                <td class="p-1 border created-date" data-date="{{ $refund->created_at }}">{{ $refund->created_at->format('M d, Y - h:i A') }}</td>
+                <td class="p-1 border text-center status-cell" data-status="{{ strtolower($refund->status) }}">
                     <span class="px-2 py-1 border rounded-full text-white 
                         @if(strtolower($refund->status) == 'pending') bg-yellow-500 
                         @elseif(strtolower($refund->status) == 'completed') bg-green-600 
@@ -77,9 +87,9 @@
                         {{ ucfirst($refund->status) }}
                     </span>
                 </td>
-                <td class="p-2 border">
+                <td class="p-1 border">
                     <a href="{{ route('staff.refundRequestForm', ['order_id' => $refund->order_id]) }}" 
-                        class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-2">
+                        class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-1">
                         <i class="fas fa-eye"></i>
                     </a>
                 </td>

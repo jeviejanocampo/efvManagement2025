@@ -15,7 +15,7 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50" >
     <div class="flex h-screen" >
         
     <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-8 px-4 transform -translate-x-full 
@@ -59,13 +59,25 @@
                 Orders Queue
             </a>
 
-            <p class="text-white text-1xl font-bold pt-3">Replacement/Refund Details</p>
+            <p class="text-white text-1xl font-bold pt-3">Replacement/Refund</p>
             <a href="{{ route('staff.refundRequests') }}" class="flex items-center text-gray hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-file text-gray-200"></i>
                 </span>
                 Order Details
+                <!-- Badge for Pending Refund Requests -->
+                @if(session('pendingRefundCount') && session('pendingRefundCount') > 0)
+                    <span class="ml-1 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        {{ session('pendingRefundCount') }}
+                    </span>
+                @else
+                    <span class="ml-1 bg-gray-400 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        0
+                    </span>
+                @endif
             </a>
+
+
 
             
             <p class="text-white text-1xl font-bold">Activity</p>

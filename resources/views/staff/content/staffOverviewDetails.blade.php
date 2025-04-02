@@ -115,7 +115,17 @@
 
     <!-- Order Details Table -->
     <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-        <h3 class="text-l font-semibold">Product Details</h3>
+        <div class="flex justify-between items-center">
+            <h3 class="text-l font-semibold">Product Details</h3>
+            
+        <!-- One button for the entire order -->
+        <a href="{{ route('edit.product', ['order_id' => $orderDetails->first()->order_id]) }}" class="bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600 transition">
+            Edit Product Details for Order #{{ $orderDetails->first()->order_id }}
+        </a>
+
+
+
+        </div>
         <div class="text-gray-500 italic text-sm m-4">
             Note: For the pre-orders products, edit status if ready to pick up status
         </div>
@@ -130,6 +140,7 @@
                         <th class="border border-gray-300 px-2 py-1">Quantity</th>
                         <th class="border border-gray-300 px-2 py-1">Unit Price</th>
                         <th class="border border-gray-300 px-2 py-1">SubTotal</th>
+                        <th class="border border-gray-300 px-2 py-1">Action</th>
                     </tr>
             </thead>
             <tbody>
@@ -172,7 +183,7 @@
                                 <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
                                     <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="In Process" {{ $detail->product_status === 'In Process' ? 'selected' : '' }}>In Process</option>
-                                    <option value="Ready to Pickup" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
+                                    <option value="pending" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
                                     <option value="Completed" {{ $detail->product_status === 'Completed' ? 'selected' : '' }}>Completed</option>
                                 </select>
                             </div>
@@ -213,21 +224,21 @@
 
 <script>
     function openModal(userId) {
-        // Fetch user details using the userId
-        fetch(`/users/${userId}`)
-            .then(response => response.json())
-            .then(data => {
-                const userDetailsContent = document.getElementById('userDetailsContent');
-                userDetailsContent.innerHTML = `
-                    <p><strong>Full Name:</strong> ${data.full_name}</p>
-                    <p><strong>Email:</strong> ${data.email}</p>
-                    <p><strong>Phone Number:</strong> ${data.phone_number}</p>
-                    <p><strong>Address:</strong> ${data.address}</p>
-                    <p><strong>City:</strong> ${data.city}</p>
-                    <p><strong>Status:</strong> ${data.status}</p>
-                `;
-                document.getElementById('userModal').classList.remove('hidden');
-            });
+    // Fetch user details using the userId
+    fetch(`/users/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            const userDetailsContent = document.getElementById('userDetailsContent');
+            userDetailsContent.innerHTML = `
+                <p><strong>Full Name:</strong> ${data.full_name}</p>
+                <p><strong>Email:</strong> ${data.email}</p>
+                <p><strong>Phone Number:</strong> ${data.phone_number}</p>
+                <p><strong>Address:</strong> ${data.address}</p>
+                <p><strong>City:</strong> ${data.city}</p>
+                <p><strong>Status:</strong> ${data.status}</p>
+            `;
+            document.getElementById('userModal').classList.remove('hidden');
+        });
     }
 
     function closeModal() {

@@ -21,6 +21,7 @@ class Order extends Model
         'user_id',
         'total_items',
         'total_price',
+        'original_total_amount',
         'order_notes',
         'pickup_date',
         'pickup_location',

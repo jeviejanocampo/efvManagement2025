@@ -8,6 +8,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\RefundOrderController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Product;
@@ -57,13 +58,22 @@ Route::middleware(['staff'])->group(function () {
 
     Route::get('/orders/fetch', [OrderController::class, 'fetchOrders'])->name('orders.fetch');
     
-    
+    Route::get('/request-replacement-form', [RefundOrderController::class, 'createForm'])->name('request.replacement.form');
+
+    Route::get('/order/{order_id}/edit-details', [RefundOrderController::class, 'editDetails'])->name('edit.product');
+
 });
+
+Route::post('/update-order-details', [RefundOrderController::class, 'updateOrderDetails'])->name('update.order.details.preorder');
 
 Route::post('/update-refund', [OrderController::class, 'updateRefund']);
 
 Route::post('/order/update-status-refunded', [OrderController::class, 'updateProductStatusRefunded'])->name('order.updateStatus.refunded');
 
+Route::post('/staff/refund-request/update-status/{order_id}', [OrderController::class, 'updateRefundStatusOverall'])
+    ->name('staff.updateRefundStatus');
+
+Route::post('/refund/store', [RefundOrderController::class, 'store'])->name('refund.store');
 
 
 Route::get('/staff/main/dashboard', function () {

@@ -1,0 +1,105 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+use App\Models\User;
+use App\Models\RefundOrder;
+use App\Models\OrderDetail;
+use Illuminate\Http\Request;
+
+class RefundOrderController extends Controller
+{
+    public function createForm()
+    {
+        // Get all orders (or limit it as needed)
+        $orders = Order::with('customer')->get();
+
+        return view('staff.content.RequestForm', compact('orders'));
+    }
+
+    public function store(Request $request)
+    {
+        // Validate the input data
+        $validated = $request->validate([
+            'order_id' => 'required|integer|exists:orders,order_id',
+            'user_id' => 'required|integer|exists:customers,id',
+            'refund_reason' => 'required|string',
+            'processed_by' => 'required|integer|exists:users,id',
+            'refund_method' => 'required|string',
+            'status' => 'required|string',
+            'extra_details' => 'nullable|string',
+            'details_selected' => 'nullable|string',
+        ]);
+
+        // Create the refund order
+        RefundOrder::create($validated);
+
+        // Fetch updated orders and return the view
+        $orders = Order::with('customer')->get();
+        return view('staff.content.RequestForm', compact('orders'))->with('success', 'Refund request submitted successfully!');
+    }
+
+    public function editDetails($order_id)
+    {
+        $order = Order::find($order_id); // Get the order details
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get(); // Get the associated order details
+    
+        // Pass the details to the view
+        return view('staff.content.staffEditDetailsRefund', compact('orderDetails'));
+    }
+
+    public function updateOrderDetails(Request $request)
+    {
+        try {
+            // Start a transaction to ensure data consistency
+            \DB::beginTransaction();
+        
+            // Loop through the order details and update each one
+            foreach ($request->product_name as $orderDetailId => $productName) {
+                $orderDetail = OrderDetail::findOrFail($orderDetailId);
+        
+                // Update quantity and calculate new total_price (quantity * unit_price)
+                $quantity = $request->quantity[$orderDetailId];
+                $unitPrice = $orderDetail->price;
+                $totalPrice = $quantity * $unitPrice;
+        
+                // Update the order detail record
+                $orderDetail->update([
+                    'quantity' => $quantity,
+                    'total_price' => $totalPrice,
+                ]);
+            }
+        
+            // After updating all order details, update the total amount in the orders table
+            $orderId = $request->order_id;
+            $order = Order::findOrFail($orderId);
+        
+            // Recalculate the total amount to pay for the order
+            $totalAmount = OrderDetail::where('order_id', $orderId)->sum('total_price');
+            
+            // Update total_amount and original_total_amount in the orders table
+            $order->update([
+                'total_price' => $totalAmount,               // New total amount to pay
+                'original_total_amount' => $totalAmount,       // Assuming original_total_amount is also updated here
+            ]);
+        
+            // Commit the transaction
+            \DB::commit();
+    
+            // Redirect back with success message
+        return redirect()->route('edit.product', ['order_id' => $orderId])->with('success', 'Order details updated successfully.');
+        } catch (\Exception $e) {
+            // Rollback in case of error
+            \DB::rollBack();
+    
+            // Redirect back with error message
+            return redirect()->route('edit.product', ['order_id' => $request->order_id])->with('error', 'Error updating order details: ' . $e->getMessage());
+        }
+    }
+    
+    
+
+        
+
+}

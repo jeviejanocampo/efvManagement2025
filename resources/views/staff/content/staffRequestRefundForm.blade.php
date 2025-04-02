@@ -76,20 +76,29 @@
         <div class="order-details">
 
             <div class="mb-4 space-y-6">
-              <div class="flex justify-between items-center border-b border-gray pb-4">
-                    <p class="text-2xl"><strong>Order ID:</strong> {{ $refund->order_id }}</p> <!--Importante kaau ni for update-->
-                    <p class="text-2xl">
-                        <strong>Status:</strong> 
-                        <span class="px-3 py-1 rounded-lg 
-                            {{ strtolower($refund->status) === 'completed' ? 'bg-green-500 text-white' : '' }}">
-                            {{ strtolower($refund->status) === 'completed' ? 'Requested for Refund/Replacement' : ucfirst($refund->status) }}
-                        </span>
-                    </p>
+            <div class="flex justify-between items-center border-b border-gray-300 pb-4">
+                <p class="text-2xl"><strong>Order ID:</strong> {{ $refund->order_id }}</p> <!-- Important for update -->
+
+                <div class="flex items-center space-x-4">
+                    <strong class="text-2xl">Status:</strong>
+                    <form action="{{ route('staff.updateRefundStatus', $refund->order_id) }}" method="POST" class="flex items-center space-x-2">
+                        @csrf
+                        <select name="overall_status" class="px-4 py-4 rounded-lg border bg-white">
+                            <option value="Pending" {{ $refund->overall_status === 'Pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Processing" {{ $refund->overall_status === 'Processing' ? 'selected' : '' }}>Processing</option>
+                            <option value="Completed - with changes" {{ $refund->overall_status === 'Completed - with changes' ? 'selected' : '' }}>Completed - with changes</option>
+                            <option value="Completed - no changes" {{ $refund->overall_status === 'Completed - no changes' ? 'selected' : '' }}>Completed - no changes</option>
+                            <option value="Complete Refund" {{ $refund->overall_status === 'Complete Refund' ? 'selected' : '' }}>Complete Refund</option>
+                            
+                        </select>
+                        <button type="submit" class="px-3 py-1 bg-blue-700 text-white rounded-lg">Update</button>
+                    </form>
                 </div>
+            </div>
                 <p class="text-1xl"><strong>Customer:</strong> {{ $refund->customer->full_name ?? 'Unknown' }}</p>
                 <p class="text-1xl"><strong>Refund Reason:</strong> {{ $refund->refund_reason }}</p>
-                <p class="text-1xl"><strong>Created:</strong> {{ $refund->created_at->format('F j, Y') }}</p>
-            </div>
+                <p class="text-1xl"><strong>Created:</strong> {{ $refund->created_at->format('F j, Y g:i A') }}</p>
+                </div>
 
             <h2 class="text-3xl font-semibold mb-4 border-b border-gray pb-4 pt-2">Product Details</h2>
 
@@ -146,7 +155,7 @@
                                     @elseif(strtolower($detail->product_status) == 'completed') bg-green-200 
                                     @endif
                                 ">
-                                    {{ strtolower($detail->product_status) == 'pending' ? 'Completed' : ucfirst($detail->product_status) }}
+                                    {{ strtolower($detail->product_status) == 'pending' ? 'In Process' : ucfirst($detail->product_status) }}
                                 </td>
                                 <td class="p-1 ">
                                     <input type="hidden" name="order_id" value="{{ $refund->order_id }}">
@@ -180,7 +189,7 @@
 
    <h2 class="text-3xl font-semibold mb-4 border-b border-gray pt-6">Replacement Process Section</h2>
 
-    <div class="grid-container" style="display: grid; grid-template-columns: 2.1fr 0.8fr; gap: 20px;">
+    <div class="grid-container" style="display: grid; grid-template-columns: 1.9fr 1fr; gap: 20px;">
         
     <div class="order-details">
         <h2 class="text-xl font-semibold mb-4">Change Product</h2>
@@ -191,7 +200,7 @@
 
         <!-- Grid Container -->
         <div class="scroll-container">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6" id="cardContainer">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="cardContainer">
             @foreach ($models as $model)
                 @if ($model->w_variant !== 'YES')
                     <!-- Render Model Card -->
@@ -210,10 +219,12 @@
                         <!-- Model Details -->
                         <div class="mt-3 text-center">
                             <h3 class="text-1xl font-semibold">{{ $model->model_id }}</h3> 
+                            <h3 class="text-1xl font-semibold">Single Product</h3> 
                             <h3 class="text-1xl font-semibold">{{ $model->model_name }}</h3> 
                             <p class="text-gray-600">{{ $model->brand->brand_name ?? 'Unknown' }}</p>
                             <p class="text-gray-800 font-semibold mt-1">Price: ₱{{ $model->price }}</p>
-                        </div>
+                            <p class="text-red-600 font-semibold mt-1">Qty: {{ $model->total_stock_quantity }}</p>
+                            </div>
 
                         <!-- Add Button -->
                         <div class="mt-3 text-center">
@@ -243,9 +254,11 @@
                     <!-- Variant Details -->
                     <div class="mt-3 text-center">
                         <h3 class="text-1xl font-semibold">{{ $variant->variant_id }}</h3> 
+                        <h3 class="text-1xl font-semibold">Variant Product</h3> 
                         <h3 class="text-1xl font-semibold">{{ $variant->product_name }}</h3> 
                         <p class="text-gray-600">{{ $variant->model->brand->brand_name ?? 'Unknown' }}</p>
                         <p class="text-gray-800 font-semibold mt-1">Price: ₱{{ $variant->price }}</p>
+                        <p class="text-red-600 font-semibold mt-1">Qty: {{ $variant->stocks_quantity }}</p>
                     </div>
 
                     <!-- Add Button -->
