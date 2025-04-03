@@ -17,6 +17,10 @@
     border: 1px solid #ccc;
     border-radius: 5px;
   }
+  .hidden-column {
+    display: none;
+    }
+
 </style>
 
 <div class="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
@@ -61,42 +65,52 @@
 
     <!-- TABLE -->
     <table class="w-full border-collapse border border-gray-200">
-        <thead>
-            <tr class="bg-gray-200">
-                <th class="p-1 border">Order ID</th>
-                <th class="p-1 border">User</th>
-                <th class="p-1 border">Created</th>
-                <th class="p-1 border">Status</th>
-                <th class="p-1 border">Action</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            @foreach ($refunds as $refund)
-            <tr class="border">
-                <td class="p-1 border">OR0000{{ $refund->order_id }}</td>
-                <td class="p-1 border">{{ $refund->customer->full_name ?? 'Unknown' }}</td>
-                <td class="p-1 border created-date" data-date="{{ $refund->created_at }}">{{ $refund->created_at->format('M d, Y - h:i A') }}</td>
-                <td class="p-1 border text-center status-cell" data-status="{{ strtolower($refund->status) }}">
-                    <span class="px-2 py-1 border rounded-full text-white 
-                        @if(strtolower($refund->status) == 'pending') bg-yellow-500 
-                        @elseif(strtolower($refund->status) == 'completed') bg-green-600 
-                        @elseif(strtolower($refund->status) == 'refunded') bg-red-600 
-                        @endif 
-                        w-fit inline-block"
-                    >
-                        {{ ucfirst($refund->status) }}
-                    </span>
-                </td>
-                <td class="p-1 border">
-                    <a href="{{ route('staff.refundRequestForm', ['order_id' => $refund->order_id]) }}" 
-                        class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-1">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="p-1 border hidden-column">Order ID</th> <!-- Add hidden-column class here -->
+            <th class="p-1 border">Reference ID</th> 
+            <th class="p-1 border">User</th>
+            <th class="p-1 border">Created</th>
+            <th class="p-1 border">Status</th>
+            <th class="p-1 border">Action</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+        @foreach ($refunds as $refund)
+        <tr class="border">
+            <td class="p-1 border hidden-column">OR0000{{ $refund->order_id }}</td> <!-- Add hidden-column class here -->
+            <td class="p-1 border">
+                <!-- Display Reference ID if available -->
+                @if ($refund->orderReference)
+                    {{ $refund->orderReference->reference_id }}
+                @else
+                    N/A
+                @endif
+            </td>
+            <td class="p-1 border">{{ $refund->customer->full_name ?? 'Unknown' }}</td>
+            <td class="p-1 border created-date" data-date="{{ $refund->created_at }}">{{ $refund->created_at->format('M d, Y - h:i A') }}</td>
+            <td class="p-1 border text-center status-cell" data-status="{{ strtolower($refund->status) }}">
+                <span class="px-2 py-1 border rounded-full text-white 
+                    @if(strtolower($refund->status) == 'pending') bg-yellow-500 
+                    @elseif(strtolower($refund->status) == 'completed') bg-green-600 
+                    @elseif(strtolower($refund->status) == 'refunded') bg-red-600 
+                    @endif 
+                    w-fit inline-block"
+                >
+                    {{ ucfirst($refund->status) }}
+                </span>
+            </td>
+            <td class="p-1 border">
+                <a href="{{ route('staff.refundRequestForm', ['order_id' => $refund->order_id, 'reference_id' => $refund->orderReference ? $refund->orderReference->reference_id : null]) }}" 
+                    class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-1">
                         <i class="fas fa-eye"></i>
-                    </a>
+                </a>
                 </td>
             </tr>
             @endforeach
         </tbody>
     </table>
+
     <div class="mt-4">
             {{ $refunds->links() }} 
         </div>

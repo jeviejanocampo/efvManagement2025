@@ -47,4 +47,11 @@ class RefundOrder extends Model
     {
         return $this->belongsTo(Customer::class, 'user_id', 'id');
     }
+
+        // RefundOrder Model
+    public function orderReference()
+    {
+        return $this->hasOne(OrderReference::class, 'order_id', 'order_id');
+    }
+
 }

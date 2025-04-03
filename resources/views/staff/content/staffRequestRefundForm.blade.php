@@ -67,9 +67,50 @@
 
     <div>
     
-        @php
+    @php
         $total_price = 0;
-        @endphp
+
+        // Initialize variables
+        $brandCode = '';
+        $partCode1 = '';
+        $partCode2 = '';
+
+        // Ensure we have enough rows to work with
+        $lastRow = null;
+        $secondLastRow = null;
+
+        // Loop through orderDetails to find the last and second-last row with valid data
+        foreach ($orderDetails as $detail) {
+            if (!empty($detail->brand_name) && !empty($detail->part_id)) {
+                $secondLastRow = $lastRow;
+                $lastRow = $detail;
+            }
+        }
+
+        // Extract brand code (first 3 uppercase letters of brand_name from the last row)
+        if ($lastRow && isset($lastRow->brand_name)) {
+            $brandCode = strtoupper(substr($lastRow->brand_name, 0, 3)); 
+        }
+
+        // Extract part_code1 (last 2 characters of part_id from the second last row)
+        if ($secondLastRow && isset($secondLastRow->part_id)) {
+            $partIdParts = explode('-', $secondLastRow->part_id);
+            $partCode1 = substr(end($partIdParts), -4);
+        }
+
+        // Extract part_code2 (last 4 characters of part_id from the last row)
+        if ($lastRow && isset($lastRow->part_id)) {
+            $partIdParts = explode('-', $lastRow->part_id);
+            $partCode2 = substr(end($partIdParts), -4);
+        }
+
+        // Generate the reference ID
+        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}-ORD" . str_pad($refund->order_id, 5, '0', STR_PAD_LEFT);
+
+        Log::info("Generated Reference ID: " . $newReferenceId);
+
+    @endphp
+
 
         <h2 class="text-3xl font-semibold mb-4">Original Order Details</h2>
 
@@ -77,22 +118,31 @@
 
             <div class="mb-4 space-y-6">
             <div class="flex justify-between items-center border-b border-gray-300 pb-4">
-                <p class="text-2xl"><strong>Order ID:</strong> {{ $refund->order_id }}</p> <!-- Important for update -->
+                <p class="text-2xl" style="display: none;"><strong>Order ID:</strong> {{ $refund->order_id }}</p>
+
+                <p class="text-3xl font-bold">
+                    Reference ID: {{ $newReferenceId ?? $reference_id }}
+                </p>
 
                 <div class="flex items-center space-x-4">
                     <strong class="text-2xl">Status:</strong>
                     <form action="{{ route('staff.updateRefundStatus', $refund->order_id) }}" method="POST" class="flex items-center space-x-2">
                         @csrf
-                        <select name="overall_status" class="px-4 py-4 rounded-lg border bg-white">
+                        <select name="overall_status" id="overall_status" class="px-4 py-4 rounded-lg border bg-white" onchange="toggleReferenceId()">
                             <option value="Pending" {{ $refund->overall_status === 'Pending' ? 'selected' : '' }}>Pending</option>
                             <option value="Processing" {{ $refund->overall_status === 'Processing' ? 'selected' : '' }}>Processing</option>
                             <option value="Completed - with changes" {{ $refund->overall_status === 'Completed - with changes' ? 'selected' : '' }}>Completed - with changes</option>
                             <option value="Completed - no changes" {{ $refund->overall_status === 'Completed - no changes' ? 'selected' : '' }}>Completed - no changes</option>
                             <option value="Complete Refund" {{ $refund->overall_status === 'Complete Refund' ? 'selected' : '' }}>Complete Refund</option>
-                            
                         </select>
+
+                        <!-- Hidden input for newReferenceId (only needed when "Completed - with changes" is selected) -->
+                        <input type="hidden" name="new_reference_id" id="new_reference_id" value="{{ $newReferenceId ?? '' }}">
+
                         <button type="submit" class="px-3 py-1 bg-blue-700 text-white rounded-lg">Update</button>
                     </form>
+
+                   
                 </div>
             </div>
                 <p class="text-1xl"><strong>Customer:</strong> {{ $refund->customer->full_name ?? 'Unknown' }}</p>

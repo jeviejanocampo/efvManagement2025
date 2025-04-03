@@ -15,6 +15,7 @@ use App\Models\Variant;
 use Carbon\Carbon;
 use App\Models\RefundOrder;
 use Illuminate\Support\Facades\DB;
+use App\Models\OrderReference;
 
 
 
@@ -86,26 +87,27 @@ class OrderController extends Controller
         // Fetch all refund requests    
         $refunds = RefundOrder::select('refund_id', 'order_id', 'user_id', 'status')->get();
 
-       // Fetch refund requests with pagination (10 per page)
-        $refunds = RefundOrder::with('customer')
+        $refunds = RefundOrder::with(['customer', 'orderReference']) // Eager load orderReference
         ->orderBy('created_at', 'desc') // Sort by newest first
-        ->paginate(9); // Show 10 per page
+        ->paginate(9); // Show 9 per page
 
         return view('staff.content.staffRequestRefundList', compact('refunds'));
     }
     
     public function showRefundRequestForm($order_id)
     {
+        $reference_id = request('reference_id');  // Retrieve the reference_id from the request
+    
         $refund = RefundOrder::where('order_id', $order_id)
             ->with('customer')
             ->first();
-
+    
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
-
+    
         if (!$refund) {
             return redirect()->route('staff.refundRequests')->with('error', 'Refund request not found.');
         }
-
+    
         // Fetch all models where w_variant is NOT "YES" and include stock count
         $models = Models::where('status', 'active')
             ->where('w_variant', '!=', 'YES')
@@ -123,10 +125,11 @@ class OrderController extends Controller
         $variants = Variant::whereHas('model', function ($query) {
             $query->where('w_variant', 'YES')->where('status', 'active');
         })->get(); // Removed pagination
-
-        return view('staff.content.staffRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants'));
+    
+        // Pass reference_id to the view along with other data
+        return view('staff.content.staffRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants', 'reference_id'));
     }
-
+    
 
     public function updateProductStatusRefunded(Request $request)
     {
@@ -533,45 +536,83 @@ class OrderController extends Controller
         $request->validate([
             'overall_status' => 'required|string|in:Pending,Processing,Completed - with changes,Complete Refund,Completed - no changes',
         ]);
-
+    
         $refund = RefundOrder::where('order_id', $order_id)->first();
-
+    
         if (!$refund) {
             return redirect()->back()->with('error', 'Refund request not found.');
         }
-
-        // Handle the logic for "Completed - with changes"
-        if ($request->overall_status === 'Completed - with changes') {
-            // Update both the overall_status and status columns
-            $refund->update(['overall_status' => 'Completed - with changes', 'status' => 'Completed']);
+    
+        // Generate new reference ID before updating
+        $orderDetails = \DB::table('order_details')->where('order_id', $order_id)->get();
+        
+        $brandCode = '';
+        $partCode1 = '';
+        $partCode2 = '';
+        $lastRow = null;
+        $secondLastRow = null;
+    
+        // Find last and second last valid rows
+        foreach ($orderDetails as $detail) {
+            if (!empty($detail->brand_name) && !empty($detail->part_id)) {
+                $secondLastRow = $lastRow;
+                $lastRow = $detail;
+            }
         }
-        // Handle the logic for "Completed - no changes"
+    
+        // Extract necessary codes
+        if ($lastRow) {
+            $brandCode = strtoupper(substr($lastRow->brand_name, 0, 3));
+            $partCode2 = substr(explode('-', $lastRow->part_id)[1] ?? '', -4);
+        }
+    
+        if ($secondLastRow) {
+            $partCode1 = substr(explode('-', $secondLastRow->part_id)[1] ?? '', -4);
+        }
+    
+        // Generate new reference ID
+        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}-ORD" . str_pad($order_id, 5, '0', STR_PAD_LEFT);
+    
+        // Handle "Completed - with changes"
+        if ($request->overall_status === 'Completed - with changes') {
+            // Update refund order status
+            $refund->update(['overall_status' => 'Completed - with changes', 'status' => 'Completed']);
+    
+            // Update reference_id in order_reference table
+            \DB::table('order_reference')
+                ->where('order_id', $order_id)
+                ->update(['reference_id' => $newReferenceId]);
+    
+            // Log the update
+            \Log::info("Updated order_reference: Order ID: $order_id, New Reference ID: $newReferenceId");
+        }
+        // Handle "Completed - no changes"
         elseif ($request->overall_status === 'Completed - no changes') {
-            // Update both the overall_status and status columns
             $refund->update(['overall_status' => 'Completed - no changes', 'status' => 'Completed']);
         }
-        // Handle "Complete Refund" case
+        // Handle "Complete Refund"
         elseif ($request->overall_status === 'Complete Refund') {
             $refund->update(['overall_status' => 'Complete Refund', 'status' => 'Refunded']);
-        } else {
-            // For other statuses, just update overall_status
+        } 
+        else {
+            // Just update overall_status for other cases
             $refund->update(['overall_status' => $request->overall_status]);
         }
-
+    
         // Update product_status in order_details (excluding refunded items)
         \DB::table('order_details')
             ->where('order_id', $order_id)
-            ->where('product_status', '!=', 'refunded') // Exclude refunded items
+            ->where('product_status', '!=', 'refunded')
             ->update(['product_status' => 'Completed']);
-
+    
         // Insert log entry
         RefundLog::create([
-            'user_id' => auth()->id(),  // Assuming the authenticated user
+            'user_id' => auth()->id(),
             'activity' => "Updated refund status to {$request->overall_status} for order ID: $order_id",
-            'role' => auth()->user()->role, // Assuming user has a role field
+            'role' => auth()->user()->role,
             'refunded_at' => now(),
         ]);
-
+    
         return redirect()->back()->with('success', 'Refund status updated successfully.');
     }
 
@@ -862,56 +903,67 @@ class OrderController extends Controller
         // Validate the request
         $request->validate([
             'status' => 'required|in:pending,Ready to Pickup,In Process,Completed,Cancelled',
+            'reference_id' => 'nullable|string|max:255' // Ensure reference_id is a string and max length 255
         ]);
-    
+
         // Find the order by order_id
         $order = Order::find($order_id);
-    
+
         // Check if the order exists
         if (!$order) {
             return response()->json([
                 'success' => false,
                 'message' => 'Order not found.',
-            ]);
+            ], 404);
         }
-    
+
+        // Get the new status
+        $newStatus = $request->input('status');
+
         // Update the order status
-        $order->status = $request->input('status');
-    
-        // If status is "Completed", set scan_status to "Completed" as well
-        if ($order->status === 'Completed') {
+        $order->status = $newStatus;
+
+        // If status is "Completed", update scan_status and product_status
+        if ($newStatus === 'Completed') {
             $order->scan_status = 'Completed';
-    
-            // Use the OrderDetail model to update product_status
-            $orderDetails = OrderDetail::where('order_id', $order_id)->get();
-    
-            foreach ($orderDetails as $orderDetail) {
-                $orderDetail->product_status = 'Completed';
-                $orderDetail->save(); // Save each updated order detail
+
+            // Update product_status in OrderDetail
+            OrderDetail::where('order_id', $order_id)->update(['product_status' => 'Completed']);
+        }
+
+        // If status is "In Process", insert a new record in order_reference
+        if ($newStatus === 'In Process') {
+            $referenceId = $request->input('reference_id'); // Get reference_id from request
+
+            if ($referenceId) {
+                OrderReference::create([
+                    'order_id' => $order_id,
+                    'reference_id' => $referenceId
+                ]);
             }
         }
-    
+
         $order->save(); // Save the updated order
-    
+
         // Get the role of the user
-        $user = Auth::user();  // Get the currently authenticated user
-        $role = $user->role;   // Get the role of the user
-    
-        // Log the activity (user_id, role, and activity)
+        $user = Auth::user();
+        $role = $user->role;
+
+        // Log the activity
         ActivityLog::create([
             'user_id' => Auth::id(),
-            'role' => $role, // Insert the user's role
-            'activity' => "Updated order #$order_id status to {$order->status}",
+            'role' => $role,
+            'activity' => "Updated order #$order_id status to {$newStatus}",
         ]);
-    
+
         // Return response
         return response()->json([
             'success' => true,
-            'message' => 'Order status updated successfully and product statuses.',
+            'message' => 'Order status updated successfully.',
         ]);
     }
     
-    
+ 
     public function updateProductStatus(Request $request, $orderDetailId)
     {
         // Check if the order detail exists
