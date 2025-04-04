@@ -46,14 +46,14 @@
     <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         <div class="flex justify-between items-center">
             @php
-                $latestOrderDetail = $orderDetails->last(); // Get the last row (latest order detail)
-                $referenceId = request()->query('reference_id'); // Retrieve reference_id from URL
+                $latestOrderDetail = $orderDetails->last();
+                $referenceId = request()->query('reference_id');
 
-                if ($referenceId) {
-                    $formattedRefId = substr($referenceId, 0, 3) . substr($referenceId, 3, -1) . substr($referenceId, -1);
-                } else {
-                    $formattedRefId = 'N/A';
+                if ($referenceId && Str::contains($referenceId, '-ORD000')) {
+                    $referenceId = explode('-ORD000', $referenceId)[0];
                 }
+
+                $formattedRefId = $referenceId ?? 'N/A';
             @endphp
 
             @if ($latestOrderDetail)
@@ -119,8 +119,8 @@
             <h3 class="text-l font-semibold">Product Details</h3>
             
         <!-- One button for the entire order -->
-        <a href="{{ route('edit.product', ['order_id' => $orderDetails->first()->order_id]) }}" class="bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600 transition">
-            Edit Product Details for Order #{{ $orderDetails->first()->order_id }}
+        <a href="{{ route('edit.product', ['order_id' => $orderDetails->first()->order_id]) }}" class="bg-blue-700 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600 transition">
+            Edit Product Details for Order #{{ $formattedRefId }}-ORD000{{ $order->order_id }}
         </a>
 
 
@@ -233,21 +233,21 @@
 
 <script>
     function openModal(userId) {
-    // Fetch user details using the userId
-    fetch(`/users/${userId}`)
-        .then(response => response.json())
-        .then(data => {
-            const userDetailsContent = document.getElementById('userDetailsContent');
-            userDetailsContent.innerHTML = `
-                <p><strong>Full Name:</strong> ${data.full_name}</p>
-                <p><strong>Email:</strong> ${data.email}</p>
-                <p><strong>Phone Number:</strong> ${data.phone_number}</p>
-                <p><strong>Address:</strong> ${data.address}</p>
-                <p><strong>City:</strong> ${data.city}</p>
-                <p><strong>Status:</strong> ${data.status}</p>
-            `;
-            document.getElementById('userModal').classList.remove('hidden');
-        });
+        // Fetch user details using the userId
+        fetch(`/users/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                const userDetailsContent = document.getElementById('userDetailsContent');
+                userDetailsContent.innerHTML = `
+                    <p><strong>Full Name:</strong> ${data.full_name}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                    <p><strong>Phone Number:</strong> ${data.phone_number}</p>
+                    <p><strong>Address:</strong> ${data.address}</p>
+                    <p><strong>City:</strong> ${data.city}</p>
+                    <p><strong>Status:</strong> ${data.status}</p>
+                `;
+                document.getElementById('userModal').classList.remove('hidden');
+            });
     }
 
     function closeModal() {

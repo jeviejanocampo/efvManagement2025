@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\ActivityLog;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -96,31 +97,40 @@ class StaffController extends Controller
 
     public function StaffLogin(Request $request)
     {
-        // Validate the login form input
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string|min:8',
         ]);
-
-        // Attempt to log the user in
         $user = User::where('email', $credentials['email'])->first();
-
         if ($user && Hash::check($credentials['password'], $user->password)) {
             if ($user->role === 'staff') {
-                // Store user in session
                 Auth::login($user);
-
-                // Optionally, you can pass the user ID to the session
                 session(['user_id' => $user->id]);
-
-                // Redirect to dashboard with success message
                 return redirect()->route('staffQueue')->with('success', 'Successfully logged in!');
             } else {
-                // Role mismatch error
+                // Log failed login due to role mismatch
+                ActivityLog::create([
+                    'user_id' => $user->id,
+                    'activity' => 'Failed login: Unauthorized role access attempt.',
+                    'role' => $user->role,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+    
                 return back()->with('error', 'Access denied! Only staff can log in.');
             }
         } else {
-            // Redirect back with an error message
+            // If email is found but password is incorrect or email not found
+            $failedUser = User::where('email', $credentials['email'])->first();
+    
+            ActivityLog::create([
+                'user_id' => $failedUser?->id,
+                'activity' => 'Failed login attempt via email/password.',
+                'role' => $failedUser?->role ?? 'guest',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             return back()->with('error', 'Incorrect email or password!');
         }
     }

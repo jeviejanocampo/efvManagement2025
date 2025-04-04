@@ -22,4 +22,9 @@ class RefundLog extends Model
 
     const CREATED_AT = 'refunded_at';
     const UPDATED_AT = 'updated_at';
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

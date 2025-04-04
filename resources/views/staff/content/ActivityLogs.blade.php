@@ -8,7 +8,7 @@
 </style>
 
 <div class ="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-    <h1 class="text-5xl font-semibold">Activity Logs</h1>
+    <h1 class="text-4xl font-semibold">Activity Logs</h1>
         <p class="border-b border-b-[1px] border-gray-300 mt-2 mb-2">
             <!-- Your content here -->
         </p>
@@ -89,8 +89,8 @@
                         </td>
                         <td class="px-4 py-2 text-sm">{{ $log->role }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->activity }}</td>
-                        <td class="px-4 py-2 text-sm">{{ $log->created_at }}</td>
-                    </tr>
+                        <td class="px-4 py-2 text-sm">{{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }}</td>
+                        </tr>
                     @endif
                 @endforeach
             </tbody>

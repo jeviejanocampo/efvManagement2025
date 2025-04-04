@@ -90,7 +90,10 @@
             @else
                 @foreach ($orders as $order)
                     <tr class="border-b border-gray-300 transition-transform duration-300 hover:bg-gray-100 text-center">
-                        <td class="px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-ORD000{{ $order->order_id }}</td>
+                        <td class="px-4 py-2">
+                            {{ Str::contains($order->reference_id, 'ORD000') ? $order->reference_id : 
+                                ($order->reference_id ?? 'N/A') . '-ORD000' . $order->order_id }}
+                        </td>
                         <td class="px-4 py-2">
                             {{ $order->customer ? $order->customer->full_name : 'N/A' }}
                         </td>

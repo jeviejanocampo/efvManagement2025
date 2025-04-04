@@ -62,9 +62,15 @@ Route::middleware(['staff'])->group(function () {
 
     Route::get('/order/{order_id}/edit-details', [RefundOrderController::class, 'editDetails'])->name('edit.product');
 
+    Route::get('/order-queue/{order_id}/edit-details', [RefundOrderController::class, 'editDetailsQueue'])->name('edit.product.queue');
+
+    Route::get('/staff/refund-log', [RefundOrderController::class, 'viewRefundLog'])->name('staff.refund.log');
+
 });
 
 Route::post('/update-order-details', [RefundOrderController::class, 'updateOrderDetails'])->name('update.order.details.preorder');
+
+Route::post('/update-order-details-queue', [RefundOrderController::class, 'updateOrderDetailsQueue'])->name('update.order.details.queue');
 
 Route::post('/update-refund', [OrderController::class, 'updateRefund']);
 

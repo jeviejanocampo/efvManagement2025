@@ -658,50 +658,42 @@ class OrderController extends Controller
     {
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
             ->orderBy('created_at', 'desc')
-            ->paginate(10); // Add pagination, showing 10 orders per page
-
+            ->paginate(10);
+    
         foreach ($orders as $order) {
-            // Fetch the latest 2 part_id, variant_id, and brand_name from OrderDetail
+            // Check if reference exists in order_reference table
+            $existingReference = \App\Models\OrderReference::where('order_id', $order->order_id)->value('reference_id');
+    
+            if ($existingReference) {
+                $order->reference_id = $existingReference;
+                continue; // Skip the rest of the loop and use the existing reference
+            }
+    
             $orderDetails = OrderDetail::where('order_id', $order->order_id)
                 ->latest('order_detail_id')
                 ->take(2)
                 ->get(['part_id', 'variant_id', 'brand_name']);
-
+    
             $cleanParts = collect();
             $brandNames = collect();
-
+    
             foreach ($orderDetails as $detail) {
                 if (!empty($detail->variant_id) && $detail->variant_id != 0) {
-                    // Fetch part_id from the variants table based on variant_id
-                    $variantPartId = \App\Models\Variant::where('variant_id', $detail->variant_id)
-                        ->value('part_id');
-
-                    // Trim to first 3 characters
+                    $variantPartId = \App\Models\Variant::where('variant_id', $detail->variant_id)->value('part_id');
                     $cleanPart = $variantPartId ? substr(preg_replace('/[^A-Za-z0-9]/', '', $variantPartId), 0, 3) : '';
-
-                    // Fetch brand_name from OrderDetail
                     $brandName = $detail->brand_name ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->brand_name), 0, 3)) : '';
-
                     $brandNames->push($brandName);
                 } else {
-                    // Use part_id directly from OrderDetail
                     $cleanPart = substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->part_id), 0, 4);
                 }
-
+    
                 $cleanParts->push($cleanPart);
             }
-
-            // Fetch the brand_name using m_part_id from Products table
-            $productBrandName = \App\Models\Products::whereIn('m_part_id', $orderDetails->pluck('part_id'))
-                ->value('brand_name');
-
-            // Trim brand_name to first 3 letters and convert to uppercase
+    
+            $productBrandName = \App\Models\Products::whereIn('m_part_id', $orderDetails->pluck('part_id'))->value('brand_name');
             $shortProductBrand = $productBrandName ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '-', $productBrandName), 0, 3)) : '';
-
-            // If variant_id exists, use the brand from OrderDetail, otherwise use from Products table
             $finalBrand = $brandNames->isNotEmpty() ? $brandNames->first() : $shortProductBrand;
-
-            // Format Reference ID
+    
             if ($cleanParts->count() === 2) {
                 $order->reference_id = $finalBrand . '-' . $cleanParts[0] . '' . $cleanParts[1];
             } elseif ($cleanParts->count() === 1) {
@@ -710,13 +702,10 @@ class OrderController extends Controller
                 $order->reference_id = $finalBrand;
             }
         }
-
-        // Count of orders with status 'Pending'
+    
         session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
-
-        // Count of refund orders with status 'Pending'
         session(['pendingRefundCount' => \App\Models\RefundOrder::where('status', 'Pending')->count()]);
-
+    
         return view('staff.content.staffOrderOverview', compact('orders'));
     }
     

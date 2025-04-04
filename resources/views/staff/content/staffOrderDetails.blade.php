@@ -7,10 +7,10 @@
     }
 </style>
 
-<div class="p-4 rounded-xl" >
+<div class="p-4 rounded-xl">
     <a href="{{ url('staff/overview') }}" 
-        class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-gray-700 mb-5 items-center gap-2">
-        <i class="fas fa-arrow-left"></i> 
+    class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-gray-700 mb-5 items-center gap-2">
+    <i class="fas fa-arrow-left"></i> 
     </a>
 
     <div style="margin-top: 12px">
@@ -26,7 +26,7 @@
 
     <!-- Order Status Dropdown -->
     <div class="flex justify-between items-center mt-4 bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-        <h1 style="font-size: 34px; font-weight: bold">ORDER DETAILS</h1>
+    <h1 style="font-size: 34px; font-weight: bold">ORDER DETAILS</h1>
 
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
         <!-- Label and Dropdown for Edit Status for the whole order -->
@@ -44,20 +44,32 @@
 
     <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         <div class="flex justify-between items-center">
-                @php
-                    // Retrieve the passed reference_id from the URL
-                    $referenceId = request('reference_id'); 
-                @endphp
+            @php
+                $latestOrderDetail = $orderDetails->last();
+                $referenceId = request()->query('reference_id');
 
-                @if ($referenceId)
-                    <p style="font-size: 28px; font-weight: 700;">
-                        REFERENCE ID: {{ $referenceId }}
-                    </p>
-                @else
-                    <p style="font-size: 28px; font-weight: 700;">
-                        ORDER ID: N/A
-                    </p>
-                @endif
+                if ($referenceId && Str::contains($referenceId, '-ORD000')) {
+                    $referenceId = explode('-ORD000', $referenceId)[0];
+                }
+
+                // Check if the last part of the reference is the same as order_id
+                $refParts = explode('-', $referenceId);
+                $lastSegment = end($refParts);
+
+                if ($lastSegment == $order->order_id) {
+                    array_pop($refParts); // Remove duplicate order_id
+                }
+
+                $formattedRefId = implode('-', $refParts);
+            @endphp
+
+            @if ($latestOrderDetail)
+                <p style="font-size: 28px; font-weight: 700;">
+                    REFERENCE ID: {{ $formattedRefId }}-ORD000{{ $order->order_id }}
+                </p>
+            @else
+                <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
+            @endif
 
                 <p class="text-md">
                 <strong>Status: </strong>
@@ -92,16 +104,18 @@
                 </span>
             </p>
         </div>
-        <p style="font-size: 12px">Created At: {{ $order->created_at }} </p> 
-        <div class="mt-4 space-y-4">
-        <p style="font-size: 13px">
-            USER DETAILS:
-            <a href="#" 
-            class="bg-blue-700 text-white font-bold px-2 py-1 rounded-md hover:bg-blue-700 transition"
-            onclick="openModal({{ $order->user_id }})">
-                View Details
-            </a>
+        <p style="font-size: 12px">
+            Created At: {{ \Carbon\Carbon::parse($order->created_at)->format('F d, Y h:i A') }}
         </p>
+        <div class="mt-4 space-y-4">
+            <p style="font-size: 13px">
+                USER DETAILS:
+                <a href="#" 
+                class="bg-blue-700 text-white font-bold px-2 py-1 rounded-md hover:bg-blue-700 transition"
+                onclick="openModal({{ $order->user_id }})">
+                    View Details
+                </a>
+            </p>
             <p style="font-size: 13px">TOTAL ITEMS: {{ $order->total_items }}</p> 
             <p style="font-size: 13px">PAYMENT METHOD: {{ $order->payment_method }}</p> 
         </div>
@@ -109,15 +123,22 @@
 
     <!-- Order Details Table -->
     <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-        <h3 class="text-l font-semibold">Product Details</h3>
+        <div class="flex justify-between items-center">
+            <h3 class="text-l font-semibold">Product Details</h3>
+            
+        <!-- One button for the entire order -->
+        <a href="{{ route('edit.product.queue', ['order_id' => $orderDetails->first()->order_id]) }}" class="bg-blue-700 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600 transition">
+            Edit Product Details for Order #{{ $formattedRefId }}-ORD000{{ $order->order_id }}
+        </a>
+
+        </div>
         <div class="text-gray-500 italic text-sm m-4">
             Note: For the pre-orders products, edit status if ready to pick up status
         </div>
         <table class="table-auto w-full border-collapse mt-4">
             <thead>
-                <tr class="bg-white">
                 <thead>
-                    <tr class="bg-white">
+                    <tr class="bg-gray-200">
                         <th class="border border-gray-300 px-2 py-1">Status</th>
                         <th class="border border-gray-300 px-2 py-1"></th>
                         <th class="border border-gray-300 px-2 py-1">Product Name</th>
@@ -125,6 +146,7 @@
                         <th class="border border-gray-300 px-2 py-1">Quantity</th>
                         <th class="border border-gray-300 px-2 py-1">Unit Price</th>
                         <th class="border border-gray-300 px-2 py-1">SubTotal</th>
+                        <th class="border border-gray-300 px-2 py-1">Action</th>
                     </tr>
             </thead>
             <tbody>
@@ -167,7 +189,7 @@
                                 <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
                                     <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="In Process" {{ $detail->product_status === 'In Process' ? 'selected' : '' }}>In Process</option>
-                                    <option value="Ready to Pickup" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
+                                    <option value="pending" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
                                     <option value="Completed" {{ $detail->product_status === 'Completed' ? 'selected' : '' }}>Completed</option>
                                 </select>
                             </div>
@@ -183,15 +205,12 @@
 
     <div class="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         @if($order->status === 'Completed')
-            <p>
-            </p>
+            <p></p>
         @elseif($order->status === 'Cancelled')
-            <p>
-            </p>
+            <p></p>
         @else
-            <p style="font-size: 24px; font-weight: bold; text-align: right">
-                Total To Pay: ₱ 
-                {{ number_format ( $order->total_price, 2 ) }}
+            <p style="font-size: 28px; font-weight: bold; text-align: right;">
+                Total To Pay: ₱ {{ number_format ( $order->total_price, 2 ) }}
             </p> 
         @endif
     </div>
@@ -207,6 +226,15 @@
 
 
 </div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let referenceIdForOrder = "{{ $formattedRefId }}-ORD000{{ $order->order_id }}";
+        console.log("REFERENCE ID:", referenceIdForOrder);
+    });
+</script>
+
 
 <script>
     function openModal(userId) {
@@ -233,6 +261,16 @@
 
     function updateOrderStatus(orderId) {
         const newStatus = document.getElementById('order_status').value;
+        let referenceId = null;
+
+        // Get the referenceId from the Blade template
+        const referenceIdForOrder = "{{ $formattedRefId }}-ORD000{{ $order->order_id }}";
+        console.log("REFERENCE ID:", referenceIdForOrder);
+
+        // If the status is "In Process", set the referenceId
+        if (newStatus === "In Process") {
+            referenceId = referenceIdForOrder;  // Use the referenceId generated by Blade
+        }
 
         // Confirm the action
         const confirmUpdate = confirm(`Are you sure you want to update the status to "${newStatus}"?`);
@@ -246,7 +284,8 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF token
                 },
                 body: JSON.stringify({
-                    status: newStatus
+                    status: newStatus,
+                    reference_id: referenceId // Send the reference_id if it's set
                 })
             })
             .then(response => response.json())

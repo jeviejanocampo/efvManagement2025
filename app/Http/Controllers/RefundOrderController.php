@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\RefundOrder;
+use App\Models\RefundLog;
 use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 
@@ -97,6 +98,71 @@ class RefundOrderController extends Controller
             return redirect()->route('edit.product', ['order_id' => $request->order_id])->with('error', 'Error updating order details: ' . $e->getMessage());
         }
     }
+
+    public function editDetailsQueue($order_id)
+    {
+        $order = Order::find($order_id); // Get the order details
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get(); // Get the associated order details
+    
+        // Pass the details to the view
+        return view('staff.content.staffEditDetailsRefundQueue', compact('orderDetails'));
+    }
+
+    public function updateOrderDetailsQueue(Request $request)
+    {
+        try {
+            // Start a transaction to ensure data consistency
+            \DB::beginTransaction();
+        
+            // Loop through the order details and update each one
+            foreach ($request->product_name as $orderDetailId => $productName) {
+                $orderDetail = OrderDetail::findOrFail($orderDetailId);
+        
+                // Update quantity and calculate new total_price (quantity * unit_price)
+                $quantity = $request->quantity[$orderDetailId];
+                $unitPrice = $orderDetail->price;
+                $totalPrice = $quantity * $unitPrice;
+        
+                // Update the order detail record
+                $orderDetail->update([
+                    'quantity' => $quantity,
+                    'total_price' => $totalPrice,
+                ]);
+            }
+        
+            // After updating all order details, update the total amount in the orders table
+            $orderId = $request->order_id;
+            $order = Order::findOrFail($orderId);
+        
+            // Recalculate the total amount to pay for the order
+            $totalAmount = OrderDetail::where('order_id', $orderId)->sum('total_price');
+            
+            // Update total_amount and original_total_amount in the orders table
+            $order->update([
+                'total_price' => $totalAmount,               // New total amount to pay
+                'original_total_amount' => $totalAmount,       // Assuming original_total_amount is also updated here
+            ]);
+        
+            // Commit the transaction
+            \DB::commit();
+    
+            // Redirect back with success message
+        return redirect()->route('edit.product.queue', ['order_id' => $orderId])->with('success', 'Order details updated successfully.');
+        } catch (\Exception $e) {
+            // Rollback in case of error
+            \DB::rollBack();
+    
+            // Redirect back with error message
+            return redirect()->route('edit.product.queue', ['order_id' => $request->order_id])->with('error', 'Error updating order details: ' . $e->getMessage());
+        }
+    }
+
+    public function viewRefundLog()
+    {
+        $logs = RefundLog::with('user')->orderBy('refunded_at', 'desc')->paginate(12); // 10 items per page
+        return view('staff.content.RefundLog', compact('logs'));
+    }
+    
     
     
 

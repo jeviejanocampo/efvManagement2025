@@ -81,12 +81,20 @@
 
             
             <p class="text-white text-1xl font-bold">Activity</p>
-            <a href="{{ route('logs') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
-                <span class="bg-gray-600 p-2 rounded-lg">
-                    <i class="fa-solid fa-clipboard-list text-gray-200"></i>
-                </span>
-                Staff Activity Log
-            </a>
+                <a href="{{ route('logs') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
+                    <span class="bg-gray-600 p-2 rounded-lg">
+                        <i class="fa-solid fa-clipboard-list text-gray-200"></i>
+                    </span>
+                    Staff Activity Log
+                </a>
+                
+                <a href="{{ route('staff.refund.log') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
+                    <span class="bg-gray-600 p-2 rounded-lg">
+                        <i class="fa-solid fa-file text-gray-200"></i>
+                    </span>
+                    Refund Activity Log
+                </a>
+
         </nav>
     </div>
 
