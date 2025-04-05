@@ -66,20 +66,20 @@
     <!-- TABLE -->
     <table class="w-full border-collapse border border-gray-200">
     <thead>
-        <tr class="bg-gray-200">
-            <th class="p-1 border hidden-column">Order ID</th> <!-- Add hidden-column class here -->
-            <th class="p-1 border">Reference ID</th> 
-            <th class="p-1 border">User</th>
-            <th class="p-1 border">Created</th>
-            <th class="p-1 border">Status</th>
-            <th class="p-1 border">Action</th>
+        <tr class="bg-gray-200 text-sm">
+            <th class="py-3 px-4 border hidden-column">Order ID</th> <!-- Add hidden-column class here -->
+            <th class="py-3 px-4 border">Reference ID</th> 
+            <th class="py-3 px-4 border">User</th>
+            <th class="py-3 px-4 border">Created</th>
+            <th class="py-3 px-4 border">Status</th>
+            <th class="py-3 px-4 border">Action</th>
         </tr>
     </thead>
     <tbody id="tableBody">
         @foreach ($refunds as $refund)
-        <tr class="border">
-            <td class="p-1 border-b hidden-column">OR0000{{ $refund->order_id }}</td> <!-- Add hidden-column class here -->
-            <td class="p-1 border-b">
+        <tr class="border text-gray-700 text-sm">
+            <td class="py-3 px-4 border-b hidden-column">OR0000{{ $refund->order_id }}</td> <!-- Add hidden-column class here -->
+            <td class="py-3 px-4 border-b">
                 <!-- Display Reference ID if available -->
                 @if ($refund->orderReference)
                     {{ $refund->orderReference->reference_id }}
@@ -87,9 +87,9 @@
                     OR0000{{ $refund->order_id }}
                 @endif
             </td>
-            <td class="p-1 border-b">{{ $refund->customer->full_name ?? 'Unknown' }}</td>
-            <td class="p-1 border-b created-date" data-date="{{ $refund->created_at }}">{{ $refund->created_at->format('M d, Y - h:i A') }}</td>
-            <td class="p-1 border-b text-center status-cell" data-status="{{ strtolower($refund->status) }}">
+            <td class="py-3 px-4 border-b">{{ $refund->customer->full_name ?? 'Unknown' }}</td>
+            <td class="py-3 px-4 border-b created-date" data-date="{{ $refund->created_at }}">{{ $refund->created_at->format('M d, Y - h:i A') }}</td>
+            <td class="py-3 px-4 border-b text-center status-cell" data-status="{{ strtolower($refund->status) }}">
                 <span class="px-2 py-1 border-b rounded-full text-white 
                     @if(strtolower($refund->status) == 'pending') bg-yellow-500 
                     @elseif(strtolower($refund->status) == 'completed') bg-green-600 
@@ -100,7 +100,7 @@
                     {{ ucfirst($refund->status) }}
                 </span>
             </td>
-            <td class="p-1 border-b">
+            <td class="py-3 px-4 border-b">
                 <a href="{{ route('staff.refundRequestForm', ['order_id' => $refund->order_id, 'reference_id' => $refund->orderReference ? $refund->orderReference->reference_id : null]) }}" 
                     class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-1">
                         <i class="fas fa-eye"></i>

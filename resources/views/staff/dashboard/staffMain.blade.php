@@ -78,6 +78,12 @@
             </a>
 
 
+            <a href="{{ route('refund.report.view') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
+                    <span class="bg-gray-600 p-2 rounded-lg">
+                        <i class="fa-solid fa-clipboard-list text-gray-200"></i>
+                    </span>
+                    Refund Report
+            </a>
 
             
             <p class="text-white text-1xl font-bold">Activity</p>

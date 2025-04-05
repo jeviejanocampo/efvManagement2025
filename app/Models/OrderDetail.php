@@ -17,6 +17,8 @@ class OrderDetail extends Model
         'order_id',
         'model_id',
         'variant_id',
+        'changed_variant_id',
+        'changed_model_id',
         'product_name',
         'brand_name',
         'quantity',
@@ -38,7 +40,7 @@ class OrderDetail extends Model
     
     public function variant()
     {
-        return $this->belongsTo(Variant::class, 'variant_id');
+        return $this->belongsTo(Variant::class, 'variant_id', 'variant_id');
     }
 
 }

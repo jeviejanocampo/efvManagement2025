@@ -43,6 +43,14 @@ class RefundOrder extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    // In Refund.php
+    public function processedByUser()
+    {
+        return $this->belongsTo(User::class, 'processed_by');
+    }
+
+
+
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'user_id', 'id');

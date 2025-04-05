@@ -66,6 +66,10 @@ Route::middleware(['staff'])->group(function () {
 
     Route::get('/staff/refund-log', [RefundOrderController::class, 'viewRefundLog'])->name('staff.refund.log');
 
+    Route::get('/refund-report-view', [RefundOrderController::class, 'RefundViewList'])->name('refund.report.view');
+
+    Route::get('/refund-report-details-view/{order_id}/{reference_id?}', [RefundOrderController::class, 'RefundDetailsView'])->name('refund.view.details');
+
 });
 
 Route::post('/update-order-details', [RefundOrderController::class, 'updateOrderDetails'])->name('update.order.details.preorder');

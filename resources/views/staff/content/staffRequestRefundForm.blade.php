@@ -120,7 +120,7 @@
             <div class="flex justify-between items-center border-b border-gray-300 pb-4">
                 <p class="text-2xl" style="display: none;"><strong>Order ID:</strong> {{ $refund->order_id }}</p>
 
-                <p class="text-3xl font-bold">
+                <p class="text-3xl font-semibold">
                     Reference ID: {{ $newReferenceId ?? $reference_id }}
                 </p>
 
@@ -154,18 +154,18 @@
 
             <form method="POST" action="{{ route('order.updateStatus.refunded') }}">
                 @csrf
-                <table class="w-full border-collapse border border-gray-300 text-sm">
+                <table class="w-full border-gray-300 text-sm">
                     <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-1 ">Variant ID</th>
-                            <th class="p-1 ">Model ID</th>
-                            <th class="p-1 ">Product</th>
-                            <th class="p-1 ">Brand</th>
-                            <th class="p-1 ">Quantity</th>
-                            <th class="p-1 ">Price</th>
-                            <th class="p-1 ">Subtotal</th>
-                            <th class="p-1 ">Status</th>
-                            <th class="p-1 ">Action</th> <!-- NEW COLUMN -->
+                        <tr class="bg-gray-100 border-b border-gray ">
+                            <th class="p-4 ">Variant ID</th>
+                            <th class="p-4 ">Model ID</th>
+                            <th class="p-4 ">Product</th>
+                            <th class="p-4 ">Brand</th>
+                            <th class="p-4 ">Quantity</th>
+                            <th class="p-4 ">Price</th>
+                            <th class="p-4 ">Subtotal</th>
+                            <th class="p-4 ">Status</th>
+                            <th class="p-4 ">Action</th> <!-- NEW COLUMN -->
                         </tr>
                     </thead>
                     <tbody>
@@ -227,7 +227,7 @@
 
 
             <!-- Display Total Price -->
-                <div class="mt-4 text-right font-semibold text-lg">
+                <div class="mt-8 text-right font-semibold text-2xl">
                     <p>Total Amount: <span id="total_price">₱ {{ number_format($total_price, 2) }}</span></p>
                 </div>
 
@@ -579,7 +579,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p class="text-gray-700">Remaining Subtotal:</p>
                 <strong class="text-gray-900 text-2xl">₱ ${remainingSubtotal.toLocaleString()}</strong>
             </div>
-            <p class="font-bold text-2xl pb-2 border-b border-gray">Difference</p>
+            <p class="font-bold text-2xl pb-2 border-b border-gray">Changes</p>
 
              <div class="flex justify-between ${amountAdded > 0 ? 'text-red-600' : ''}">
                 <p class="text-red font-bold">Amount Added:</p>

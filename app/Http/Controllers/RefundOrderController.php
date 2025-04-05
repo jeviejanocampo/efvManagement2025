@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\RefundOrder;
+use App\Models\OrderReference;
 use App\Models\RefundLog;
 use App\Models\OrderDetail;
 use Illuminate\Http\Request;
@@ -163,6 +164,29 @@ class RefundOrderController extends Controller
         return view('staff.content.RefundLog', compact('logs'));
     }
     
+
+    public function RefundViewList()
+    {
+        $refunds = RefundOrder::orderBy('created_at', 'desc')->paginate(10);
+        return view('staff.content.RefundView', compact('refunds'));
+    }
+
+    public function RefundDetailsView($order_id, $reference_id = null)
+    {
+
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+
+        $refund = RefundOrder::where('order_id', $order_id)->first();
+        $orderReference = OrderReference::where('order_id', $order_id)->first();
+        
+        // Fetch order details from the 'orders' table
+        $order = Order::where('order_id', $order_id)->first();
+
+        // Pass refund, orderReference, reference_id, and order details to the view
+        return view('staff.content.RefundDetails', compact('refund', 'orderReference', 'reference_id', 'order', 'orderDetails'));
+    }
+
+        
     
     
 

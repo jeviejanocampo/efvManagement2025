@@ -375,13 +375,14 @@ class OrderController extends Controller
                 
                     // Proceed with the update
                     if (!is_null($modelName) && !is_null($modelPrice)) {
-                        $modelUpdated = DB::table('order_details')
+                            $modelUpdated = DB::table('order_details')
                             ->where('order_id', $orderId)
                             ->where('model_id', $originalId)
                             ->update([
                                 'model_id' => $passedId,
-                                'product_name' => $modelName,  // Update product_name based on the correct table (model_name)
-                                'price' => $modelPrice,  // Update price based on the correct table (models)
+                                'changed_model_id' => $originalId,
+                                'product_name' => $modelName,
+                                'price' => $modelPrice,
                                 'updated_at' => now()
                             ]);
                             
@@ -467,10 +468,11 @@ class OrderController extends Controller
                             ->where('variant_id', $originalId)
                             ->update([
                                 'variant_id' => $passedId,
-                                'product_name' => $variantName,  // Update product_name based on the correct table (variant_name)
-                                'price' => $variantPrice,  // Update price based on the correct table (variants)
+                                'changed_variant_id' => $originalId, // ✅ Save original ID
+                                'product_name' => $variantName,
+                                'price' => $variantPrice,
                                 'updated_at' => now()
-                            ]);
+                            ]);       
 
                         Log::info("✅ Variant Update Result:", ['status' => $variantUpdated]);
 
