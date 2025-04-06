@@ -71,7 +71,7 @@
                 <label for="start_date" class="text-xs font-medium text-gray-700">Start</label>
                 <input type="date" name="start_date" id="start_date" 
                     value="{{ request('start_date') }}" 
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+                    class="mt-1 block w-full border-b rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
             </div>
 
             <!-- End Date Filter -->
@@ -79,14 +79,14 @@
                 <label for="end_date" class="text-xs font-medium text-gray-700">End</label>
                 <input type="date" name="end_date" id="end_date" 
                     value="{{ request('end_date') }}" 
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+                    class="mt-1 block w-full border-b rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
             </div>
 
             <!-- Monthly Filter -->
             <div>
                 <label for="month" class="text-xs font-medium text-gray-700">Month</label>
                 <select name="month" id="month" 
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+                    class="mt-1 block w-full border-b rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
                     <option value="">Select Month</option>
                     @foreach(range(1, 12) as $month)
                         <option value="{{ $month }}" {{ request('month') == $month ? 'selected' : '' }}>
@@ -100,7 +100,7 @@
             <div>
                 <label for="year" class="text-xs font-medium text-gray-700">Year</label>
                 <select name="year" id="year" 
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+                    class="mt-1 block w-full border-b rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
                     <option value="">Select Year</option>
                     @foreach(range(date('Y') - 10, date('Y')) as $year)
                         <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
@@ -130,30 +130,30 @@
                <p style="font-size: 14px; padding: 4px"> Print Report</p>
             </button>
         </div>
-        <table class="w-full border-collapse border border-gray-300 text-left">
+        <table class="w-full border-collapse border-b text-left">
             <thead>
                 <tr>
-                    <th class="border border-gray-300 px-4 py-2">REFERENCE ID</th>
-                    <th class="border border-gray-300 px-4 py-2">PRODUCT NAME</th>
-                    <th class="border border-gray-300 px-4 py-2">UNIT PRICE</th>
-                    <th class="border border-gray-300 px-4 py-2">QUANTITY</th>
-                    <th class="border border-gray-300 px-4 py-2">TOTAL</th>
+                    <th class="border-b px-4 py-2">REFERENCE ID</th>
+                    <th class="border-b px-4 py-2">PRODUCT NAME</th>
+                    <th class="border-b px-4 py-2">PRICE</th>
+                    <th class="border-b px-4 py-2">QUANTITY</th>
+                    <th class="border-b px-4 py-2">TOTAL</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($orderDetails as $detail)
                 <tr>
-                    <td class="border border-gray-300 px-4 py-2">
+                    <td class="border-b px-4 py-2">
                     {{ $detail->reference_id }}
                     </td>
-                    <td class="border border-gray-300 px-4 py-2">{{ $detail->product_name }}</td>
-                    <td class="border border-gray-300 px-4 py-2">₱{{ number_format($detail->price, 2) }}</td>
-                    <td class="border border-gray-300 px-4 py-2">{{ $detail->quantity }}</td>
-                    <td class="border border-gray-300 px-4 py-2">₱{{ number_format($detail->total_price, 2) }}</td>
+                    <td class="border-b px-4 py-2">{{ $detail->product_name }}</td>
+                    <td class="border-b px-4 py-2">₱{{ number_format($detail->price, 2) }}</td>
+                    <td class="border-b px-4 py-2">{{ $detail->quantity }}</td>
+                    <td class="border-b px-4 py-2">₱{{ number_format($detail->total_price, 2) }}</td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="border border-gray-300 px-4 py-2 text-center">No completed orders found for the selected date range.</td>
+                    <td colspan="5" class="border-b px-4 py-2 text-center">No completed orders found for the selected date range.</td>
                 </tr>
                 @endforelse
             </tbody>

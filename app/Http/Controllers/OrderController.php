@@ -891,69 +891,98 @@ class OrderController extends Controller
 
     public function updateStatus($order_id, Request $request)
     {
-        // Validate the request
         $request->validate([
             'status' => 'required|in:pending,Ready to Pickup,In Process,Completed,Cancelled',
-            'reference_id' => 'nullable|string|max:255' // Ensure reference_id is a string and max length 255
+            'reference_id' => 'nullable|string|max:255'
         ]);
-
-        // Find the order by order_id
+    
         $order = Order::find($order_id);
-
-        // Check if the order exists
+    
         if (!$order) {
             return response()->json([
                 'success' => false,
                 'message' => 'Order not found.',
             ], 404);
         }
-
-        // Get the new status
+    
         $newStatus = $request->input('status');
-
-        // Update the order status
-        $order->status = $newStatus;
-
-        // If status is "Completed", update scan_status and product_status
-        if ($newStatus === 'Completed') {
-            $order->scan_status = 'Completed';
-
-            // Update product_status in OrderDetail
-            OrderDetail::where('order_id', $order_id)->update(['product_status' => 'Completed']);
-        }
-
-        // If status is "In Process", insert a new record in order_reference
-        if ($newStatus === 'In Process') {
-            $referenceId = $request->input('reference_id'); // Get reference_id from request
-
-            if ($referenceId) {
-                OrderReference::create([
-                    'order_id' => $order_id,
-                    'reference_id' => $referenceId
-                ]);
+        $oldStatus = $order->status;
+    
+        DB::transaction(function () use (&$order, $order_id, $newStatus, $oldStatus, $request) {
+            $order->status = $newStatus;
+    
+            // Get order details
+            $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+    
+            // Reverse stock if changing from Completed to another status
+            if ($oldStatus === 'Completed' && $newStatus !== 'Completed') {
+                foreach ($orderDetails as $detail) {
+                    $quantity = $detail->quantity;
+    
+                    if (!is_null($detail->variant_id) && $detail->variant_id != 0) {
+                        DB::table('variants')
+                            ->where('variant_id', $detail->variant_id)
+                            ->increment('stocks_quantity', $quantity);
+                    } else {
+                        DB::table('products')
+                            ->where('model_id', $detail->model_id)
+                            ->increment('stocks_quantity', $quantity);
+                    }
+                }
+    
+                // Also revert product_status
+                OrderDetail::where('order_id', $order_id)->update(['product_status' => 'Pending']);
+                $order->scan_status = 'Pending';
             }
-        }
-
-        $order->save(); // Save the updated order
-
-        // Get the role of the user
+    
+            // Deduct stock if changing TO Completed
+            if ($newStatus === 'Completed' && $oldStatus !== 'Completed') {
+                foreach ($orderDetails as $detail) {
+                    $quantity = $detail->quantity;
+    
+                    if (!is_null($detail->variant_id) && $detail->variant_id != 0) {
+                        DB::table('variants')
+                            ->where('variant_id', $detail->variant_id)
+                            ->decrement('stocks_quantity', $quantity);
+                    } else {
+                        DB::table('products')
+                            ->where('model_id', $detail->model_id)
+                            ->decrement('stocks_quantity', $quantity);
+                    }
+                }
+    
+                OrderDetail::where('order_id', $order_id)->update(['product_status' => 'Completed']);
+                $order->scan_status = 'Completed';
+            }
+    
+            // Handle reference if status is In Process
+            if ($newStatus === 'In Process') {
+                $referenceId = $request->input('reference_id');
+                if ($referenceId) {
+                    OrderReference::create([
+                        'order_id' => $order_id,
+                        'reference_id' => $referenceId
+                    ]);
+                }
+            }
+    
+            $order->save();
+        });
+    
         $user = Auth::user();
         $role = $user->role;
-
-        // Log the activity
+    
         ActivityLog::create([
             'user_id' => Auth::id(),
             'role' => $role,
-            'activity' => "Updated order #$order_id status to {$newStatus}",
+            'activity' => "Updated order #$order_id status from {$oldStatus} to {$newStatus}",
         ]);
-
-        // Return response
+    
         return response()->json([
             'success' => true,
             'message' => 'Order status updated successfully.',
         ]);
-    }
-    
+    }   
  
     public function updateProductStatus(Request $request, $orderDetailId)
     {
