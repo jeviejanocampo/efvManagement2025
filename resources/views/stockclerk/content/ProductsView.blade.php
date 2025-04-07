@@ -129,21 +129,21 @@
 
 
     <div class="overflow-x-auto">
-        <table class="table-auto w-full border-collapse border border-gray-300">
+        <table class="table-auto w-full border-collapse border-b">
             <thead>
                 <tr class="bg-gray-100">
-                    <!-- <th class="border border-gray-300 px-2 py-1"></th> -->
-                    <th class="border border-gray-300 px-2 py-1">Image</th>
-                    <!-- <th class="border border-gray-300 px-2 py-1">Category</th> -->
-                    <th class="border border-gray-300 px-2 py-1">Brand </th>
-                    <th class="border border-gray-300 px-2 py-1">Product </th>
-                    <th class="border border-gray-300 px-2 py-1">Price</th>
-                    <th class="border border-gray-300 px-2 py-1">Qty</th>
-                    <!-- <th class="border border-gray-300 px-2 py-1">W/Variant</th> -->
-                    <!-- <th class="border border-gray-300 px-2 py-1">Details</th> -->
-                    <th class="border border-gray-300 px-2 py-1">View Variants</th>
-                    <th class="border border-gray-300 px-2 py-1">Status</th>
-                    <th class="border border-gray-300 px-2 py-1">Action</th>
+                    <!-- <th class="border-b px-2 py-1"></th> -->
+                    <th class="border-b px-2 py-1">Image</th>
+                    <!-- <th class="border-b px-2 py-1">Category</th> -->
+                    <th class="border-b px-2 py-1">Brand </th>
+                    <th class="border-b px-2 py-1">Product </th>
+                    <th class="border-b px-2 py-1">Price</th>
+                    <th class="border-b px-2 py-1">Qty</th>
+                    <!-- <th class="border-b px-2 py-1">W/Variant</th> -->
+                    <!-- <th class="border-b px-2 py-1">Details</th> -->
+                    <th class="border-b px-2 py-1">View Variants</th>
+                    <th class="border-b px-2 py-1">Status</th>
+                    <th class="border-b px-2 py-1">Action</th>
                 </tr>
             </thead>
             <tbody id="order-table">
@@ -151,19 +151,19 @@
                     <tr data-category="{{ $product->brand->category->category_name ?? 'N/A' }}"
                         data-brand="{{ $product->brand->brand_name ?? 'N/A' }}"
                         data-name="{{ $product->model_name }}">
-                        <!-- <td class="border border-gray-300 px-2 py-1">0000{{ $product->model_id }}</td> -->
-                        <td class="border border-gray-300 px-2 py-1 text-center">
+                        <!-- <td class="border-b px-2 py-1">0000{{ $product->model_id }}</td> -->
+                        <td class="border-b px-2 py-1 text-center">
                             <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="80" class="mx-auto">
                         </td>
-                        <!-- <td class="border border-gray-300 px-2 py-1">
+                        <!-- <td class="border-b px-2 py-1">
                             {{ $product->brand->category->category_name ?? 'N/A' }}
                         </td> -->
-                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">
+                        <td class="border-b px-2 py-1" style="text-align: center">
                             {{ $product->brand->brand_name ?? 'N/A' }}
                         </td>
-                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
-                        <td class="border border-gray-300 px-2 py-1">₱ {{ $product->price }}</td>
-                        <td class="border border-gray-300 px-2 py-1 relative">
+                        <td class="border-b px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
+                        <td class="border-b px-2 py-1">₱ {{ $product->price }}</td>
+                        <td class="border-b px-2 py-1 relative">
                             @php
                                 $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');
                             @endphp
@@ -176,9 +176,9 @@
                             @endif
                         </td>
 
-                        <!-- <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->w_variant }}</td> -->
+                        <!-- <td class="border-b px-2 py-1" style="text-align: center">{{ $product->w_variant }}</td> -->
 
-                        <!-- <td class="border border-gray-300 px-2 py-1 text-center">
+                        <!-- <td class="border-b px-2 py-1 text-center">
                             @php
                                 $hasDetails = Products::where('model_id', $product->model_id)->exists();
                             @endphp
@@ -195,7 +195,7 @@
                             @endif
                         </td> -->
 
-                        <td class="border border-gray-300 px-2 py-1 text-center">
+                        <td class="border-b px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
                                 <a href="{{ route('variantsView', ['model_id' => $product->model_id]) }}" 
                                 class="text-white bg-blue-500 px-3 py-1 rounded-lg hover:bg-blue-600 transition">
@@ -206,7 +206,7 @@
                             @endif
                         </td>
 
-                        <td class="border border-gray-300 px-2 py-1 text-center">
+                        <td class="border-b px-2 py-1 text-center">
                             <span class="px-2 py-1 text-white text-xs font-semibold rounded cursor-pointer update-status 
                                         {{ $product->status == 'active' ? 'bg-green-600' : 'bg-red-500' }}" 
                                 data-id="{{ $product->model_id }}" 
@@ -215,10 +215,10 @@
                             </span>
                         </td>
 
-                        <td class="border border-gray-300 px-2 py-1 text-center">
+                        <td class="border-b px-2 py-1 text-center">
                             @if ($hasDetails)
                                 <a href="{{ route('viewDetails', ['model_id' => $product->model_id]) }}" title="View Details">
-                                    <i class="fa-solid fa-eye text-blue-700 text-lg mx-1"></i>
+                                    <i class="fa-solid fa-eye text-white text-sm bg-blue-400 p-2 rounded-lg"></i>
                                 </a>
                             @else
                                 <a href="{{ route('addDetails', ['model_id' => $product->model_id]) }}" title="No Details | Add Details">

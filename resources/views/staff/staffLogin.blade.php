@@ -13,16 +13,16 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
-    <div class="bg-white  rounded-lg w-full max-w-3xl flex rounded-xl">
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+    <div class="bg-white  rounded-lg w-full max-w-4xl flex rounded-xl">
         
         <!-- Left Side -->
         <div class="w-1/2 bg-black text-white flex flex-col justify-center items-center rounded-xl overflow-hidden">
             <img src="{{ asset('product-images/loginstockclerk.png') }}" alt="EFV Logo" class="w-full h-64 object-cover rounded-t-xl">
-            <h1 class="text-1xl font-semibold mt-4">EFV Auto Parts Management System</h1>
-            <h1 class="text-2xl font-semibold">Welcome Back!</h1>
+            <h1 class="text-2xl font-semibold mt-4">EFV Auto Parts Management System</h1>
+            <!-- <h1 class="text-2xl font-semibold">Welcome Back!</h1> -->
             <p class="mb-4 text-gray-300">Enter your credentials to access your account.</p>
-            <a href="#" class="text-sm text-gray-300 hover:text-white">Forgot Password?</a>
+            <!-- <a href="#" class="text-sm text-gray-300 hover:text-white">Forgot Password?</a> -->
         </div>
 
         <!-- Right Side -->
@@ -54,9 +54,9 @@
                     alert('{{ session('error') }}');
                 </script>
             @endif
-            <div class="mt-6 text-center">
+            <!-- <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600">Don't have an account? <a href="/staff/signup" class="text-gray-900 font-semibold hover:underline">Create Account</a></p>
-            </div>
+            </div> -->
         </div>
     </div>
 </body>

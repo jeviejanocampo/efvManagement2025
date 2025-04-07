@@ -53,7 +53,7 @@ Route::middleware(['staff'])->group(function () {
     Route::get('/staff/overview/details/{order_id}', [OrderController::class, 'details'])->name('overViewDetails');
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('logs');
-
+    
     Route::get('/qrcode', [QRCodeController::class, 'showForm'])->name('qr.form');
 
     Route::get('/orders/fetch', [OrderController::class, 'fetchOrders'])->name('orders.fetch');
@@ -101,6 +101,16 @@ Route::post('/logout', function (Request $request) {
 
     return redirect()->route('staff.login')->with('success', 'Logged out successfully!');
 })->name('logout');
+
+Route::post('/stock-clerk-logout', function (Request $request) {
+    
+    Auth::logout();
+    $request->session()->invalidate(); 
+    $request->session()->regenerateToken(); 
+
+    return redirect()->route('stockclerk.login')->with('success', 'Logged out successfully!');
+})->name('stockclerk.logout');
+
 
 Route::get('/staff/signup', function () {
     return view('staff.staffSignup');

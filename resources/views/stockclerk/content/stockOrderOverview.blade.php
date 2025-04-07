@@ -29,7 +29,7 @@
 
     </div>
 
-    <div class="flex justify-between items-center mb-4 space-x-4">       
+    <div class="flex justify-between items-center mb-2 space-x-4">       
 
         <!-- Status filter -->
         <div class="w-full sm:w-1/3">
@@ -68,7 +68,7 @@
 
     </div>
 
-    <div class="text-gray-500 italic text-sm mt-4">
+    <div class="text-gray-500 italic text-sm mb-2">
        Note: Pending orders are displayed here, and only stock clerks have the authority to update them to "In Process."
     </div>
 
@@ -112,7 +112,7 @@
                         </td>
                         <td class="border border-gray-300 px-4 py-2 text-center">
                             <a href="{{ route('stockclerkoverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
-                            class="text-black hover:underline flex items-center justify-center gap-2">
+                            class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-2">
                                 <i class="fas fa-eye"></i> 
                             </a>
                         </td>

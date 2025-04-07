@@ -40,12 +40,12 @@
             </div>
             
             <!-- Navigation -->
-            <nav class="space-y-5">
+            <nav class="space-y-6">
                 <p class="text-white text-1xl font-bold">MAIN</p>
 
                 <a href="{{ route('stockclerk.dashboard.page') }}" class="flex items-center text-white hover:text-white gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
-                    <i class="fas fa-dashboard"></i>
+                    <i class="fas fa-bars"></i>
                 </span>
                     Dashboard
                 </a>
@@ -86,7 +86,7 @@
                     </button>
 
                     <!-- Submenu -->
-                    <div id="products-submenu" class="ml-6 mt-2 space-y-4 overflow-hidden max-h-0 transition-all duration-300">
+                    <div id="products-submenu" class="ml-6 mt-2 space-y-6 overflow-hidden max-h-0 transition-all duration-300">
                             <a href="{{ route('productsView') }}" class="flex items-center text-sm text-white hover:text-white mt-2 ">
                             <i class="fas fa-box mr-2"></i>
                                  Products
@@ -128,7 +128,7 @@
                 <p class="text-white text-1xl font-bold">ACTIVITY</p>
                 <a href="{{ route('Stocklogs') }}" class="flex items-center text-white hover:text-white gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
-                    <i class="fas fa-history"></i>
+                    <i class="fas fa-book"></i>
                 </span>
                     Stock Clerk Log
                 </a>
@@ -179,13 +179,17 @@
 
                     <!-- Dropdown -->
                     <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg hidden opacity-0 transform scale-95 transition-all duration-200">
-                        <a href="/stock-clerk/login" class="block px-4 py-2 hover:bg-gray-200">Logout</a>
-                    </div>
+                    <form action="{{ route('stockclerk.logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-gray-200">
+                            Logout
+                        </button>
+                    </form>                    </div>
                 </div>
             </header>
 
             <!-- Dynamic Content -->
-            <main class="p-5 sm: pt-4">
+            <main class="p-6 sm: pt-4">
                 @yield('content')
             </main>
         </div>
@@ -226,7 +230,7 @@
 
         function setActiveLink(clickedLink) {
             navLinks.forEach(link => {
-                link.classList.remove("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+                link.classList.remove("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-2");
                 link.classList.add("text-white", "hover:text-white"); 
 
                 const icon = link.querySelector("i");
@@ -236,7 +240,7 @@
                 }
             });
 
-            clickedLink.classList.add("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+            clickedLink.classList.add("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-2");
             clickedLink.classList.remove("text-white", "hover:text-white");
 
             const activeIcon = clickedLink.querySelector("i");

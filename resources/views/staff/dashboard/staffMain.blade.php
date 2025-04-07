@@ -155,7 +155,7 @@
             </header>
 
             <!-- Dynamic Content -->
-            <main class="p-4 sm: pt-4">
+            <main class="p-6 sm: pt-4">
                 @yield('content')
             </main>
         </div>
@@ -167,7 +167,7 @@
 
         function setActiveLink(clickedLink) {
             navLinks.forEach(link => {
-                link.classList.remove("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+                link.classList.remove("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-2");
                 link.classList.add("text-white", "hover:text-white"); 
 
                 const icon = link.querySelector("i");
@@ -177,7 +177,7 @@
                 }
             });
 
-            clickedLink.classList.add("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+            clickedLink.classList.add("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-2");
             clickedLink.classList.remove("text-white", "hover:text-white");
 
             const activeIcon = clickedLink.querySelector("i");

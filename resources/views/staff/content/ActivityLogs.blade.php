@@ -89,7 +89,9 @@
                         </td>
                         <td class="px-4 py-2 text-sm">{{ $log->role }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->activity }}</td>
-                        <td class="px-4 py-2 text-sm">{{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }}</td>
+                        <td class="px-4 py-2 text-sm">
+                            {{ \Carbon\Carbon::parse($log->created_at)->format('F j, Y g:i A') }}
+                        </td>
                         </tr>
                     @endif
                 @endforeach

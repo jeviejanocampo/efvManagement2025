@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Products;
+use App\Models\Variant;
 use App\Models\User;
 use App\Models\RefundOrder;
 use App\Models\OrderReference;
@@ -44,10 +46,26 @@ class RefundOrderController extends Controller
 
     public function editDetails($order_id)
     {
-        $order = Order::find($order_id); // Get the order details
-        $orderDetails = OrderDetail::where('order_id', $order_id)->get(); // Get the associated order details
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
     
-        // Pass the details to the view
+        foreach ($orderDetails as $detail) {
+            // Try to find the product in Variant first
+            $variant = \App\Models\Variant::where('model_id', $detail->model_id)
+                                          ->where('product_name', $detail->product_name)
+                                          ->first();
+    
+            if ($variant) {
+                $detail->stocks_quantity = $variant->stocks_quantity;
+            } else {
+                // Fallback to Products table
+                $product = \App\Models\Products::where('model_id', $detail->model_id)
+                                               ->where('model_name', $detail->product_name)
+                                               ->first();
+    
+                $detail->stocks_quantity = $product ? $product->stocks_quantity : 0;
+            }
+        }
+    
         return view('staff.content.staffEditDetailsRefund', compact('orderDetails'));
     }
 

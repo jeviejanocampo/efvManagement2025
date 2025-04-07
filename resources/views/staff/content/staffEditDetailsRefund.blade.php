@@ -1,13 +1,15 @@
 @extends('staff.dashboard.StaffMain')
 
 @section('content')
+
+<a href="{{ url()->previous() }}" class="bg-gray-800 text-white px-2 py-1 rounded-full hover:bg-gray-700 mb-7 items-center gap-2">
+        <i class="fas fa-arrow-left"></i>
+</a>
+
+
 <div class="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
-    <a href="{{ url()->previous() }}" class="text-gray-600 hover:text-gray-900 text-lg mb-4 flex items-center">
-        <i class="fas fa-arrow-left mr-2"></i> Back
-    </a>
-
-    <h1 class="text-5xl font-semibold">Edit Product Details</h1>
+    <h1 class="text-4xl font-semibold border-b border-gray">Edit Product Details</h1>
 
     <!-- Product Edit Form -->
     <form action="{{ route('update.order.details.preorder') }}" method="POST">
@@ -42,6 +44,9 @@
                         <label for="quantity_{{ $detail->order_detail_id }}" class="block text-sm font-medium text-gray-700">Quantity</label>
                         <input type="number" name="quantity[{{ $detail->order_detail_id }}]" id="quantity_{{ $detail->order_detail_id }}" class="mt-1 block w-full px-4 py-2 border rounded-md" value="{{ $detail->quantity }}" data-price="{{ $detail->price }}" data-order-detail-id="{{ $detail->order_detail_id }}" oninput="updateSubtotal(this)">
                     </div>
+
+                    <p class="text-sm text-red-500 mt-1">Remaining stock: {{ $detail->stocks_quantity ?? 'N/A' }}</p>
+
 
                     <!-- Price (Read-only) -->
                     <div class="mt-4">
