@@ -12,11 +12,11 @@
     <p class="border-b border-b-[1px] border-gray-300 mb-4"></p>
 
     <!-- Filter Section -->
-    <div class="flex justify-between mb-4">
+    <div class="flex gap-2 mb-2">
         <!-- Left: Search Bar -->
         <div class="flex items-center">
             <label for="search" class="mr-2 text-lg">Search User:</label>
-            <input type="text" id="search" class="p-2 border rounded" placeholder="Search by name..." onkeyup="filterTable()">
+            <input type="text" id="search" class="p-1 border rounded" placeholder="Search by name..." onkeyup="filterTable()">
         </div>
         
         <!-- Right: Role and Date Filters -->
@@ -24,7 +24,7 @@
             <!-- Role Filter -->
             <div>
                 <label for="role" class="mr-2 text-lg">Role:</label>
-                <select id="role" class="p-2 border rounded" onchange="filterTable()">
+                <select id="role" class="p-1 border rounded" onchange="filterTable()">
                     <option value="">All Roles</option>
                     <option value="staff">Staff</option>
                     <option value="admin">Admin</option>
@@ -34,7 +34,7 @@
             <!-- Date Filter -->
             <div>
                 <label for="date" class="mr-2 text-lg">Date:</label>
-                <input type="date" id="date" class="p-2 border rounded" onchange="filterTable()">
+                <input type="date" id="date" class="p-1 border rounded" onchange="filterTable()">
             </div>
         </div>
     </div>

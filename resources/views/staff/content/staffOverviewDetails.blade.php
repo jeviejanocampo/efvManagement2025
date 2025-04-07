@@ -9,7 +9,7 @@
 
 <div class="p-4 rounded-xl">
     <a href="{{ url('staff/overview') }}" 
-    class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-gray-700 mb-5 items-center gap-2">
+    class="bg-gray-800 text-white px-2 py-1 rounded-full hover:bg-gray-700 mb-5 items-center gap-2">
     <i class="fas fa-arrow-left"></i> 
     </a>
 
@@ -132,7 +132,7 @@
         <table class="table-auto w-full border-collapse mt-4">
             <thead>
                 <thead>
-                    <tr class="bg-gray-200">
+                    <tr class="bg-gray-100">
                         <th class="border border-gray-300 px-2 py-1">Status</th>
                         <th class="border border-gray-300 px-2 py-1"></th>
                         <th class="border border-gray-300 px-2 py-1">Product Name</th>
@@ -165,7 +165,7 @@
                     </td>
                     <td class=" px-5 py-1">
                         @if ($detail->model_image)
-                            <img src="{{ asset('product-images/' . $detail->model_image) }}" alt="{{ $detail->product_name }}" width="200">
+                            <img src="{{ asset('product-images/' . $detail->model_image) }}" alt="{{ $detail->product_name }}" width="100">
                         @else
                             <span>No Image</span>
                         @endif

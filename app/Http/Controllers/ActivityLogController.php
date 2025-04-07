@@ -13,11 +13,11 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ActivityLogController extends Controller
-{
+{   
     public function index()
     {
         // Fetch activity logs with pagination (20 per page)
-        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->paginate(40);
+        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->paginate(11);
 
         return view('staff.content.activityLogs', compact('activityLogs'));
     }

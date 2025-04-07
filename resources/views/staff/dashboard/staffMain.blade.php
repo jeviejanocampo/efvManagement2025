@@ -35,7 +35,7 @@
             <p class="text-white text-1xl font-bold">Main</p>
             <a href="{{ route('staff.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
-                    <i class="fa-solid fa-dashboard text-gray-200"></i>
+                    <i class="fa-solid fa-bars text-gray-200"></i>
                 </span>
                 Dashboard
             </a>
@@ -62,7 +62,7 @@
             <p class="text-white text-1xl font-bold pt-3">Replacement/Refund</p>
             <a href="{{ route('staff.refundRequests') }}" class="flex items-center text-gray hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
-                    <i class="fa-solid fa-file text-gray-200"></i>
+                    <i class="fa-solid fa-clipboard text-gray-200"></i>
                 </span>
                 Order Details
                 <!-- Badge for Pending Refund Requests -->
@@ -80,7 +80,7 @@
 
             <a href="{{ route('refund.report.view') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
                     <span class="bg-gray-600 p-2 rounded-lg">
-                        <i class="fa-solid fa-clipboard-list text-gray-200"></i>
+                        <i class="fa-solid fa-copy text-gray-200"></i>
                     </span>
                     Refund Report
             </a>
@@ -96,7 +96,7 @@
                 
                 <a href="{{ route('staff.refund.log') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
                     <span class="bg-gray-600 p-2 rounded-lg">
-                        <i class="fa-solid fa-file text-gray-200"></i>
+                        <i class="fa-solid fa-book text-gray-200"></i>
                     </span>
                     Refund Activity Log
                 </a>

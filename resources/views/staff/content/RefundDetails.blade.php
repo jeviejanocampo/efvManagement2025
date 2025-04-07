@@ -7,8 +7,11 @@
 
     @media print {
         body{
-            zoom: 70%;
+            zoom: 65%;
         }
+        .no-print {
+        display: none !important;
+    }
     .no-print-styles {
         background-color: transparent !important;  /* Remove background */
         box-shadow: none !important;  /* Remove box shadow */
@@ -28,14 +31,14 @@
         <p class="text-4xl font-semibold">Replacement Report</p>
 
         <button onclick="window.print()" 
-            class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition print:bg-transparent print:text-black print:shadow-none print:px-0 print:py-0 print:rounded-none">
+                class="no-print bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition print:bg-transparent print:text-black print:shadow-none print:px-0 print:py-0 print:rounded-none">
             Print Report
         </button>
 
     </div>
 
     <div class="border-b border-gray pb-4">
-        <p class="text-2xl font-medium">Reference # {{ $reference_id ?? 'N/A' }}</p>
+        <p class="text-2xl font-medium">Reference ID: {{ $reference_id ?? 'N/A' }}</p>
         
         @if ($refund->refund_completed_at)
             <p><span class="font-semibold">Processed Completed:</span> 

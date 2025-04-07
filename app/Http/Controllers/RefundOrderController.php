@@ -160,7 +160,7 @@ class RefundOrderController extends Controller
 
     public function viewRefundLog()
     {
-        $logs = RefundLog::with('user')->orderBy('refunded_at', 'desc')->paginate(12); // 10 items per page
+        $logs = RefundLog::with('user')->orderBy('refunded_at', 'desc')->paginate(11); // 10 items per page
         return view('staff.content.RefundLog', compact('logs'));
     }
     

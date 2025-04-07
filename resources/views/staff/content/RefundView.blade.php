@@ -18,11 +18,7 @@
     <h1 class="text-4xl font-semibold mb-6 border-b border-gray pb-2">Refund Report Overview</h1>
 
     <!-- Filter Section -->
-    <div class="filter-container flex justify-between items-center mb-4">
-        <!-- Search Filter -->
-        <div class="flex items-center">
-            <input type="text" id="searchInput" class="p-2 w-310 border rounded" placeholder="Search by reference or user" onkeyup="filterTable()">
-        </div>
+    <div class="filter-container flex justify-start gap-2 items-center mb-2">      
 
         <!-- Date Filter -->
         <div class="flex items-center">
@@ -38,13 +34,18 @@
                 <option value="Completed - no changes">Completed - no changes</option>
             </select>
         </div>
+
+        <div class="flex items-center">
+            <input type="text" id="searchInput" class="p-2 w-500 border rounded" placeholder="Search by reference or user" onkeyup="filterTable()">
+        </div>
+
     </div>
 
     <div class="overflow-x-auto">
         <table class="min-w-full text-left text-sm" id="refundTable">
-            <thead class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+            <thead class="bg-gray-100 text-gray-700 text-sm leading-normal">
                 <tr>
-                    <th class="py-3 px-4">#</th>
+                    <th class="py-3 px-4">Reference</th>
                     <th class="py-3 px-4">User</th>
                     <th class="py-3 px-4">Created</th>
                     <th class="py-3 px-4">Status</th>
@@ -68,7 +69,7 @@
                                 'Pending' => 'bg-yellow-600 text-white',
                                 'Completed - with changes' => 'bg-green-600 text-green-800',
                                 'Completed - no changes' => 'bg-blue-600 text-blue-800',
-                                default => 'bg-gray-600 text-gray-700',
+                                default => 'bg-gray-600 text-white-0',
                             };
                         @endphp
 

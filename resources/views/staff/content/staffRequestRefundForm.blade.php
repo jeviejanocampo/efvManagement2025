@@ -59,12 +59,15 @@
 <meta name="auth-id" content="{{ Auth::id() ?? '' }}">
 
 
+<a href="{{ route('staff.refundRequests') }}" class="bg-gray-800 text-white px-2 py-1 rounded-full hover:bg-gray-700 items-center gap-2">
+    <i class="fa-solid fa-arrow-left"></i> 
+ </a>
+
+ <br>
+ 
+
 <div class="bg-gray-200 p-6" style="zoom: 85%">
-
-        <a href="{{ route('staff.refundRequests') }}" class="text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4 text-3">
-            <i class="fa-solid fa-arrow-left"></i> 
-        </a>
-
+        
     <div>
     
     @php
@@ -344,10 +347,10 @@
                 <span id="totalPrice" class="font-bold text-2xl hidden">₱ 0.00</span>
             </div>       
             
-            <h2 class="text-2xl font-semibold mb-4 border-b-2 border-gray-300">
+            <h2 class="text-2xl font-regular mb-4 border-b-2 border-gray-300">
 
             <div class="flex justify-between items-center p-3">
-                <p class="text-lg font-semibold text-gray-700">Chosen Model/Variant Subtotal:</p>
+                <p class="text-lg font-regular text-gray-700">Chosen Model/Variant Subtotal:</p>
                 <strong id="chosenSubtotal" class="text-2xl font-bold text-gray-900">₱ 0.00</strong>
             </div>
 
@@ -356,8 +359,8 @@
             </h2>
             
             <!-- Updated Total Price -->
-            <div class="flex justify-between text-1xl mt-3 bg-white">
-                <p class="font-bold text-1xl">Updated Total Amount:</p>
+            <div class="flex justify-between p-4 text-1xl mt-3 bg-white rounded-lg">
+                <p class="font-bold text-2xl">Updated Total Amount:</p>
                 <span id="updatedTotalPrice" class="text-blue-600 text-2xl font-bold">₱ 0.00</span>
             </div>
 
@@ -579,19 +582,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p class="text-gray-700">Remaining Subtotal:</p>
                 <strong class="text-gray-900 text-2xl">₱ ${remainingSubtotal.toLocaleString()}</strong>
             </div>
-            <p class="font-bold text-2xl pb-2 border-b border-gray">Changes</p>
+            <p class="px-2 text-2xl pb-2 border-b border-gray">Changes</p>
 
              <div class="flex justify-between ${amountAdded > 0 ? 'text-red-600' : ''}">
-                <p class="text-red font-bold">Amount Added:</p>
+                <p class="text-red px-2">Amount Added:</p>
                 <strong class="text-gray-900 text-2xl">₱ ${amountAdded.toLocaleString()}</strong>
             </div>
 
             <div class="flex justify-between ${customerChange > 0 ? 'text-green-600' : ''}">
-                <p class=" text-green font-bold">Customer's Change:</p>
+                <p class=" text-green px-2">Customer's Change:</p>
                 <strong class="text-green text-2xl">₱ ${customerChange.toLocaleString()}</strong>
             </div>
             <div class="flex justify-between mt-4 border-t pt-2">
-                <p class="text-gray-700 font-bold">Updated Total Price:</p>
+                <p class="text-gray-700 px-2">Updated Total Price:</p>
                 <strong class="text-gray-900 text-2xl">₱ ${totalWithReplacement.toLocaleString()}</strong>
             </div>`;
 
