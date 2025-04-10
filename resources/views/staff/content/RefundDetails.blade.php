@@ -52,7 +52,7 @@
     <!-- Grid Layout -->
     <div class="grid grid-cols-2 gap-8 pb-4 pt-4">
         <!-- Left Grid: Order and User Information -->
-        <div class="space-y-6">
+        <div class="space-y-6 mb-4">
             <div>
                 <strong class="text-sm">Order ID:</strong>
                 <p>{{ $order->order_id }}</p>
@@ -76,10 +76,17 @@
                     <strong class="text-sm">Payment Method</strong>
                     <p>{{ $order->payment_method }}</p>
                 </div>
+
                 <div>
                     <strong class="text-sm">Payment via</strong>
                     <p>{{ $refund-> refund_method ?? 'NULL' }}</p>
                 </div>
+
+                <div>
+                    <strong>Processed By:</strong>
+                    <p>{{ $refund->processedByUser->name ?? 'Unknown' }} (Staff)</p>
+                </div>
+                
             </div>
         </div>
 
@@ -107,7 +114,12 @@
         </div>
 
 
-        <div class="mt-6">
+
+        <div class="text-sm text-gray-500 italic mt-4">
+            Note: The total price of refunded items has been returned to the customer and is excluded from the updated change given.
+        </div>
+
+        <div class="mt-2">
         <table class="w-full text-sm text-center text-gray-700 border-b border-gray mb-4">
             <thead class="bg-gray-100">
                 <tr>
@@ -188,16 +200,27 @@
             </tbody>
         </table>
 
+        @php
+            $refundedTotal = 0;
+            foreach ($orderDetails as $detail) {
+                if ($detail->product_status === 'refunded') {
+                    $refundedTotal += $detail->total_price;
+                }
+            }
+
+            $adjustedChangeGiven = $refund->change_given + $refundedTotal;
+        @endphp
+
         <div class="flex justify-end p-4">  
 
                 <div class="space-y-4 gap-10">
 
                 <div class="text-2xl font-bold text-gray-700 pb-2">Overview</div>
 
-                <div class="flex justify-between">
+                <!-- <div class="flex justify-between">
                     <span class="text-gray-400">Processed By:</span>
                     <span class="text-gray-700">{{ $refund->processedByUser->name ?? 'Unknown' }} (Staff)</span>
-                    </div>
+                </div> -->
 
                 <!-- Original Total Amount -->
                 <div class="flex justify-between">
@@ -217,10 +240,19 @@
                     <span class="text-gray-700">₱ {{ number_format($refund->amount_added, 2) }}</span>
                 </div>
 
+                @php
+                    $refundedTotal = $orderDetails->where('product_status', 'refunded')->sum('total_price');
+                    $completedTotal = $orderDetails->where('product_status', 'Completed')->sum('total_price');
+                @endphp
+
+
                 <div class="flex justify-between">
                     <span class="text-gray-800">Updated Amount:</span>
-                    <span class="text-gray-700">₱ {{ number_format($order->total_price, 2) }}</span>
+                    <span class="text-gray-700">
+                        ₱ {{ number_format($completedTotal, 2) }}
+                    </span>
                 </div>
+
                
             </div>
     </div>
@@ -230,16 +262,6 @@
     </div>
 
 </div>
-
-
-
-
-
-
-
-
-
-
 
 
 </div>

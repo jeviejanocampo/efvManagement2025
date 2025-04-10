@@ -15,7 +15,7 @@
 </style>
 
 <div class="bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-    <h1 class="text-4xl font-semibold mb-6 border-b border-gray pb-2">Refund Report Overview</h1>
+    <h1 class="text-4xl font-semibold mb-6 border-b border-gray pb-2">Replacement Report Overview</h1>
 
     <!-- Filter Section -->
     <div class="filter-container flex justify-start gap-2 items-center mb-2">      

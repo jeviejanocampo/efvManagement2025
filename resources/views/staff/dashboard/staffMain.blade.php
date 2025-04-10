@@ -82,7 +82,7 @@
                     <span class="bg-gray-600 p-2 rounded-lg">
                         <i class="fa-solid fa-copy text-gray-200"></i>
                     </span>
-                    Refund Report
+                    Replacement Report
             </a>
 
             
