@@ -102,6 +102,15 @@ Route::post('/logout', function (Request $request) {
     return redirect()->route('staff.login')->with('success', 'Logged out successfully!');
 })->name('logout');
 
+
+Route::post('/manager-logout', function (Request $request) {
+    Auth::logout();
+    $request->session()->invalidate(); 
+    $request->session()->regenerateToken(); 
+
+    return redirect()->route('manager.login')->with('success', 'Logged out successfully!');
+})->name('manager.logout');
+
 Route::post('/stock-clerk-logout', function (Request $request) {
     
     Auth::logout();
@@ -327,21 +336,44 @@ Route::get('/stock-clerk/main/dashboard', function () {
 
 
 //Manager
-Route::get('/manager/login', function () {
-    return view('manager.managerLogin');
-});
 
-Route::get('/manager/signup', function () {
-    return view('manager.managerSignup');
-});
+    Route::get('/manager/login', function () {
+        return view('manager.managerLogin');
+    })->name('manager.login');
 
-Route::post('/manager/login', [StaffController::class, 'ManagerLogin'])->name('manager.login.submit');
 
-//
-Route::middleware(['manager'])->group(function () {
+    Route::get('/manager/signup', function () {
+        return view('manager.managerSignup');
+    });
+
+    Route::post('/manager/login', [StaffController::class, 'ManagerLogin'])->name('manager.login.submit');
+
+    //
+    Route::middleware(['manager'])->group(function () {
 
     Route::get('/manager/overview', [OrderController::class, 'ManagerstockOrderOverview'])
     ->name('ManagerstockoverView');
+
+    Route::get('/manager/main/dashboard', function () {
+        return view('manager.content.managerDashboard');
+    })->name('manager.dashboard.page');
+
+    Route::get('/manager/dashboard/orders-summary', [OrderController::class, 'ManagergetOrdersSummary']);
+
+    Route::get('/manager-add-category', [ProductController::class, 'ManagerViewAddBrand'])->name('manager.add.category');
+
+    Route::get('/stockclerk-add-category', [ProductController::class, 'StockClerkAddBrand'])->name('stockclerk.add.category');
+
+    Route::delete('/manager/delete-category/{category_id}', [ProductController::class, 'ManagerdeleteCategory'])
+    ->name('manager.delete.category');
+
+    Route::get('/manager/edit-category/{category_id}', [ProductController::class, 'ManagereditCategory'])
+    ->name('manager.edit.category');
+
+    Route::post('/manager/update-category/{category_id}', [ProductController::class, 'ManagerupdateCategory'])
+    ->name('manager.update.category');
+
+    Route::post('/manager-add-brand/store', [ProductController::class, 'ManagerstoreBrand'])->name('manager.add.brand.store');
 
     Route::get('/manager/overview/details/{order_id}', [OrderController::class, 'ManagerstockDetails'])->name('manageroverViewDetails');
 
@@ -363,7 +395,7 @@ Route::middleware(['manager'])->group(function () {
 
     Route::get('/manager-add-product', [ProductController::class, 'Managercreate'])->name('manager.add.product');
 
-    Route::get('/manager-stock-view-brand', [ProductController::class, 'ManagerStockViewBrands'])->name('manager.view.brands');
+    Route::get('/manager-stock-view-brand', [ProductController::class, 'ManagerViewBrandsList'])->name('manager.view.brands');
 
     Route::get('/manager-stock-view-category', [ProductController::class, 'ManagerStockViewCategory'])->name('manager.view.category');
 

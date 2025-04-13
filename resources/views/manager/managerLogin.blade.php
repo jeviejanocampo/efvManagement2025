@@ -14,9 +14,9 @@
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center h-screen">
-<div class="bg-white  rounded-lg w-full max-w-3xl flex rounded-xl">
+<div class="bg-white  rounded-lg w-full max-w-3xl flex ">
         <!-- Left Side -->
-        <div class="w-1/2 bg-black text-white flex flex-col justify-center items-center p-6 rounded-xl">
+        <div class="w-1/2 bg-black text-white flex flex-col justify-center items-center p-6 ">
             <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-2/3 mb-4">
             <h1 class="text-2xl font-semibold mb-4">Welcome Back!</h1>
             <p class="mb-6 text-gray-300">Enter your credentials to access your account.</p>
@@ -52,9 +52,9 @@
                     alert('{{ session('error') }}');
                 </script>
             @endif
-            <div class="mt-6 text-center">
+            <!-- <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600">Don't have an account? <a href="/manager/signup" class="text-gray-900 font-semibold hover:underline">Create Account</a></p>
-            </div>
+            </div> -->
         </div>
     </div>
 </body>

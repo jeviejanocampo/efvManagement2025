@@ -15,7 +15,7 @@
     }
 </style>
 
-<div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+<div class="container mx-auto p-4 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
     <div style="margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
 
@@ -32,12 +32,12 @@
             <input 
                 type="text" 
                 id="search-bar" 
-                class="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+                class="w-full px-2 py-1 text-sm border-b rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
                 placeholder="Search by Product Name">
         </div>
 
         <div class="w-full sm:w-1/4">
-            <select id="category-filter" class="w-full px-2 py-1 border border-gray-300 text-sm rounded-lg">
+            <select id="category-filter" class="w-full px-2 py-1 border-b text-sm rounded-lg">
                 <option value="">All Categories</option>
                 <option value="Gear Oils">Gear Oils</option>
                 <option value="Auto Parts">Auto Parts</option>
@@ -45,7 +45,7 @@
         </div>
 
         <div class="w-full sm:w-1/4">
-            <select id="brand-filter" class="w-full px-2 py-1 border border-gray-300 text-sm rounded-lg">
+            <select id="brand-filter" class="w-full px-2 py-1 border-b text-sm rounded-lg">
                 <option value="">All Brands</option>
                 @foreach ($brands as $brand)
                     <option value="{{ $brand }}">{{ $brand }}</option>
@@ -55,7 +55,7 @@
 
         
         <div class="w-full sm:w-1/4">
-            <select id="status-filter" class="w-full px-2 py-1 border border-gray-300 text-sm rounded-lg">
+            <select id="status-filter" class="w-full px-2 py-1 border-b text-sm rounded-lg">
                 <option value="">All Status</option>
                 @foreach ($statuses as $status)
                     <option value="{{ $status }}">{{ ucfirst($status) }}</option>
@@ -67,19 +67,19 @@
         <input 
             type="number" 
             id="min-price" 
-            class="w-24 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+            class="w-24 px-2 py-1 text-sm border-b rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
             placeholder="Min Price"
         >
         <span>-</span>
         <input 
             type="number" 
             id="max-price" 
-            class="w-24 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+            class="w-24 px-2 py-1 text-sm border-b rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
             placeholder="Max Price"
         >
         <button 
             id="apply-price-filter" 
-            class="px-3 py-1 text-sm text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            class="px-3 py-1 text-sm text-white bg-black rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             Apply
         </button>
         <button 
@@ -99,21 +99,21 @@
     </div> -->
 
     <div class="overflow-x-auto">
-        <table class="table-auto w-full border-collapse border border-gray-300">
+        <table class="table-auto w-full border-collapse border-b">
             <thead>
-                <tr class="bg-white">
-                    <th class="border border-gray-300 px-2 py-1">Id</th>
-                    <th class="border border-gray-300 px-2 py-1"></th>
-                    <!-- <th class="border border-gray-300 px-2 py-1">Category</th> -->
-                    <th class="border border-gray-300 px-2 py-1">Brand Name</th>
-                    <th class="border border-gray-300 px-2 py-1">Product Name</th>
-                    <th class="border border-gray-300 px-2 py-1">Unit Price</th>
-                    <th class="border border-gray-300 px-2 py-1">Quantity</th>
-                    <!-- <th class="border border-gray-300 px-2 py-1">W/Variant</th> -->
-                    <!-- <th class="border border-gray-300 px-2 py-1">Details</th> -->
-                    <th class="border border-gray-300 px-2 py-1">View Variants</th>
-                    <th class="border border-gray-300 px-2 py-1">Status</th>
-                    <th class="border border-gray-300 px-2 py-1">Action</th>
+                <tr class="bg-gray-100">
+                    <!-- <th class="border-b px-2 py-1">Id</th> -->
+                    <th class="border-b px-2 py-1"></th>
+                    <!-- <th class="border-b px-2 py-1">Category</th> -->
+                    <th class="border-b px-2 py-1">Brand Name</th>
+                    <th class="border-b px-2 py-1">Product Name</th>
+                    <th class="border-b px-2 py-1">Unit Price</th>
+                    <th class="border-b px-2 py-1">Quantity</th>
+                    <!-- <th class="border-b px-2 py-1">W/Variant</th> -->
+                    <!-- <th class="border-b px-2 py-1">Details</th> -->
+                    <th class="border-b px-2 py-1">View Variants</th>
+                    <th class="border-b px-2 py-1">Status</th>
+                    <th class="border-b px-2 py-1">Action</th>
                 </tr>
             </thead>
             <tbody id="order-table">
@@ -126,16 +126,16 @@
                     <tr data-category="{{ $product->brand->category->category_name ?? 'N/A' }}"
                         data-brand="{{ $product->brand->brand_name ?? 'N/A' }}"
                         data-name="{{ $product->model_name }}">
-                        <td class="border border-gray-300 px-2 py-1">{{ $product->model_id }}</td>
-                        <td class="border border-gray-300 px-2 py-1">
+                        <!-- <td class="border-b px-2 py-1">{{ $product->model_id }}</td> -->
+                        <td class="border-b px-2 py-1">
                             <img src="{{ asset('product-images/' . $product->model_img) }}" alt="Product Image" width="50">
                         </td>
-                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">
+                        <td class="border-b px-2 py-1" style="text-align: center">
                             {{ $product->brand->brand_name ?? 'N/A' }}
                         </td>
-                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
-                        <td class="border border-gray-300 px-2 py-1" style="text-align: center" >{{ $product->price }}</td>
-                        <td class="border border-gray-300 px-2 py-1 relative" style="text-align: center">
+                        <td class="border-b px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
+                        <td class="border-b px-2 py-1" style="text-align: center" >{{ $product->price }}</td>
+                        <td class="border-b px-2 py-1 relative" style="text-align: center">
                             {{ $stock }}
                             <!-- @if ($stock <= 5 && !request()->routeIs('edit.product'))
                                 <span class="absolute left-8 bg-red-500 text-white font-semibold px-2 py-1 rounded-md" style="font-size:10px">
@@ -143,14 +143,14 @@
                                 </span>
                             @endif -->
                         </td>
-                        <td class="border border-gray-300 px-2 py-1 text-center">
+                        <td class="border-b px-2 py-1 text-center">
                             @if (strtolower($product->w_variant) === 'yes')
-                                <a href="{{ route('manager.variantsView', ['model_id' => $product->model_id]) }}" class="text-blue-500">View</a>
+                                <a href="{{ route('manager.variantsView', ['model_id' => $product->model_id]) }}" class="text-white bg-blue-400 p-2 rounded-lg font-bold">View</a>
                             @else
                                 <span class="text-gray-500">No Variant</span>
                             @endif
                         </td>
-                        <td class="border border-gray-300 px-2 py-1 text-center">
+                        <td class="border-b px-2 py-1 text-center">
                             <span class="px-2 py-1 text-white text-xs font-semibold rounded cursor-pointer update-status 
                                         {{ $product->status == 'active' ? 'bg-green-600' : 'bg-red-500' }}" 
                                 data-id="{{ $product->model_id }}" 
@@ -158,15 +158,15 @@
                                 {{ $product->status }}
                             </span>
                         </td>
-                        <td class="border border-gray-300 px-2 py-1" style="text-align: center">
+                        <td class="border-b px-2 py-1" style="text-align: center">
                             <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-6 h-6 inline mx-1" title="View Details">
+                                <img src="{{ asset('product-images/view.png') }}" alt="View Details" class="w-4 h-4 inline mx-1" title="View Details">
                             </a>
                             <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
-                                <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-6 h-6 inline mx-1" title="Edit">
+                                <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-4 h-4 inline mx-1" title="Edit">
                             </a>
                             <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
-                                <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-6 h-6 inline mx-1" title="Delete">
+                                <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-4 h-4 inline mx-1" title="Delete">
                             </a>
                         </td>
                     </tr>
@@ -175,11 +175,13 @@
         </tbody>
         </table>
     </div>
+        
+    <div class="mt-4">
+        {{ $products->links('pagination::tailwind') }}
+    </div>
+
 </div>
 
-<div class="mt-4">
-    {{ $products->links('pagination::tailwind') }}
-</div>
 
  <!-- Status Update Modal -->
  <div id="statusModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-20 flex justify-center items-center mb-50">
@@ -189,7 +191,7 @@
         <input type="hidden" id="model_id">
         
         <label class="block text-sm font-medium text-gray-700">Select Status:</label>
-        <select id="statusSelect" class="w-full px-2 py-1 border border-gray-300 rounded-lg">
+        <select id="statusSelect" class="w-full px-2 py-1 border-b rounded-lg">
             <option value="active">Active</option>
             <option value="Inactive">Inactive</option>
             <option value="on order">On Order</option>

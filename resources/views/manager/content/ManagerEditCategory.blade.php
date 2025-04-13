@@ -1,7 +1,8 @@
-@extends('stockclerk.dashboard.stockClerkDashboard')
+@extends('manager.dashboard.managerDashboard')
 
 @section('content')
 <div class="container mx-auto p-6 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+    
     <div class="mb-4">
         <button onclick="window.history.back()" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
             ← Back
@@ -10,7 +11,7 @@
 
     <h2 class="text-3xl font-bold mb-4">Edit Category</h2>
 
-    <form id="editCategoryForm" action="{{ route('stockclerk.update.category', $category->category_id) }}" method="POST" enctype="multipart/form-data">
+    <form id="editCategoryForm" action="{{ route('manager.update.category', $category->category_id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="mb-4">
             <label class="block text-gray-700 font-bold mb-2">Category Name:</label>

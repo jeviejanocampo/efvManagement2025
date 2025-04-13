@@ -120,7 +120,7 @@
         </div>
 
         <div class="mt-2">
-        <table class="w-full text-sm text-center text-gray-700 border-b border-gray mb-4">
+<table class="w-full text-sm text-center text-gray-700 border-b border-gray mb-4">
             <thead class="bg-gray-100">
                 <tr>
                     <th class="p-2"></th> 
@@ -128,7 +128,7 @@
                     <th class="p-2">Brand Name</th>
                     <th class="p-2">Quantity</th>
                     <th class="p-2">Price</th>
-                    <th class="p-2">Total Price</th>
+                    <th class="p-2">SubTotal</th>
                     <th class="p-2">Status</th>
                 </tr>
             </thead>
@@ -150,16 +150,22 @@
                                 <span class="text-gray-400 italic">No image</span>
                             @endif
                         </td>
+
                         <td class="p-2">
                             <!-- Original Product Name -->
-                            <div>
-                                <span class="text-blue-600 text-xs font-semibold">Updated Product:</span>
-                                <span class="text-gray-700 ml-1">{{ $detail->product_name }}</span>
-                            </div>
+                            @if ($detail->product_status !== 'refunded')
+                                <div>
+                                    <span class="text-blue-600 text-xs font-semibold">Updated Product:</span>
+                                    <span class="text-gray-700 ml-1">{{ $detail->product_name }}</span>
+                                </div>
+                            @else
+                                <div>
+                                    <span class="text-gray-700">{{ $detail->product_name }}</span>
+                                </div>
+                            @endif
 
                             @php
                                 $replacementLabel = null;
-                                $originalLabel = null;
 
                                 // Check if there's a replacement variant or model
                                 if ($detail->variant_id && $detail->variant_id != 0 && $detail->changed_variant_id) {
@@ -176,7 +182,7 @@
                             @endphp
 
                             <!-- Display Replacement Product -->
-                            @if ($replacementLabel)
+                            @if ($replacementLabel && $detail->product_status !== 'refunded')
                                 <div class="mt-1">
                                     <span class="text-red-600 text-xs font-semibold">Old Product:</span>
                                     <span class="text-gray-700 underline line-through ml-1 text-1xl">{{ $replacementLabel }}</span>
@@ -198,7 +204,7 @@
                     </tr>
                 @endforeach
             </tbody>
-        </table>
+        </table>        
 
         @php
             $refundedTotal = 0;
@@ -247,7 +253,7 @@
 
 
                 <div class="flex justify-between">
-                    <span class="text-gray-800">Updated Amount:</span>
+                    <span class="text-gray-800">Updated Total Amount:</span>
                     <span class="text-gray-700">
                         ₱ {{ number_format($completedTotal, 2) }}
                     </span>

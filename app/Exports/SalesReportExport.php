@@ -13,6 +13,8 @@ class SalesReportExport implements FromCollection, WithHeadings, WithCustomStart
 {
     protected $startDate;
     protected $endDate;
+    protected $totalQuantity;
+    protected $totalSales;
 
     public function __construct($startDate, $endDate)
     {
@@ -22,17 +24,18 @@ class SalesReportExport implements FromCollection, WithHeadings, WithCustomStart
 
     public function collection()
     {
-        return OrderDetail::where('product_status', 'Completed')
-            ->when($this->startDate, function ($query) {
-                $query->whereDate('created_at', '>=', $this->startDate);
-            })
-            ->when($this->endDate, function ($query) {
-                $query->whereDate('created_at', '<=', $this->endDate);
-            })
-            ->select('order_detail_id', 'product_name', 'price', 'quantity', 'total_price') 
+        $records = OrderDetail::where('product_status', 'Completed')
+            ->when($this->startDate, fn ($query) => $query->whereDate('created_at', '>=', $this->startDate))
+            ->when($this->endDate, fn ($query) => $query->whereDate('created_at', '<=', $this->endDate))
+            ->select('order_detail_id', 'product_name', 'price', 'quantity', 'total_price')
             ->get();
+
+        $this->totalQuantity = $records->sum('quantity');
+        $this->totalSales = $records->sum('total_price');
+
+        return $records;
     }
-    
+
     public function headings(): array
     {
         return [
@@ -41,13 +44,12 @@ class SalesReportExport implements FromCollection, WithHeadings, WithCustomStart
             'Price',
             'Quantity',
             'Total Price',
-            'Date Created',
         ];
     }
 
     public function startCell(): string
     {
-        return 'A3'; // Start data below the custom header
+        return 'A4';
     }
 
     public function registerEvents(): array
@@ -56,84 +58,62 @@ class SalesReportExport implements FromCollection, WithHeadings, WithCustomStart
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet;
 
-                // Add the "EFV Auto Parts Management System" header
-                $sheet->mergeCells('A1:F1'); // Merge cells for the header
-                $sheet->setCellValue('A1', 'EFV Auto Parts Management System'); // Add system name
+                // Headers
+                $sheet->mergeCells('A1:E1');
+                $sheet->setCellValue('A1', 'EFV Auto Parts Management System');
                 $sheet->getStyle('A1')->applyFromArray([
-                    'font' => [
-                        'size' => 16,
-                        'bold' => true,
-                    ],
-                    'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    ],
+                    'font' => ['size' => 16, 'bold' => true],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Add the "Sales Report" header below
-                $sheet->mergeCells('A2:F2'); // Merge cells for the second header
-                $sheet->setCellValue('A2', 'Sales Report'); // Add the report title
+                $sheet->mergeCells('A2:E2');
+                $sheet->setCellValue('A2', 'Sales Report');
                 $sheet->getStyle('A2')->applyFromArray([
-                    'font' => [
-                        'size' => 14,
-                        'bold' => true,
-                    ],
-                    'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    ],
+                    'font' => ['size' => 14, 'bold' => true],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Add the current date below the "Sales Report" title
-                $sheet->mergeCells('A3:F3'); // Merge cells for the date
-                $sheet->setCellValue('A3', 'Date: ' . now()->format('F j, Y')); // Add current date
+                $sheet->mergeCells('A3:E3');
+                $sheet->setCellValue('A3', 'Date: ' . now()->format('F j, Y'));
                 $sheet->getStyle('A3')->applyFromArray([
-                    'font' => [
-                        'italic' => true,
-                        'size' => 12,
-                    ],
-                    'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    ],
+                    'font' => ['italic' => true, 'size' => 12],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Add the footer at the bottom-right
-                $totalRows = $sheet->getHighestRow() + 1; // Get the next available row after data
-                $sheet->setCellValue('F' . ($totalRows + 1), 'Owner'); // Place "Owner" in the bottom-right
-                $sheet->getStyle('F' . ($totalRows + 1))->applyFromArray([
-                    'font' => [
-                        'italic' => true,
-                    ],
-                    'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
-                    ],
+                $dataStartRow = 4;
+                $dataEndRow = $sheet->getDelegate()->getHighestRow();
+                $summaryStartRow = $dataEndRow + 2;
+
+                $sheet->setCellValue('C' . $summaryStartRow, 'TOTAL SALES:');
+                $sheet->setCellValue('D' . $summaryStartRow, number_format($this->totalSales, 2));
+
+                $sheet->setCellValue('C' . ($summaryStartRow + 1), 'TOTAL ITEMS:');
+                $sheet->setCellValue('D' . ($summaryStartRow + 1), $this->totalQuantity);
+
+                $sheet->setCellValue('C' . ($summaryStartRow + 2), 'SALES AMOUNT:');
+                $sheet->setCellValue('D' . ($summaryStartRow + 2), number_format($this->totalSales, 2));
+
+                foreach (range($summaryStartRow, $summaryStartRow + 2) as $row) {
+                    $sheet->getStyle('C' . $row)->applyFromArray([
+                        'font' => ['bold' => true],
+                        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT],
+                    ]);
+                    $sheet->getStyle('D' . $row)->applyFromArray([
+                        'font' => ['bold' => true],
+                        'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT],
+                    ]);
+                }
+
+                // Signature
+                $sheet->setCellValue('E' . ($summaryStartRow + 4), 'Owner');
+                $sheet->getStyle('E' . ($summaryStartRow + 4))->applyFromArray([
+                    'font' => ['italic' => true],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT],
                 ]);
 
-                // Calculate and display TOTAL SALES
-                $dataStartRow = 4; // Adjust to match the starting row of your data
-                $dataEndRow = $sheet->getHighestRow(); // Get the last row of the data
-                $totalSalesCell = 'E' . ($dataEndRow + 1); // Place TOTAL SALES below the 'Total Price' column
-
-                // Add the label and calculation
-                $sheet->setCellValue('D' . ($dataEndRow + 1), 'TOTAL SALES:'); // Add label
-                $sheet->setCellValue($totalSalesCell, '=SUM(E' . $dataStartRow . ':E' . $dataEndRow . ')'); // Add formula
-                $sheet->getStyle('D' . ($dataEndRow + 1))->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                    ],
-                    'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
-                    ],
-                ]);
-                $sheet->getStyle($totalSalesCell)->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                    ],
-                    'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
-                    ],
-                ]);
+                // Widen Product Name column
+                $sheet->getDelegate()->getColumnDimension('B')->setWidth(35);
             },
         ];
     }
-
-
 }

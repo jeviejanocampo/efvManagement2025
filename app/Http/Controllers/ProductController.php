@@ -162,7 +162,7 @@ class ProductController extends Controller
     {
         $brands = Brand::all();
         $categories = Category::all(); // Fetch all categories
-        return view('manager.content.ManagerAddCategory', compact('brands', 'categories'));
+        return view('manager.content.ManagerInsertNewBrand', compact('brands', 'categories'));
     }
 
     public function StockClerkeditCategory($category_id)
@@ -174,7 +174,48 @@ class ProductController extends Controller
         return view('stockclerk.content.StockClerkEditCategory', compact('category'));
     }
 
+    public function ManagereditCategory($category_id)
+    {
+        // Fetch the category by ID
+        $category = Category::findOrFail($category_id);
+
+        // Pass the category data to the edit view
+        return view('manager.content.ManagerEditCategory', compact('category'));
+    }
+
     public function StockClerkupdateCategory(Request $request, $category_id)
+    {
+        try {
+            $category = Category::findOrFail($category_id);
+
+            // Validate request
+            $request->validate([
+                'category_name' => 'required|string|max:255',
+                'cat_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            // Update category name and status
+            $category->category_name = $request->category_name;
+            $category->status = $request->status;
+
+            // Handle image upload if a new file is provided
+            if ($request->hasFile('cat_image')) {
+                $image = $request->file('cat_image');
+                $imageName = time() . '.' . $image->extension();
+                $image->move(public_path('product-images'), $imageName);
+                $category->cat_image = $imageName;
+            }
+
+            $category->save();
+
+            return redirect()->back()->with('success', 'Category updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update category. Please try again.');
+        }
+    }
+
+    public function ManagerupdateCategory(Request $request, $category_id)
     {
         try {
             $category = Category::findOrFail($category_id);
@@ -227,12 +268,42 @@ class ProductController extends Controller
             return redirect()->back()->with('error', 'Failed to delete category. Please try again.');
         }
     }
+
+    public function ManagerdeleteCategory($category_id)
+    {
+        try {
+            $category = Category::findOrFail($category_id);
+    
+            // Delete the image file from storage if it exists
+            if ($category->cat_image) {
+                $imagePath = public_path('product-images/' . $category->cat_image);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+    
+            // Delete the category from the database
+            $category->delete();
+    
+            return redirect()->back()->with('success', 'Category deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete category. Please try again.');
+        }
+    }
     
 
     public function StockClerkAddBrand (){
         $brands = Brand::all();
         $categories= Category::all();
         return view('stockclerk.content.StockClerkAddCategory', compact('brands', 'categories'));
+    }
+    
+
+    public function ManagerViewAddBrand (){
+
+        $brands = Brand::all();
+        $categories= Category::all();
+        return view('manager.content.ManagerAddCategory', compact('brands', 'categories'));
     }
 
     public function ManagerkAddCategory (){
@@ -274,11 +345,11 @@ class ProductController extends Controller
         return view('stockclerk.content.StockClerkViewBrands', compact('brands', 'categories'));
     }
 
-    public function ManagerStockViewBrands()
+    public function ManagerViewBrandsList()
     {
         $brands = Brand::all();
         $categories = Category::all(); // Fetch all categories
-        return view('manager.content.ManagerStockClerkViewCategory', compact('brands', 'categories'));
+        return view('manager.content.ManagerViewBrands', compact('brands', 'categories'));
     }
 
     public function StockClerkStockViewCategory()
@@ -320,6 +391,32 @@ class ProductController extends Controller
     
         return redirect()->route('stockclerk.add.brand')->with('success', 'Brand added successfully!');
     }    
+
+     public function ManagerstoreBrand(Request $request)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:categories,category_id',
+            'brand_name' => 'required|string|max:255',
+            'brand_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|in:Active,Inactive',
+        ]);
+    
+        $brand = new Brand();
+        $brand->cat_id = $request->category_id;
+        $brand->brand_name = $request->brand_name;
+    
+        if ($request->hasFile('brand_image')) {
+            $file = $request->file('brand_image');
+            $filename = time() . '.' . $file->getClientOriginalExtension(); // Generate unique filename
+            $file->move(public_path('product-images'), $filename); // Move to assets folder
+            $brand->brand_image = $filename; // Store only the filename
+        }
+    
+        $brand->status = $request->status;
+        $brand->save();
+    
+        return redirect()->route('manager.add.brand')->with('success', 'Brand added successfully!');
+    } 
 
 
     public function ManagerAddQuantity()

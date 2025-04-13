@@ -7,7 +7,7 @@
     }
 </style>
 
-<div class="p-4 rounded-xl">
+<div class="p-4 ">
     <a href="{{ url('staff/overview') }}" 
     class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-gray-700 mb-5 items-center gap-2">
     <i class="fas fa-arrow-left"></i> 

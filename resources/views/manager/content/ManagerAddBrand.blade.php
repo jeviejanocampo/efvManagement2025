@@ -1,7 +1,7 @@
-@extends('manager.dashboard.managerDashboard')
+@extends('stockclerk.dashboard.stockClerkDashboard')
 
 @section('content')
-<div class="container mx-auto p-6 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+<div class="container mx-auto p-6 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <div class="mb-4">
         <button onclick="window.history.back()" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
             ← Back
@@ -20,7 +20,7 @@
         </script>
     @endif
 
-    <form action="{{ route('stockclerk.add.brand.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('manager.add.brand.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- Category Selection -->

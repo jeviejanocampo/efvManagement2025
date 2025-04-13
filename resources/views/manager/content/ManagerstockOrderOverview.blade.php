@@ -18,8 +18,8 @@
 <body>
 @extends('manager.dashboard.managerDashboard')
 @section('content')
-
-<div class="container mx-auto p-4 bg-white rounded-xl" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+    
+<div class="container mx-auto p-4 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
     <div style="margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
         Reserve and Pre-Orders
@@ -36,7 +36,7 @@
             <input 
                 type="text" 
                 id="search-bar" 
-                class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+                class="w-full px-4 py-2 text-sm border-b rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
                 placeholder="Search by Order ID or User ID">
         </div>
 
@@ -44,7 +44,7 @@
         <div class="w-full sm:w-1/3">
             <select 
                 id="status-filter" 
-                class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                class="w-full px-4 py-2 text-sm border-b rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 <option value="">All Statuses</option>
                 <option value="Pending">Pending</option>
                 <option value="In Process">In Process</option>
@@ -59,37 +59,37 @@
             <input 
                 type="date" 
                 id="start-date" 
-                class="w-full text-sm px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                class="w-full text-sm px-4 py-2 border-b rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
             <input 
                 type="date" 
                 id="end-date" 
-                class="w-full text-sm px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                class="w-full text-sm px-4 py-2 border-b rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
         </div>
     </div>
 
     <div class="overflow-x-auto">
-        <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
+        <table class="table-auto w-full border-collapse border-b rounded-lg overflow-hidden">
             <thead>
                 <tr class="bg-gray-100">
-                    <th class="border border-gray-300 px-4 py-2">Reference ID</th>
-                    <th class="border border-gray-300 px-4 py-2">User ID</th>
-                    <th class="border border-gray-300 px-4 py-2">Total Items</th>
-                    <th class="border border-gray-300 px-4 py-2">Total</th>
-                    <th class="border border-gray-300 px-4 py-2">Created At</th>
-                    <th class="border border-gray-300 px-4 py-2">Status</th>
-                    <th class="border border-gray-300 px-4 py-2">Action</th>
+                    <th class="border-b px-4 py-2">Reference ID</th>
+                    <th class="border-b px-4 py-2">User</th>
+                    <th class="border-b px-4 py-2">Total Items</th>
+                    <th class="border-b px-4 py-2">Total</th>
+                    <th class="border-b px-4 py-2">Created At</th>
+                    <th class="border-b px-4 py-2">Status</th>
+                    <th class="border-b px-4 py-2">Action</th>
                 </tr>
             </thead>
             <tbody id="order-table">
                 @foreach ($orders as $order)
-                    <tr class="border border-gray-300 transition-transform duration-300 hover:bg-gray-100">
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->user_id }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>
-                        <td class="border border-gray-300 px-4 py-2">₱ {{ number_format($order->total_price, 2) }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
-                        <td class="border border-gray-300 px-4 py-2">
-                            <span class="px-4 py-1 rounded-full text-sm text-white text-center flex items-center justify-center
+                    <tr class="border-b transition-transform duration-300 hover:bg-gray-100">
+                        <td class="border-b px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
+                        <td class="border-b px-4 py-2">{{ $order->customer->full_name ?? 'N/A' }}</td>
+                        <td class="border-b px-4 py-2">{{ $order->total_items }}</td>
+                        <td class="border-b px-4 py-2">₱ {{ number_format($order->total_price, 2) }}</td>
+                        <td class="border-b px-4 py-2">{{ $order->created_at->diffForHumans() }}</td>
+                        <td class="border-b px-4 py-2">
+                            <span class="px-4 py-1 rounded-full text-sm text-white text-center items-center justify-center
                                 @if ($order->status === 'Pending') bg-yellow-700
                                 @elseif ($order->status === 'Ready to Pickup') bg-blue-700
                                 @elseif ($order->status === 'Cancelled') bg-red-700
@@ -101,7 +101,7 @@
                             {{ $order->status }}
                             </span>
                         </td>
-                        <td class="border border-gray-300 px-4 py-2 text-center">
+                        <td class="border-b px-4 py-2 text-center">
                             <a href="{{ route('manageroverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
                             class="text-black hover:underline">
                                 <i class="fas fa-eye"></i>

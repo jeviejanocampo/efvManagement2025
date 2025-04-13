@@ -14,10 +14,10 @@
     </style>
 </head>
 <body class="bg-gray-50 flex items-center justify-center h-screen">
-    <div class="bg-white  rounded-lg w-full max-w-4xl flex rounded-xl">
+    <div class="bg-white  rounded-lg w-full max-w-4xl flex ">
         
         <!-- Left Side -->
-        <div class="w-1/2 bg-black text-white flex flex-col justify-center items-center rounded-xl overflow-hidden">
+        <div class="w-1/2 bg-black text-white flex flex-col justify-center items-center  overflow-hidden">
             <img src="{{ asset('product-images/loginstockclerk.png') }}" alt="EFV Logo" class="w-full h-64 object-cover rounded-t-xl">
             <h1 class="text-2xl font-semibold mt-4">EFV Auto Parts Management System</h1>
             <!-- <h1 class="text-2xl font-semibold">Welcome Back!</h1> -->

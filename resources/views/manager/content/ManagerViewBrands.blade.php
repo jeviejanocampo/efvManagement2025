@@ -1,24 +1,24 @@
-@extends('stockclerk.dashboard.stockClerkDashboard')
+@extends('manager.dashboard.managerDashboard')
 
 @section('content')
 <div class="container mx-auto p-6 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-    <div class="mb-4">
+    <!-- <div class="mb-4">
         <button onclick="window.history.back()" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
             ← Back
         </button>
-    </div>
+    </div> -->
 
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-3xl font-bold">View Brands</h2>
-        <!-- <a href="{{ route('stockclerk.add.brand') }}" 
+        <a href="{{ route('manager.add.brand') }}" 
         class="bg-violet-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-violet-900">
             <i class="fas fa-plus"></i> Add Brand
-        </a> -->
+        </a>
     </div>
 
 
     @if(session('success'))
-        <div id="success-alert" class="mb-4 p-4 bg-green-100 text-green-700 border border-green-400 rounded-lg">
+        <div id="success-alert" class="mb-4 p-4 bg-green-100 text-green-700 border-b border-b-green-400 rounded-lg">
             {{ session('success') }}
         </div>
         <script>
@@ -27,49 +27,48 @@
     @endif
 
     <div class="mb-4">
-        <input type="text" id="search" placeholder="Search brands..." class="w-full border border-gray-300 rounded-lg p-2">
+        <input type="text" id="search" placeholder="Search brands..." class="w-full border rounded-lg p-2 border-gray">
     </div>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-300 rounded-lg ">
+        <table class="min-w-full bg-white border-b-b rounded-lg ">
             <thead class="bg-gray-100">
                     <tr class="bg-gray-100">
-                    <!-- <th class="px-2 py-1 border">Image</th> -->
-                    <th class="px-2 py-1 border">Image</th>
-                    <th class="px-2 py-1 border">Brand Name</th>
-                    <th class="px-2 py-1 border">Category</th>
-                    <th class="px-2 py-1 border">Status</th>
-                    <!-- <th class="px-2 py-1 border">Action</th>  -->
+                    <!-- <th class="px-2 py-1 border-b">Image</th> -->
+                    <th class="px-2 py-1 border-b"></th>
+                    <th class="px-2 py-1 border-b">Brand Name</th>
+                    <th class="px-2 py-1 border-b">Category</th>
+                    <th class="px-2 py-1 border-b">Status</th>
+                    <th class="px-2 py-1 border-b">Action</th> 
                 </tr>
             </thead>
             <tbody id="brandTableBody">
                 @forelse($brands as $index => $brand)
-                <tr class="text-center border brand-row">
-                    <!-- <td class="px-2 py-1 border">0000{{ $brand->brand_id }}</td> -->
-                    <td class="px-2 py-1 border text-center">
+                <tr class="text-center border-b brand-row">
+                    <!-- <td class="px-2 py-1 border-b">0000{{ $brand->brand_id }}</td> -->
+                    <td class="px-2 py-1 border-b text-center">
                         @if($brand->brand_image)
                             <img src="{{ asset('product-images/' . $brand->brand_image) }}" alt="Brand Image" class="w-16 h-16 rounded mx-auto">
                         @else
                             No Image
                         @endif
                     </td>
-                    <td class="px-2 py-1 border brand-name">{{ $brand->brand_name }}</td>
-                    <td class="px-2 py-1 border category-name">
+                    <td class="px-2 py-1 border-b brand-name">{{ $brand->brand_name }}</td>
+                    <td class="px-2 py-1 border-b category-name">
                         {{ $brand->category ? $brand->category->category_name : 'N/A' }}
                     </td>         
-                    <td class="px-2 py-1 border">
+                    <td class="px-2 py-1 border-b">
                         <span class="px-2 py-1 rounded-lg text-white {{ strtolower($brand->status) === 'active' ? 'bg-green-600' : 'bg-red-600' }}">
                             {{ $brand->status }}
                         </span>
                     </td>
-                    <!-- <td class="px-2 py-1 border">
+                    <td class="px-2 py-1 border-b">
                         <div class="flex justify-center space-x-2">
-                            < Edit Button 
                             <a href="{{ route('stockclerk.edit.brand', ['brand_id' => $brand->brand_id]) }}" 
                             class="text-blue-600 hover:text-blue-800">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <Delete Button 
+                            <Delete Button>
                             <form action="{{ route('stockclerk.delete.brand', ['brand_id' => $brand->brand_id]) }}" method="POST" class="inline delete-brand-form">
                                 @csrf
                                 @method('DELETE')
@@ -78,7 +77,7 @@
                                 </button>
                             </form>
                         </div>
-                    </td> -->
+                    </td>
                 </tr>
                 @empty
                 <tr>

@@ -5,7 +5,7 @@
     <i class="fa-solid fa-arrow-left"></i> 
 </button>
 
-<div class="container mx-auto p-6 bg-white rounded-xl " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+<div class="container mx-auto p-6 bg-white  " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
     <div class="mb-4">
         

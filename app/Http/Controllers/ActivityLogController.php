@@ -118,7 +118,7 @@ class ActivityLogController extends Controller
         });
 
         // Paginate the collection
-        $perPage = 5; // Items per page
+        $perPage = 10; // Items per page
         $currentPage = LengthAwarePaginator::resolveCurrentPage(); // Get current page
         $items = $salesDataQuery->forPage($currentPage, $perPage); // Slice the collection for the current page
 

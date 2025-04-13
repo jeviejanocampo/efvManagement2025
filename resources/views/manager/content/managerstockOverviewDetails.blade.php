@@ -7,11 +7,13 @@
     }
 </style>
 
-<div class="p-4 rounded-xl">
+<div class="p-4 ">
+
     <a href="{{ url('manager/overview') }}" 
-        class="bg-gray-800 text-white px-5 py-1 rounded-full hover:bg-white-200 mb-5 custom-arrow">
-        Back
+    class="bg-gray-800 text-white px-3 py-1 rounded-full hover:bg-gray-700 mb-5 custom-arrow">
+        <i class="fas fa-arrow-left"></i>
     </a>
+
 
     <div style="margin-top: 12px">
         @if($order->status === 'Cancelled')
