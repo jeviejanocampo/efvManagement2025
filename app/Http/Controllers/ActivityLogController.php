@@ -17,7 +17,7 @@ class ActivityLogController extends Controller
     public function index()
     {
         // Fetch activity logs with pagination (20 per page)
-        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->paginate(11);
+        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->paginate(30);
 
         return view('staff.content.activityLogs', compact('activityLogs'));
     }
@@ -82,11 +82,12 @@ class ActivityLogController extends Controller
 
     public function AdminStockindex()
     {
-        // Fetch all activity logs in descending order by created_at
-        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->get(); 
-
+        // Fetch activity logs with pagination (16 per page)
+        $activityLogs = ActivityLog::orderBy('created_at', 'desc')->paginate(16); 
+    
         return view('admin.content.AdminStockLogs', compact('activityLogs'));
     }
+    
 
     public function UserManagement()
     {

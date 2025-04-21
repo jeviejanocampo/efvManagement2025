@@ -106,7 +106,7 @@ class StaffController extends Controller
             if ($user->role === 'staff') {
                 Auth::login($user);
                 session(['user_id' => $user->id]);
-                return redirect()->route('staffQueue')->with('success', 'Successfully logged in!');
+                return redirect()->route('overView')->with('success', 'Successfully logged in!');
             } else {
                 // Log failed login due to role mismatch
                 ActivityLog::create([

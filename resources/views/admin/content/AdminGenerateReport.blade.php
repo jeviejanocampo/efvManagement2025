@@ -131,7 +131,7 @@
             </button>
         </div>
         <table class="w-full border-collapse border border-gray-300 text-left">
-            <thead>
+            <thead class="bg-gray-100">
                 <tr>
                     <th class="border border-gray-300 px-4 py-2">REFERENCE ID</th>
                     <th class="border border-gray-300 px-4 py-2">PRODUCT NAME</th>

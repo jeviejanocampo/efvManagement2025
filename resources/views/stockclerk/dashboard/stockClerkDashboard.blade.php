@@ -40,8 +40,8 @@
             </div>
             
             <!-- Navigation -->
-            <nav class="space-y-6">
-                <p class="text-white text-1xl font-bold">MAIN</p>
+            <nav class="space-y-4">
+                <p class="text-white text-1xl font-bold">Main</p>
 
                 <a href="{{ route('stockclerk.dashboard.page') }}" class="flex items-center text-white hover:text-white gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
@@ -80,7 +80,7 @@
                         <span class="bg-gray-600 p-2 rounded-lg">
                             <i class="fas fa-eye"></i>
                         </span>
-                             VIEW
+                             View
                         </div>
                             <i id="products-arrow" class="fas fa-chevron-down transition-transform duration-300"></i>
                     </button>
@@ -125,7 +125,7 @@
                     <i class="fas fa-list-ul mr-3"></i> Orders Queue
                 </a> -->
 
-                <p class="text-white text-1xl font-bold">ACTIVITY</p>
+                <p class="text-white text-1xl font-bold">Activity</p>
                 <a href="{{ route('Stocklogs') }}" class="flex items-center text-white hover:text-white gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fas fa-book"></i>

@@ -100,7 +100,7 @@ Route::post('/logout', function (Request $request) {
     $request->session()->regenerateToken(); 
 
     return redirect()->route('staff.login')->with('success', 'Logged out successfully!');
-})->name('logout');
+})->name('staff.logout');
 
 
 Route::post('/manager-logout', function (Request $request) {
@@ -162,6 +162,10 @@ Route::post('/generate-qr', [QRCodeController::class, 'generate'])->name('genera
 Route::middleware(['admin'])->group(function () {
 
 });
+
+Route::get('/admin/main/dashboard', function () {
+    return view('admin.content.adminDashboardPage');
+})->name('admin.dashboard.page');
 
 
 Route::get('/admin/signup', [StaffController::class, 'AdminshowSignupForm'])->name('admin.signup.form');
