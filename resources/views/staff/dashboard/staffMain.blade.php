@@ -31,24 +31,24 @@
             </div>
 
     
-        <nav class="space-y-4">
+        <nav class="space-y-5">
             <p class="text-white text-1xl font-bold">Main</p>
             <a href="{{ route('staff.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-bars text-gray-200"></i>
                 </span>
-                Dashboard
+                <span class="text-sm"> Dashboard </span>
             </a>
             <a href="{{ route('overView') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-box text-gray-200"></i>
                 </span>
-                 Order Overview
+                <span class="text-sm"> Order Overview
                 @if(session('pendingCount') && session('pendingCount') > 0)
                     <span class="ml-1 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                         {{ session('pendingCount') }}
                     </span>
-                @endif
+                @endif </span>
             </a>
 
             <!-- <p class="text-white text-1xl font-bold">Queue</p> -->
@@ -56,7 +56,7 @@
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-list-check text-gray-200"></i>
                 </span>
-                Orders Queue
+                <span class="text-sm"> Orders Queue </span>
             </a>
 
             <p class="text-white text-1xl font-bold pt-3">Replacement/Refund</p>
@@ -64,7 +64,7 @@
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-clipboard text-gray-200"></i>
                 </span>
-                Order Details
+                <span class="text-sm"> Order Details
                 <!-- Badge for Pending Refund Requests -->
                 @if(session('pendingRefundCount') && session('pendingRefundCount') > 0)
                     <span class="ml-1 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
@@ -74,7 +74,7 @@
                     <span class="ml-1 bg-gray-400 text-white text-xs font-semibold px-2 py-1 rounded-full">
                         0
                     </span>
-                @endif
+                @endif </span>
             </a>
 
 
@@ -82,7 +82,7 @@
                     <span class="bg-gray-600 p-2 rounded-lg">
                         <i class="fa-solid fa-copy text-gray-200"></i>
                     </span>
-                    Replacement Report
+                    <span class="text-sm"> Replacement Report </span>
             </a>
 
             
@@ -91,14 +91,14 @@
                     <span class="bg-gray-600 p-2 rounded-lg">
                         <i class="fa-solid fa-clipboard-list text-gray-200"></i>
                     </span>
-                    Staff Activity Log
+                    <span class="text-sm"> Staff Activity Log </span>
                 </a>
                 
                 <a href="{{ route('staff.refund.log') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
                     <span class="bg-gray-600 p-2 rounded-lg">
                         <i class="fa-solid fa-book text-gray-200"></i>
                     </span>
-                    Refund Activity Log
+                    <span class="text-sm">  Refund Activity Log </span>
                 </a>
 
         </nav>
@@ -144,7 +144,7 @@
 
                     <!-- Dropdown -->
                     <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg hidden opacity-0 transform scale-95 transition-all duration-200">
-                        <form action="{{ route('logout') }}" method="POST">
+                        <form action="{{ route('staff.logout') }}" method="POST">
                             @csrf
                             <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-gray-200">
                                 Logout

@@ -119,19 +119,19 @@
 
             <a href="{{ route('manager.exportSalesReport', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}"
             class="bg-green-600 text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-6">
-             <p style="font-size: 14px; padding: 4px"> Export to Excel</p>
+             <p style="font-size: 14px; padding: 1px"> Export to Excel</p>
             </a>
         </form>
 
 
 
             <button onclick="printReport()" 
-                class="bg-green-600 text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-2">
+                class="bg-black text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-2">
                <p style="font-size: 14px; padding: 4px"> Print Report</p>
             </button>
         </div>
         <table class="w-full border-collapse border-b text-left">
-            <thead>
+            <thead class="bg-gray-50">
                 <tr>
                     <th class="border-b px-4 py-2">REFERENCE ID</th>
                     <th class="border-b px-4 py-2">PRODUCT NAME</th>

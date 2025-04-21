@@ -31,7 +31,7 @@
 
 
             <!-- Navigation -->
-            <nav class="space-y-7">
+            <nav class="space-y-6">
                 <p class="text-white text-sm font-bold">Main</p>
 
                 <a href="{{ route('manager.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-2">
@@ -109,13 +109,13 @@
                 <p class="text-white text-sm font-bold">Reports and Analytics</p>
                 <a href="{{ route('manager.salesreport') }}" class="flex items-center text-white hover:text-white ml-2">
                     <i class="fas fa-chart-line mr-3"></i>
-                    <span class="text-sm"> SALES </span>
+                    <span class="text-sm"> Sales </span>
                 </a>
 
-                <p class="text-white text-sm font-bold">Activity Log</p>
+                <p class="text-white text-sm font-bold">Activity</p>
                 <a href="{{ route('manager.Stocklogs') }}" class="flex items-center text-white hover:text-white ml-2">
                     <i class="fas fa-clipboard-list mr-3"></i>
-                    <span class="text-sm">  LOGS </span>
+                    <span class="text-sm"> Activity Log </span>
                 </a>
             </nav>
         </div>

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Main</title>
-    <!-- Import Poppins Font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -18,81 +18,35 @@
     <div class="flex h-screen">
         
         <!-- Sidebar -->
-        <div id="sidebar" class="bg-gray-900 text-white w-64 space-y-6 py-7 px-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40">
-        <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
-            <div class="text-2xl font-bold">
-                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-25 h-25">
-                <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Admin Panel</a></p>
+        <div id="sidebar" class="bg-gray-900 text-white w-64 space-y-6 py-7 px-4 transform -translate-x-full md:translate-x-0 
+        transition-transform duration-300 fixed top-0 bottom-0 z-40">
+        
+            <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
+
+            <div class="flex justify-center items-center text-2xl font-bold">
+            <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" style="width: 128px;" class="ml-2 rounded-full">
+                <!-- <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Admin Panel</a></p> -->
             </div>
             <!-- Navigation -->
-            <nav class="space-y-4">
-                <!-- <a href="{{ route('ManagerstockoverView') }}" class="flex items-center text-gray-300 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
-                    </svg>
-                    Reserve and Pre-Orders
-                    @if(session('pendingCount') && session('pendingCount') > 0)
-                            <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                                {{ session('pendingCount') }}
-                            </span>
-                        @endif
-                </a>
-                <a href="{{ route('ManagerproductsView') }}" class="flex items-center text-gray-300 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
-                    </svg>
-                    Products
-                </a>
-                <a href="{{ route('managerLow') }}" class="flex items-center text-gray-300 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
-                    </svg>
-                    Low Units
-                    @if($lowStockCount > 0)
-                        <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                            {{ $lowStockCount }}
-                        </span>
-                    @endif
-                </a> -->
+            <nav class="space-y-6">
+                <p class="text-white text-sm font-bold">Admin</p>
 
-
-                <!-- <a href="{{ route('staffQueue') }}" class="flex items-center text-gray-300 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21h6M4 14h16" />
-                    </svg>
-                    Orders Queue
-                </a> -->
-
-                <p class="text-white text-1xl font-bold">Main</p>
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center text-gray-300 hover:text-white ml-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h7M7 16h6M5 20h10" />
-                    </svg>
-                    Dashboard
+                <a href="{{ route('admin.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-2">
+                    <i class="fas fa-dashboard mr-3"></i>
+                   <span class="text-sm"> Dashboard </span>
                 </a>
 
-                <p class="text-white text-1xl font-bold">User Management</p>
-                <a href="{{ route('admin.user.management') }}" class="flex items-center text-gray-300 hover:text-white ml-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h7M7 16h6M5 20h10" />
-                    </svg>
-                    Users
-                </a>
-                
-                <p class="text-white text-1xl font-bold">Main</p>
-                <a href="{{ route('admin.salesreport') }}" class="flex items-center text-gray-300 hover:text-white ml-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h7M7 16h6M5 20h10" />
-                    </svg>
-                    Sales Overview
+            
+                <p class="text-white text-sm font-bold">Reports and Analytics</p>
+                <a href="#" class="flex items-center text-white hover:text-white ml-2">
+                    <i class="fas fa-chart-line mr-3"></i>
+                    <span class="text-sm"> Sales </span>
                 </a>
 
-                <p class="text-white text-1xl font-bold">Logs</p>
-                <a href="{{ route('admin.Stocklogs') }}" class="flex items-center text-gray-300 hover:text-white ml-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16" />
-                    </svg>
-                    Overall Activity Log
+                <p class="text-white text-sm font-bold">Activity</p>
+                <a href="{{ route('admin.Stocklogs') }}" class="flex items-center text-white hover:text-white ml-2">
+                    <i class="fas fa-clipboard-list mr-3"></i>
+                    <span class="text-sm"> Activity Log </span>
                 </a>
             </nav>
         </div>
@@ -140,25 +94,25 @@
             </header>
 
             <!-- Dynamic Content -->
-            <main class="p-12 sm: pt-7">
+            <main class="p-4 sm: pt-7">
                 @yield('content')
             </main>
         </div>
     </div>
 
-<script>
+    <script>
     document.addEventListener("DOMContentLoaded", function () {
         const navLinks = document.querySelectorAll("#sidebar nav a");
 
         // Function to update active link state
         function setActiveLink(clickedLink) {
             navLinks.forEach(link => {
-                link.classList.remove("text-white", "scale-105", "font-bold");
-                link.classList.add("text-gray-300");
+                link.classList.remove("text-white", "bg-gray-100", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+                link.classList.add("text-white", "hover:text-white"); // Add hover effect back to non-active links
             });
 
-            clickedLink.classList.add("text-white", "scale-105", "font-bold");
-            clickedLink.classList.remove("text-gray-300");
+            clickedLink.classList.add("text-black", "bg-gray-100", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+            clickedLink.classList.remove("text-white", "hover:text-white"); // Remove hover effect from active link
 
             // Store the active link in localStorage to persist highlight
             localStorage.setItem("activeNav", clickedLink.getAttribute("href"));
