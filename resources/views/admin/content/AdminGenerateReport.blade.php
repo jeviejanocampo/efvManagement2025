@@ -117,7 +117,7 @@
                 </button>
             </div>
 
-            <a href="{{ route('manager.exportSalesReport', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}"
+            <a href="{{ route('admin.exportSalesReport', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}"
             class="bg-green-600 text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-6">
              <p style="font-size: 14px; padding: 4px"> Export to Excel</p>
             </a>

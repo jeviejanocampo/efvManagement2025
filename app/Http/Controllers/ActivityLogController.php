@@ -437,6 +437,17 @@ class ActivityLogController extends Controller
         );
     }
 
+    public function AdminexportSalesReport(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        return Excel::download(
+            new SalesReportExport($startDate, $endDate), 
+            'sales_report.xlsx'
+        );
+    }
+
     
 
 }

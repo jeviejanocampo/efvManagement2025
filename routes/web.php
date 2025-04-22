@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\RefundOrderController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Product;
@@ -31,7 +32,7 @@ Route::get('/staff/login', function () {
 
 Route::get('/admin/login', function () {
     return view('admin.adminLogin');
-});
+})->name('admin.login.view');
 
 
 //Staff
@@ -102,6 +103,14 @@ Route::post('/logout', function (Request $request) {
     return redirect()->route('staff.login')->with('success', 'Logged out successfully!');
 })->name('staff.logout');
 
+Route::post('/admin-logout', function (Request $request) {
+    Auth::logout();
+    $request->session()->invalidate(); 
+    $request->session()->regenerateToken(); 
+
+    return redirect()->route('admin.login.view')->with('success', 'Logged out successfully!');
+})->name('admin.logout');
+
 
 Route::post('/manager-logout', function (Request $request) {
     Auth::logout();
@@ -161,12 +170,31 @@ Route::post('/generate-qr', [QRCodeController::class, 'generate'])->name('genera
 //Admin
 Route::middleware(['admin'])->group(function () {
 
+    
+    Route::get('/admin-salesreport', [AdminController::class, 'AdminSalesReportIndex'])->name('admin.salesreport');
+
+    Route::get('/admin/export-sales-report', [ActivityLogController::class, 'AdminexportSalesReport'])->name('admin.exportSalesReport');
+
+    Route::get('/admin/users', [AdminController::class, 'adminUsers'])->name('admin.users');
+
+    Route::get('/admin/main/dashboard', function () {
+        return view('admin.content.adminDashboardPage');
+    })->name('admin.dashboard.page');
+
+    Route::get('/admin/users/edit/{id}', [AdminController::class, 'adminEditUser'])->name('admin.users.edit');
+
+    Route::get('/admin/users/create', [AdminController::class, 'createUser'])->name('admin.users.create');
+
+    Route::get('/admin-view', [ProductController::class, 'Adminindex'])->name('adminproductsView');
+
+    Route::get('/admin/generate-report', [ActivityLogController::class, 'AdminGenerateIndex'])->name('admin.generateReport');
+
 });
 
-Route::get('/admin/main/dashboard', function () {
-    return view('admin.content.adminDashboardPage');
-})->name('admin.dashboard.page');
 
+Route::put('/admin/users/update/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
+
+Route::post('/admin/add-users', [AdminController::class, 'storeUser'])->name('admin.users.store.user');
 
 Route::get('/admin/signup', [StaffController::class, 'AdminshowSignupForm'])->name('admin.signup.form');
 
@@ -174,7 +202,6 @@ Route::post('/admin/signup', [StaffController::class, 'AdminSignup'])->name('adm
 
 Route::post('/admin/login', [StaffController::class, 'AdminLogin'])->name('admin.login.submit');
 
-Route::get('/admin/generate-report', [ActivityLogController::class, 'AdminGenerateIndex'])->name('admin.generateReport');
 
 Route::post('/orders/update-status/{order_id}', [OrderController::class, 'updateStatus']);
 
@@ -202,8 +229,6 @@ Route::post('/users/update-status/{id}', [ActivityLogController::class, 'updateU
 Route::post('/scanner-login', [StaffController::class, 'Scannerlogin']);
 
 Route::post('/scan-qr', [StaffController::class, 'updateScanStatus']);
-
-Route::get('/admin-view', [ProductController::class, 'Adminindex'])->name('adminproductsView');
 
 Route::get('/add-details-product/{model_id}', [ProductController::class, 'addDetails'])->name('addDetails');
 

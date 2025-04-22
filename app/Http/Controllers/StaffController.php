@@ -217,7 +217,7 @@ class StaffController extends Controller
                 session(['user_id' => $user->id]);
 
                 // Redirect to dashboard with success message
-                return redirect()->route('adminproductsView')->with('success', 'Successfully logged in!');
+                return redirect()->route('admin.salesreport')->with('success', 'Successfully logged in!');
             } else {
                 // Role mismatch error
                 return back()->with('error', 'Access denied! Only Stock clerks can log in.');

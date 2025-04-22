@@ -1,18 +1,20 @@
 @extends('admin.dashboard.adminDashboard')
 
 @section('content')
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <div class="bg-white p-6 rounded-md mb-6" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+    <div class="bg-white p-6  mb-6" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
         <div class="flex items-center justify-between mb-6">
             <!-- Sales Overview Title -->
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Sales Overview</h1>
+
             
             <!-- Generate Report Button -->
             <a href="{{ route('admin.generateReport') }}" 
-            class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition duration-300">
-                Generate Report
+            class="bg-blue-800 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition duration-300">
+                + Generate Sales Report
             </a>
 
         </div>
@@ -63,10 +65,10 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 pt-8" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
         <div class="space-y-4">
-        <div class="bg-white p-4 rounded-md  flex items-center relative">
+        <div class="bg-white p-4 flex items-center relative">
             <h1 class="absolute top-2 left-4 text-xl font-bold z-10 px-2">Total Orders</h1>
             <br>
             <div class="w-2/3 h-64">
@@ -84,7 +86,7 @@
         </div>
 
 
-        <div class="bg-white p-4 rounded-md  flex items-center relative">
+        <div class="bg-white p-4 flex items-center relative">
             <h1 class="absolute top-2 left-2 text-xl font-bold z-10 px-2">Total Sales</h1>
             <br>
             <div class="w-2/3 h-64">
@@ -175,39 +177,74 @@
                 datasets: [{
                     label: 'Daily Sales (₱)',
                     data: dailySalesData,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    pointRadius: 5, // Increase point size for better hover
-                    pointHoverRadius: 7 // Increase hover size for better visibility
+                    borderColor: '#6366f1', // soft indigo
+                    backgroundColor: 'transparent', // no fill
+                    borderWidth: 1.5, // thinner line
+                    tension: 0.3, // slight curve
+                    pointRadius: 2, // minimal points
+                    pointHoverRadius: 5
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { title: { display: true, text: 'Date' } },
-                    y: { title: { display: true, text: 'Sales (₱)' }, beginAtZero: true }
+                    x: {
+                        title: { display: false },
+                        grid: {
+                            display: false // removes vertical grid lines
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    y: {
+                        title: { display: false },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)' // very light grid
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            },
+                            callback: function(value) {
+                                return `₱${value.toLocaleString()}`;
+                            }
+                        },
+                        beginAtZero: true
+                    }
                 },
                 plugins: {
-                    legend: { display: true, position: 'top' },
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: {
+                                size: 12
+                            },
+                            boxWidth: 12,
+                            color: '#4B5563'
+                        },
+                        position: 'top'
+                    },
                     tooltip: {
-                        enabled: true, // Ensure tooltips are enabled
-                        mode: 'index', // Show tooltip for all datasets at the same index
-                        intersect: false, // Show tooltip even if not directly over a point
+                        enabled: true,
+                        mode: 'index',
+                        intersect: false,
                         callbacks: {
                             label: function (tooltipItem) {
-                                return `₱ ${tooltipItem.raw.toLocaleString()}`; // Format sales as currency
+                                return `₱ ${tooltipItem.raw.toLocaleString()}`;
                             }
                         }
                     }
                 },
                 hover: {
-                    mode: 'nearest', // Ensure hover is responsive
-                    intersect: true
+                    mode: 'nearest',
+                    intersect: false
                 }
             }
+
         });
 
         // Event Listener for Dropdown
@@ -233,6 +270,7 @@
     const salesMonths = @json($months->keys()); // Fetch labels (months)
     const salesData = @json($months->values()); // Fetch data (sales)
 </script>
+
 <script src="{{ asset('js/sales-report.js') }}"></script>
 
 @endsection
