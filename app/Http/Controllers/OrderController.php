@@ -895,30 +895,30 @@ class OrderController extends Controller
             'status' => 'required|in:pending,Ready to Pickup,In Process,Completed,Cancelled',
             'reference_id' => 'nullable|string|max:255'
         ]);
-    
+
         $order = Order::find($order_id);
-    
+
         if (!$order) {
             return response()->json([
                 'success' => false,
                 'message' => 'Order not found.',
             ], 404);
         }
-    
+
         $newStatus = $request->input('status');
         $oldStatus = $order->status;
-    
+
         DB::transaction(function () use (&$order, $order_id, $newStatus, $oldStatus, $request) {
             $order->status = $newStatus;
-    
+
             // Get order details
             $orderDetails = OrderDetail::where('order_id', $order_id)->get();
-    
+
             // Reverse stock if changing from Completed to another status
             if ($oldStatus === 'Completed' && $newStatus !== 'Completed') {
                 foreach ($orderDetails as $detail) {
                     $quantity = $detail->quantity;
-    
+
                     if (!is_null($detail->variant_id) && $detail->variant_id != 0) {
                         DB::table('variants')
                             ->where('variant_id', $detail->variant_id)
@@ -929,32 +929,21 @@ class OrderController extends Controller
                             ->increment('stocks_quantity', $quantity);
                     }
                 }
-    
+
                 // Also revert product_status
                 OrderDetail::where('order_id', $order_id)->update(['product_status' => 'Pending']);
                 $order->scan_status = 'Pending';
             }
-    
-            // Deduct stock if changing TO Completed
+
+            // Update product_status to Completed if applicable, skip refunded items
             if ($newStatus === 'Completed' && $oldStatus !== 'Completed') {
-                foreach ($orderDetails as $detail) {
-                    $quantity = $detail->quantity;
-    
-                    if (!is_null($detail->variant_id) && $detail->variant_id != 0) {
-                        DB::table('variants')
-                            ->where('variant_id', $detail->variant_id)
-                            ->decrement('stocks_quantity', $quantity);
-                    } else {
-                        DB::table('products')
-                            ->where('model_id', $detail->model_id)
-                            ->decrement('stocks_quantity', $quantity);
-                    }
-                }
-    
-                OrderDetail::where('order_id', $order_id)->update(['product_status' => 'Completed']);
+                OrderDetail::where('order_id', $order_id)
+                    ->whereNotIn('product_status', ['refunded', 'Refunded', 'to be refunded'])
+                    ->update(['product_status' => 'Completed']);
+
                 $order->scan_status = 'Completed';
             }
-    
+
             // Handle reference if status is In Process
             if ($newStatus === 'In Process') {
                 $referenceId = $request->input('reference_id');
@@ -965,24 +954,25 @@ class OrderController extends Controller
                     ]);
                 }
             }
-    
+
             $order->save();
         });
-    
+
         $user = Auth::user();
         $role = $user->role;
-    
+
         ActivityLog::create([
             'user_id' => Auth::id(),
             'role' => $role,
             'activity' => "Updated order #$order_id status from {$oldStatus} to {$newStatus}",
         ]);
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Order status updated successfully.',
         ]);
-    }   
+    }
+  
  
     public function updateProductStatus(Request $request, $orderDetailId)
     {
@@ -994,7 +984,7 @@ class OrderController extends Controller
         }
 
         // Validate the status update
-        $validStatuses = ['pending', 'Ready to Pickup', 'In Process', 'Completed', 'Cancelled'];
+        $validStatuses = ['pending', 'Ready to Pickup', 'In Process', 'Completed', 'Cancelled', 'refunded'];
         if (!in_array($request->status, $validStatuses)) {
             return response()->json(['message' => 'Invalid status.'], 400);
         }
@@ -1006,8 +996,8 @@ class OrderController extends Controller
             return response()->json(['message' => 'Order not found.'], 404);
         }
 
-        // If status is "Cancelled", subtract the total_price of the product from the order total
-        if ($request->status === 'Cancelled') {
+        // If status is "Cancelled" or "refunded", subtract the total_price of the product from the order total
+        if (in_array($request->status, ['Cancelled', 'refunded'])) {
             $order->total_price -= $orderDetail->total_price;
             $order->save();
         }
@@ -1015,7 +1005,24 @@ class OrderController extends Controller
         // If status is "Completed", add the total_price of the product to the order total
         if ($request->status === 'Completed') {
             $order->total_price += $orderDetail->total_price;
-            $order->save(); // <-- Fixed! Ensure the new total price is saved
+            $order->save();
+        }
+
+        // If refunded, restore stock
+        if ($request->status === 'refunded') {
+            $quantity = $orderDetail->quantity;
+
+            if (!is_null($orderDetail->variant_id) && $orderDetail->variant_id != 0) {
+                // Restore stock to variant
+                DB::table('variants')
+                    ->where('variant_id', $orderDetail->variant_id)
+                    ->increment('stocks_quantity', $quantity);
+            } else {
+                // Restore stock to product
+                DB::table('products')
+                    ->where('model_id', $orderDetail->model_id)
+                    ->increment('stocks_quantity', $quantity);
+            }
         }
 
         // Update the product status

@@ -147,20 +147,21 @@
                 @foreach ($orderDetails as $detail)
                     <tr class="border border-white  ">
                     <td class=" px-5 py-1">
-                        <!-- Add badge based on product status -->
-                        @if($order->status !== 'Completed' && $order->status !== 'Cancelled')
                             @if($detail->product_status === 'pending')
                                 <span class="bg-red-500 text-white px-5 py-1 rounded-full text-sm">Reserved</span>
                             @elseif($detail->product_status === 'pre-order')
                                 <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Pre Ordered</span>
+                            @elseif($detail->product_status === 'to be refunded')
+                                <span class="bg-violet-800 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">To be removed</span>
+                            @elseif($detail->product_status === 'refunded')
+                                <span class="bg-violet-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Refunded</span>
                             @elseif($detail->product_status === 'Ready to Pickup')
                                 <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Ready to Pickup (Not yet paid)</span>
-                            @elseif($detail->product_status === 'Cancelled')
-                                <span class="bg-gray-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Cancelled</span>
+                            @elseif($detail->product_status === 'Completed')
+                                <span class="bg-green-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Purchased</span>
                             @else
                                 <span class="bg-black text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Unknown</span>
                             @endif
-                        @endif
                         <span style="display: none">{{ $detail->order_detail_id }}</span>
                     </td>
                     <td class=" px-5 py-1">
@@ -178,13 +179,14 @@
                     <td class="px-5 py-1">₱{{ number_format($detail->total_price, 2) }}</td>
                     <td class=" px-5 py-1">
                         <!-- Conditional for Edit Status Dropdown -->
-                        @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending')
+                        @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending' && $detail->product_status !== 'refunded')
                         <div class="mt-2">
                                 <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
                                     <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="In Process" {{ $detail->product_status === 'In Process' ? 'selected' : '' }}>In Process</option>
                                     <option value="pending" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
                                     <option value="Completed" {{ $detail->product_status === 'Completed' ? 'selected' : '' }}>Completed</option>
+                                    <option value="refunded" {{ $detail->product_status === 'refunded' ? 'selected' : '' }}>Confirmed Removed</option>
                                 </select>
                             </div>
                         @else
@@ -199,7 +201,9 @@
 
     <div class="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
         @if($order->status === 'Completed')
-            <p></p>
+            <p style="font-size: 28px; font-weight: bold; text-align: right;">
+            Amount Total: ₱ {{ number_format ( $order->total_price, 2 ) }}
+            </p>
         @elseif($order->status === 'Cancelled')
             <p></p>
         @else

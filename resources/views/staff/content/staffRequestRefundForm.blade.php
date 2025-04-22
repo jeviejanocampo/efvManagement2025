@@ -219,6 +219,7 @@
                                             onchange="confirmRefund(this, '{{ $detail->model_id }}', '{{ $itemTotal }}')">
                                         <option value="pending" {{ $detail->product_status == 'pending' ? 'selected' : '' }}>Undo Refunded</option>
                                         <option value="refunded" {{ $detail->product_status == 'refunded' ? 'selected' : '' }}>Refunded</option>
+                                        <option value="refunded" {{ $detail->product_status == 'refunded' ? 'selected' : '' }}>Confirm Item Refunded</option>
                                     </select>
 
                                 </td>

@@ -193,7 +193,7 @@
                         <td class="p-2">{{ $detail->brand_name }}</td>
                         <td class="p-2">{{ $detail->quantity }}</td>
                         <td class="p-2">₱ {{ number_format($detail->price, 2) }}</td>
-                        <td class="p-2">₱ {{ number_format($detail->total_price, 2) }}</td>
+                        <td class="p-2">₱ {{ number_format($detail->quantity * $detail->price, 2) }}</td>
                         <td class="p-2 
                             @if($detail->product_status === 'Completed') bg-green-600 text-white 
                             @elseif($detail->product_status === 'refunded') bg-red-600 text-white 
@@ -246,10 +246,21 @@
                     <span class="text-gray-700">₱ {{ number_format($refund->amount_added, 2) }}</span>
                 </div>
 
-                @php
+                <!-- @php
                     $refundedTotal = $orderDetails->where('product_status', 'refunded')->sum('total_price');
                     $completedTotal = $orderDetails->where('product_status', 'Completed')->sum('total_price');
+                @endphp -->
+
+                @php
+                    $refundedTotal = $orderDetails->where('product_status', 'refunded')->sum(function ($detail) {
+                        return $detail->quantity * $detail->price;
+                    });
+
+                    $completedTotal = $orderDetails->where('product_status', 'Completed')->sum(function ($detail) {
+                        return $detail->quantity * $detail->price;
+                    });
                 @endphp
+
 
 
                 <div class="flex justify-between">
