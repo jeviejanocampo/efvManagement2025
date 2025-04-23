@@ -45,7 +45,7 @@
         <table class="min-w-full text-left text-sm" id="refundTable">
             <thead class="bg-gray-100 text-gray-700 text-sm leading-normal">
                 <tr>
-                    <th class="py-3 px-4">Reference</th>
+                    <th class="py-3 px-4">Reference ID  </th>
                     <th class="py-3 px-4">User</th>
                     <th class="py-3 px-4">Created</th>
                     <th class="py-3 px-4">Status</th>

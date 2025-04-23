@@ -955,6 +955,8 @@ class OrderController extends Controller
                 }
             }
 
+            $order->updated_at = now();
+
             $order->save();
         });
 

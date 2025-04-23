@@ -92,6 +92,7 @@
             <select name="status" class="px-3 py-2 border rounded-lg w-full">
                 <option value="active" {{ $product->status == 'active' ? 'selected' : '' }}>active</option>
                 <option value="inactive" {{ $product->status == 'inactive' ? 'selected' : '' }}>inactive</option>
+                <option value="on order" {{ $product->status == 'on order' ? 'selected' : '' }}>for pre order</option>
             </select>
         </div>
 

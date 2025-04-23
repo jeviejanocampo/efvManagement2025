@@ -4,6 +4,7 @@
 <style>
     td {
      text-align: center;
+     font-size: 12px;
     }
 </style>
 
@@ -16,9 +17,9 @@
 
     <div style="margin-top: 12px">
         @if($order->status === 'Cancelled')
-         <p class="text-white bg-red-500 px-5 py-2 rounded-md text-center font-bold text-lg">CANCELLED </p>
+         <p class="text-white bg-red-500 px-5 py-2  text-center font-bold text-lg">CANCELLED </p>
          @elseif($order->status === 'Completed')
-         <p class="text-white bg-green-500 px-5 py-2 rounded-md text-center font-bold text-lg">ORDER COMPLETED </p>
+         <p class="text-white bg-green-500 px-5 py-2  text-center font-bold text-lg">ORDER COMPLETED </p>
          @else
          <p></p>
         @endif
@@ -26,14 +27,14 @@
 
 
     <!-- Order Status Dropdown -->
-    <div class="flex justify-between items-center mt-4 bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-    <h1 style="font-size: 34px; font-weight: bold">ORDER DETAILS</h1>
+    <div class="flex justify-between items-center mt-4 bg-white p-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
+    <h1 style="font-size: 24px; font-weight: bold">ORDER DETAILS</h1>
 
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
         <!-- Label and Dropdown for Edit Status for the whole order -->
         <div class="flex items-center">
-            <!-- <label for="order_status" class="mr-3 text-md">Edit Status:</label> -->
-            <select class="bg-gray-100 text-black-200 px-5 py-2 rounded-md" name="order_status" id="order_status" onchange="updateOrderStatus({{ $order->order_id }})">
+            <label for="order_status" class="mr-3 text-md">Edit Status:</label>
+            <select class="bg-gray-100 text-black-200 px-5 py-2 " name="order_status" id="order_status" onchange="updateOrderStatus({{ $order->order_id }})">
                 <option value="pending">Pending</option>
                 <option value="Ready to Pickup">Ready to Pickup</option>
                 <option value="In Process">In Process</option>
@@ -43,7 +44,7 @@
         </div>
     </div>
 
-    <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+    <div class ="bg-white p-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
         <div class="flex justify-between items-center">
             @php
                 $latestOrderDetail = $orderDetails->last();
@@ -57,14 +58,14 @@
             @endphp
 
             @if ($latestOrderDetail)
-                <p style="font-size: 28px; font-weight: 700;">
+                <p style="font-size: 18px; font-weight: 700;">
                     REFERENCE ID: {{ $formattedRefId }}-ORD000{{ $order->order_id }}
                 </p>
             @else
                 <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
             @endif
-                <p class="text-md">
-                <strong>Status: </strong>
+            <p class="text-md">
+                <!-- <strong>Status: </strong> -->
                 <span class="
                     rounded-lg 
                     @if($order->status === 'Pending')
@@ -72,7 +73,7 @@
                         text-white
                         m-1
                     @elseif($order->status === 'In Process')
-                         bg-orange-500
+                        bg-orange-500
                         text-white
                         m-1
                     @elseif($order->status === 'Ready to Pickup')
@@ -100,26 +101,26 @@
             Created At: {{ \Carbon\Carbon::parse($order->created_at)->format('F d, Y h:i A') }}
         </p>
         <div class="mt-4 space-y-4">
-            <p style="font-size: 13px">
+            <p style="font-size: 12px">
                 USER DETAILS:
                 <a href="#" 
-                class="bg-blue-700 text-white font-bold px-2 py-1 rounded-md hover:bg-blue-700 transition"
+                class="bg-blue-700 text-white font-bold px-2 py-1  hover:bg-blue-700 transition"
                 onclick="openModal({{ $order->user_id }})">
                     View Details
                 </a>
             </p>
-            <p style="font-size: 13px">TOTAL ITEMS: {{ $order->total_items }}</p> 
-            <p style="font-size: 13px">PAYMENT METHOD: {{ $order->payment_method }}</p> 
+            <p style="font-size: 12px">TOTAL ITEMS: {{ $order->total_items }}</p> 
+            <p style="font-size: 12px">PAYMENT METHOD: {{ $order->payment_method }}</p> 
         </div>
     </div>
 
     <!-- Order Details Table -->
-    <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+    <div class ="bg-white p-4  " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
         <div class="flex justify-between items-center">
             <h3 class="text-l font-semibold">Product Details</h3>
             
         <!-- One button for the entire order -->
-        <a href="{{ route('edit.product', ['order_id' => $orderDetails->first()->order_id]) }}" class="bg-blue-700 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600 transition">
+        <a href="{{ route('edit.product', ['order_id' => $orderDetails->first()->order_id]) }}" class="bg-black text-white px-2 py-2 text-sm hover:bg-blue-600 transition">
             Edit Product Details for Order #{{ $formattedRefId }}-ORD000{{ $order->order_id }}
         </a>
 
@@ -132,15 +133,15 @@
         <table class="table-auto w-full border-collapse mt-4">
             <thead>
                 <thead>
-                    <tr class="bg-gray-100">
-                        <th class="border border-gray-300 px-2 py-1">Status</th>
-                        <th class="border border-gray-300 px-2 py-1"></th>
-                        <th class="border border-gray-300 px-2 py-1">Product Name</th>
-                        <th class="border border-gray-300 px-2 py-1">Brand</th>
-                        <th class="border border-gray-300 px-2 py-1">Quantity</th>
-                        <th class="border border-gray-300 px-2 py-1">Unit Price</th>
-                        <th class="border border-gray-300 px-2 py-1">SubTotal</th>
-                        <th class="border border-gray-300 px-2 py-1">Action</th>
+                    <tr class="bg-gray-50 text-sm">
+                        <th class="border-b border-gray-300 px-2 py-1">Status</th>
+                        <th class="border-b border-gray-300 px-2 py-1"></th>
+                        <th class="border-b border-gray-300 px-2 py-1">Product Name</th>
+                        <th class="border-b border-gray-300 px-2 py-1">Brand</th>
+                        <th class="border-b border-gray-300 px-2 py-1">Quantity</th>
+                        <th class="border-b border-gray-300 px-2 py-1">Unit Price</th>
+                        <th class="border-b border-gray-300 px-2 py-1">SubTotal</th>
+                        <th class="border-b border-gray-300 px-2 py-1">Action</th>
                     </tr>
             </thead>
             <tbody>
@@ -181,7 +182,7 @@
                         <!-- Conditional for Edit Status Dropdown -->
                         @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending' && $detail->product_status !== 'refunded')
                         <div class="mt-2">
-                                <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
+                                <select class="bg-gray-100 text-gray-700 px-5 py-2  text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
                                     <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="In Process" {{ $detail->product_status === 'In Process' ? 'selected' : '' }}>In Process</option>
                                     <option value="pending" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
@@ -199,7 +200,7 @@
         </table>
     </div>
 
-    <div class="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+    <div class="bg-white p-4" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
         @if($order->status === 'Completed')
             <p style="font-size: 28px; font-weight: bold; text-align: right;">
             Amount Total: ₱ {{ number_format ( $order->total_price, 2 ) }}
@@ -219,7 +220,7 @@
         <div class="bg-white p-6 rounded-lg w-1/3">
             <h2 class="text-xl font-semibold mb-4">User Details</h2>
             <div id="userDetailsContent"></div>
-            <button onclick="closeModal()" class="mt-4 bg-gray-800 text-white px-5 py-2 rounded-md">Close</button>
+            <button onclick="closeModal()" class="mt-4 bg-gray-800 text-white px-5 py-2 ">Close</button>
         </div>
     </div>
 

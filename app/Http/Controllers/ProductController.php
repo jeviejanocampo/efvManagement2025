@@ -123,13 +123,15 @@ class ProductController extends Controller
     
     public function Managerindex()
     {
-        $products = Models::with(['brand.category'])->paginate(8); 
+        $products = Models::with(['brand.category'])
+                          ->orderBy('created_at', 'desc') // or 'id' if you prefer
+                          ->paginate(10); 
+                          
         $brands = Brand::pluck('brand_name');
         $statuses = Products::distinct()->pluck('status');
         
         return view('manager.content.managerProductsView', compact('products', 'brands', 'statuses'));
-    }
-
+    }    
     public function Adminindex()
     {
         $products = Models::with(['brand.category'])->paginate(8); 
