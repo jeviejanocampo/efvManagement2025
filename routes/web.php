@@ -48,6 +48,8 @@ Route::middleware(['staff'])->group(function () {
     
     Route::get('/staff/get-models-by-brand/{brand_id}', [StaffPOSController::class, 'getModelsByBrand']);
 
+    Route::get('/staff/get-brand-models/{brand_id}', [StaffPOSController::class, 'getBrandModels'])->name('staffPOS.getModels');
+
     Route::get('/staff/refund-requests', [OrderController::class, 'refundRequests'])->name('staff.refundRequests');
 
     Route::get('/staff/refund-request/{order_id}', [OrderController::class, 'showRefundRequestForm'])
@@ -78,6 +80,8 @@ Route::middleware(['staff'])->group(function () {
     Route::get('/refund-report-details-view/{order_id}/{reference_id?}', [RefundOrderController::class, 'RefundDetailsView'])->name('refund.view.details');
 
 });
+
+Route::post('/customers/store', [StaffPOSController::class, 'CustomerStore'])->name('customers.store.new');
 
 Route::post('/update-order-details', [RefundOrderController::class, 'updateOrderDetails'])->name('update.order.details.preorder');
 
