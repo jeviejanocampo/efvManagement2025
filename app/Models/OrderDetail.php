@@ -23,6 +23,8 @@ class OrderDetail extends Model
         'brand_name',
         'quantity',
         'price',
+        'part_id',
+        'm_part_id',
         'total_price',
         'product_status',
     ];

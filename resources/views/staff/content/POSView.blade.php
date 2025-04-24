@@ -7,6 +7,7 @@
   }
 </style>
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="max-w-full mx-auto">
 
     <div class="grid grid-cols-3 gap-4">
@@ -45,65 +46,68 @@
             </div>
 
             <div id="modelsContainer" class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6">
-            @forelse($models as $model)
-                    @php
-                        $stockQuantity = $model->products->sum('stocks_quantity');
-                    @endphp
+             @forelse($models as $model)
+                @php
+                    $stockQuantity = $model->products->sum('stocks_quantity');
+                @endphp
 
-                    {{-- Render model card ONLY if w_variant is not YES --}}
-                    @if($model->w_variant !== 'YES')
+                {{-- Render model card ONLY if w_variant is not YES --}}
+                @if($model->w_variant !== 'YES')
+                <div class="bg-white  rounded-lg p-4 text-center border flex flex-col h-full">
+                    <img src="{{ asset('product-images/' . $model->model_img) }}" class="h-24 w-24 object-cover mx-auto mb-2 " alt="{{ $model->model_name }}">
+                        <h2 class="text-sm font-semibold">{{ $model->model_name }}</h2>
+                        <h3 class="text-sm font-semibold">{{ $model->brand_id }}</h3>
+                        <p class="text-green-600 font-medium mt-1">₱{{ number_format($model->price, 2) }}</p>
+                        <p class="text-sm hidden">Available Stocks: {{ $stockQuantity }}</p>
+                        <p class="text-sm">Model ID: {{ $model->model_id }}</p>
+                        <p class="text-sm hidden">Part IDs: {{ $model->products->pluck('m_part_id')->unique()->implode(', ') }}</p>
+
+                        <p class="text-sm hidden">With Variant: {{ $model->w_variant }}</p>
+
+                        <button 
+                            class="add-to-order mt-auto bg-black text-white px-3 py-1  flex items-center justify-center gap-2 w-full"
+                            data-name="{{ $model->model_name }}" 
+                                data-price="{{ $model->price }}" 
+                                data-id="{{ $model->model_id }}" 
+                                data-stocks="{{ $stockQuantity }}"
+                                data-type="model"
+                                data-part-id="{{ $model->m_part_id }}"
+                                >
+                            <i class="fas fa-plus text-white"></i> Add
+                        </button>
+
+
+                    </div>
+                @endif
+
+                {{-- Render variant cards if model has variants --}}
+                @if($model->w_variant === 'YES' && $model->variants)
+                    @foreach($model->variants as $variant)
                     <div class="bg-white  rounded-lg p-4 text-center border flex flex-col h-full">
-                        <img src="{{ asset('product-images/' . $model->model_img) }}" class="h-24 w-24 object-cover mx-auto mb-2 " alt="{{ $model->model_name }}">
-                            <h2 class="text-sm font-semibold">{{ $model->model_name }}</h2>
-                            <h3 class="text-sm font-semibold">{{ $model->brand_id }}</h3>
-                            <p class="text-green-600 font-medium mt-1">₱{{ number_format($model->price, 2) }}</p>
-                            <p class="text-sm hidden">Available Stocks: {{ $stockQuantity }}</p>
-                            <p class="text-sm">Model ID: {{ $model->model_id }}</p>
-                            <p class="text-sm hidden">Part IDs: {{ $model->products->pluck('m_part_id')->unique()->implode(', ') }}</p>
+                        <img src="{{ asset('product-images/' . $variant->variant_image) }}" class="h-24 w-24 object-cover mx-auto mb-2 " alt="{{ $variant->product_name }}">
+                        <h3 class="text-sm font-semibold">{{ $variant->product_name }}</h3>
+                        <h3 class="text-sm font-semibold">{{ $variant->brand_id }}</h3>
+                        <p class="text-sm">Part ID: {{ $variant->part_id }}</p>
+                        <p class="text-green-600 font-medium mt-1">₱{{ number_format($variant->price, 2) }}</p>
+                        <p class="text-sm">model ID: {{ $variant->model_id }}</p>
+                        <p class="text-sm">Variant ID: {{ $variant->variant_id }}</p>
+                        <p class="text-sm hidden">Available Stocks: {{ $variant->stocks_quantity }}</p>
 
-                            <p class="text-sm hidden">With Variant: {{ $model->w_variant }}</p>
-
-                            <button 
-                               class="add-to-order mt-auto bg-black text-white px-3 py-1  flex items-center justify-center gap-2 w-full"
-                               data-name="{{ $model->model_name }}" 
-                                    data-price="{{ $model->price }}" 
-                                    data-id="{{ $model->model_id }}" 
-                                    data-stocks="{{ $stockQuantity }}"
-                                    data-type="model">
-                                <i class="fas fa-plus text-white"></i> Add
-                            </button>
-
-
-                        </div>
-                    @endif
-
-                    {{-- Render variant cards if model has variants --}}
-                    @if($model->w_variant === 'YES' && $model->variants)
-                        @foreach($model->variants as $variant)
-                        <div class="bg-white  rounded-lg p-4 text-center border flex flex-col h-full">
-                            <img src="{{ asset('product-images/' . $variant->variant_image) }}" class="h-24 w-24 object-cover mx-auto mb-2 " alt="{{ $variant->product_name }}">
-                            <h3 class="text-sm font-semibold">{{ $variant->product_name }}</h3>
-                            <h3 class="text-sm font-semibold">{{ $variant->brand_id }}</h3>
-                            <p class="text-sm">Part ID: {{ $variant->part_id }}</p>
-                            <p class="text-green-600 font-medium mt-1">₱{{ number_format($variant->price, 2) }}</p>
-                            <p class="text-sm">model ID: {{ $variant->model_id }}</p>
-                            <p class="text-sm">Variant ID: {{ $variant->variant_id }}</p>
-                            <p class="text-sm hidden">Available Stocks: {{ $variant->stocks_quantity }}</p>
-
-                            <button 
-                                class="add-to-order mt-auto bg-black text-white px-3 py-1  flex items-center justify-center gap-2 w-full"
-                                data-name="{{ $variant->product_name }}"
-                                data-price="{{ str_replace(',', '', number_format($variant->price, 2)) }}" 
-                                data-id="{{ $variant->variant_id }}"
-                                data-type="variant"
-                                data-model-id="{{ $variant->model_id }}"
-                                data-stocks="{{ $variant->stocks_quantity }}"
-                            >
-                                <i class="fas fa-plus text-white"></i> Add
-                            </button>
-                        </div>
-                        @endforeach
-                    @endif
+                        <button 
+                            class="add-to-order mt-auto bg-black text-white px-3 py-1  flex items-center justify-center gap-2 w-full"
+                            data-name="{{ $variant->product_name }}"
+                            data-price="{{ str_replace(',', '', number_format($variant->price, 2)) }}" 
+                            data-id="{{ $variant->variant_id }}"
+                            data-type="variant"
+                            data-model-id="{{ $variant->model_id }}"
+                            data-stocks="{{ $variant->stocks_quantity }}"
+                            data-part-id="{{ $variant->part_id }}"
+                        >
+                            <i class="fas fa-plus text-white"></i> Add
+                        </button>
+                    </div>
+                    @endforeach
+                @endif
                 @empty
                     <p class="col-span-2 text-gray-500">No models found for this brand.</p>
                 @endforelse
@@ -173,13 +177,18 @@
                 </div>
             </div>
 
-            <div id="orderSummary" class="bg-white p-4  mt-4 ">
+            <div id="orderSummary" class="bg-white p-4 mt-4">
                 <h3 class="font-semibold text-1xl">Summary</h3>
                 <div class="flex justify-between mt-2">
                     <p class="text-2xl">Total:</p>
                     <p id="totalAmount" class="text-2xl font-medium text-blue-600">₱0.00</p>
                 </div>
+                <div class="flex justify-between mt-2">
+                    <p class="text-2xl">Total Items:</p>
+                    <p id="totalItems" class="text-2xl font-medium text-blue-600">0</p>
+                </div>
             </div>
+
 
             <button onclick="saveOrder()" class="mt-4 bg-green-600 text-white px-4 py-2  w-full">
                 Save Order

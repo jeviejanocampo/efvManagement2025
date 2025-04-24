@@ -168,6 +168,10 @@ function calculateChange() {
     document.addEventListener('DOMContentLoaded', bindBrandSelectors);
 })();
 
+// document.addEventListener('DOMContentLoaded', function () {
+//     initOrderSystem();
+// });
+
 
 const POSUtils = (() => {
     function renderModelCard(data, type, modelId = null) {
@@ -187,7 +191,8 @@ const POSUtils = (() => {
                         data-id="${data.variant_id}"
                         data-type="variant"
                         data-model-id="${data.model_id}"
-                        data-stocks="${data.stocks_quantity}">
+                        data-stocks="${data.stocks_quantity}"
+                        data-part-id="${data.part_id}">
                         <i class="fas fa-plus text-white"></i> Add
                     </button>
                 </div>
@@ -201,13 +206,14 @@ const POSUtils = (() => {
                     <h2 class="text-sm font-semibold">${data.model_name}</h2>
                     <p class="text-green-600 font-medium mt-1">₱${parseFloat(data.price).toFixed(2)}</p>
                     <p class="text-sm">Model ID: ${data.model_id}</p>
-                    <p class="text-sm hidden">Part IDs: ${partIds}</p>
+                    <p class="text-sm">Part ID: ${partIds}</p>
                     <button class="add-to-order mt-auto bg-black text-white px-3 py-1 flex items-center justify-center gap-2 w-full"
                         data-name="${data.model_name}"
                         data-price="${parseFloat(data.price)}"
                         data-id="${data.model_id}"
                         data-type="model"
-                        data-stocks="${stockQuantity}">
+                        data-stocks="${stockQuantity}"
+                        data-part-id="${partIds}">
                         <i class="fas fa-plus text-white"></i> Add
                     </button>
                 </div>
@@ -215,20 +221,19 @@ const POSUtils = (() => {
         }
     }
     
+    
 
     return {
         renderModelCard
     };
 })();
 
-// document.addEventListener('DOMContentLoaded', function () {
-//     initOrderSystem();
-// });
-
 (function initOrderSystem() {
     const orderList = document.getElementById('orderList');
     const totalAmountEl = document.getElementById('totalAmount');
+    const totalItemsEl = document.getElementById('totalItems');  // Reference to total items element
     let totalAmount = 0;  // Track the total price
+    let totalItems = 0;   // Track the total number of items
 
     document.addEventListener('click', (e) => {
         const button = e.target.closest('.add-to-order');
@@ -239,6 +244,7 @@ const POSUtils = (() => {
         const id = button.getAttribute('data-id');
         const type = button.getAttribute('data-type');
         const modelId = button.getAttribute('data-model-id');
+        const partId = button.getAttribute('data-part-id');
         const stocks = parseInt(button.getAttribute('data-stocks'));
         const idLabel = type === 'variant' ? 'Variant ID' : 'Model ID';
     
@@ -254,6 +260,7 @@ const POSUtils = (() => {
                 <p class="font-medium text-sm">${name}</p>
                 <p class="text-green-600 text-sm">₱${price.toFixed(2)}</p>
                 <p class="text-gray-500 text-sm">${idLabel}: ${id}</p>
+                <p class="text-gray-500 text-sm">Part ID: ${partId}</p>
                 ${type === 'variant' ? `<p class="text-gray-500 text-sm">Model ID: ${modelId}</p>` : ''}
                 <p class="text-sm flex items-center gap-2 mt-1">
                     Quantity:
@@ -273,10 +280,10 @@ const POSUtils = (() => {
     
         orderList.appendChild(item);
         totalAmount += price;
+        totalItems += 1;  // Add to total items on new item
         updateTotal();
     });
     
-
     orderList.addEventListener('click', (e) => {
         const li = e.target.closest('li');
         if (!li) return;
@@ -284,6 +291,7 @@ const POSUtils = (() => {
         if (e.target.closest('.remove-item')) {
             const price = parseFloat(li.querySelector('.text-green-600').textContent.replace('₱', ''));
             totalAmount -= price;  // Subtract the price of the removed item
+            totalItems -= parseInt(li.querySelector('.quantity').textContent);  // Subtract quantity from total items
             li.remove();
             updateTotal();
         }
@@ -311,12 +319,14 @@ const POSUtils = (() => {
         const subtotal = price * qty;
         subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
         totalAmount = calculateTotal(); // Recalculate the total when quantity changes
+        totalItems = calculateTotalItems();  // Update the total items
         updateTotal();
     });
 
     // Function to update the total display
     function updateTotal() {
         totalAmountEl.textContent = formatCurrency(totalAmount);
+        totalItemsEl.textContent = totalItems;  // Update total items display
     }
 
     // Function to calculate total dynamically
@@ -331,11 +341,24 @@ const POSUtils = (() => {
         return total;
     }
 
+    // Function to calculate total items dynamically
+    function calculateTotalItems() {
+        let total = 0;
+        const items = orderList.querySelectorAll('li');
+        items.forEach(item => {
+            const qty = parseInt(item.querySelector('.quantity').textContent);
+            total += qty;
+        });
+        return total;
+    }
+
     // Format numbers as currency with commas
     function formatCurrency(amount) {
         return '₱' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+
     }
 })();
+
 
 
 function saveOrder() {
@@ -344,35 +367,107 @@ function saveOrder() {
     const customerId = document.getElementById('customerSelect').value;
     const customerName = document.getElementById('chosenCustomer').textContent;
 
+    let referenceId = ""; // This will hold the reference_id.
+    let totalAmount = 0;   // To track total price
+    let totalItems = 0;    // To track total items
+
+    // Get the change amount, extract the numeric value
+    const changeText = document.getElementById('changeAmount').textContent.trim();
+    // Remove the ₱ symbol and any spaces, then convert to integer
+    const changeAmount = parseInt(changeText.replace('₱', '').replace(/,/g, '').trim(), 10) || 0;
+
     items.forEach(item => {
         const name = item.querySelector('.font-medium').textContent;
-        const price = parseFloat(item.querySelector('.text-green-600').textContent.replace('₱', ''));
+        const price = parseFloat(item.querySelector('.text-green-600').textContent.replace('₱', '').replace(/,/g, ''));
         const quantity = parseInt(item.querySelector('.quantity').textContent);
         const subtotal = price * quantity;
 
+        // Update total values
+        totalAmount += subtotal;
+        totalItems += quantity;
+
         let modelId = null;
         let variantId = null;
+        let partId = null;
+        let mPartId = null;
 
         item.querySelectorAll('.text-gray-500').forEach(p => {
             const text = p.textContent;
             if (text.includes('Model ID')) modelId = text.split(': ')[1];
             if (text.includes('Variant ID')) variantId = text.split(': ')[1];
+            if (text.includes('Part ID')) partId = text.split(': ')[1];
+            if (text.includes('M Part ID')) mPartId = text.split(': ')[1];
         });
 
+        // Ensure m_part_id is always set, either from itself or fallback to part_id
+        if (!mPartId) {
+            mPartId = partId;  // If m_part_id is null, use part_id
+        }
+
+        // Generate reference_id using last 6 characters of part_id or m_part_id
+        let referenceSuffix = "";
+        if (variantId) {
+            referenceSuffix = partId ? partId.slice(-6) : "000000"; // Take last 6 chars of partId if variantId exists
+        } else {
+            referenceSuffix = mPartId ? mPartId.slice(-6) : "000000"; // Last 6 chars of m_part_id
+        }
+
+        referenceSuffix = referenceSuffix.padStart(12, "0");
+
+        referenceId = referenceSuffix + "-OR000";  // Only one dash before OR000
+
+        // Prepare the order data for backend insertion
         orderData.push({
-            modelId,
-            variantId: variantId || null,
-            name,
-            price,
-            quantity,
-            subtotal
+            model_id: modelId,
+            variant_id: variantId || null,
+            part_id: partId || null, // Ensure part_id is either partId or null
+            m_part_id: mPartId || null, // Ensure m_part_id is set (fallback to part_id if null)
+            product_name: name,
+            price: price,
+            quantity: quantity,
+            total_price: subtotal
         });
     });
 
-    console.log("Customer ID:", customerId);
-    console.log("Customer Name:", customerName);
-    console.log("Order Items:", orderData);
+    // Prepare the full payload for the backend
+    const payload = {
+        customerId: customerId,
+        referenceId: referenceId,
+        totalItems: totalItems,
+        totalPrice: totalAmount,
+        changeAmount: changeAmount,  // Send the numeric value of the change
+        orderItems: orderData
+    };
+
+    // Send data to Laravel backend via fetch
+    fetch('/save-order-pos', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Order saved successfully!');
+            // Optionally reset the form or reload
+            location.reload();
+        } else {
+            alert('Failed to save order: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Error sending order: ' + error.message);
+    });
 }
 
+
+
+// Helper function to format currency
+function formatCurrency(amount) {
+    return '₱' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+}
 
 

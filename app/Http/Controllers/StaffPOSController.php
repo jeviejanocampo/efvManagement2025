@@ -9,7 +9,9 @@ use App\Models\Products;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-
+use App\Models\Order;
+use App\Models\OrderDetail;
+use DB;
 
 
 class StaffPOSController extends Controller
@@ -120,6 +122,85 @@ class StaffPOSController extends Controller
         return Redirect::back()->with('success', 'Customer added successfully!');
     }
     
+
+    public function saveOrderPOS(Request $request)
+    {
+        DB::beginTransaction();
+    
+        try {
+            // Insert into the 'orders' table
+            $order = Order::create([
+                'user_id' => $request->customerId,
+                'reference_id' => $request->referenceId,
+                'total_items' => $request->totalItems,
+                'total_price' => $request->totalPrice,
+                'original_total_amount' => $request->totalPrice,  // Assuming original total is same
+                'payment_method' => $request->paymentMethod ?? 'Cash',  // Default 'Cash' if not provided
+                'status' => 'Completed',  // Default status
+                'overall_status' => 'Completed',  // Default status
+                'customers_change' => (string) $request->changeAmount, // Store as string
+            ]);
+    
+            // Insert into the 'order_details' table
+            foreach ($request->orderItems as $item) {
+                $partId = $item['part_id'] ?? null;
+                $mPartId = $item['m_part_id'] ?? null;
+    
+                // If m_part_id is null, use part_id
+                if ($mPartId === null) {
+                    $mPartId = $partId;
+                }
+    
+                // Fetch brand_id from the 'models' table based on the model_id
+                $model = Models::find($item['model_id']);
+                $brandName = null;
+                
+                // If the model exists, fetch the brand_name from the 'brands' table
+                if ($model) {
+                    $brand = $model->brand; // The brand relation in the Models model
+                    if ($brand) {
+                        $brandName = $brand->brand_name; // Get the brand_name from the related Brand
+                    }
+                }
+    
+                // Default to 'Unknown' if brand_name is not found
+                $brandName = $brandName ?? 'Unknown';
+    
+                // Insert into the order_details table
+                OrderDetail::create([
+                    'order_id' => $order->order_id,  // Link to the order just created
+                    'model_id' => $item['model_id'],
+                    'variant_id' => $item['variant_id'] ?? null,  // Allow null for variants
+                    'product_name' => $item['product_name'],
+                    'brand_name' => $brandName,  // Set the brand_name
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'total_price' => $item['total_price'],
+                    'product_status' => 'Completed',
+                    'part_id' => $partId ?? '0000', // If part_id is not provided, use default
+                    'm_part_id' => $mPartId ?? '000',  // If m_part_id is null, use default
+                ]);
+            }
+    
+            DB::commit();
+    
+            // Success Message
+            return response()->json([
+                'success' => true,
+                'message' => 'Order saved successfully!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Error Message
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save order: ' . $e->getMessage()
+            ]);
+        }
+    }
+    
+    
+
     
     
 
