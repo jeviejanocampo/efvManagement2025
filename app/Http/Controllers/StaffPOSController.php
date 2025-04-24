@@ -139,6 +139,7 @@ class StaffPOSController extends Controller
                 'status' => 'Completed',  // Default status
                 'overall_status' => 'Completed',  // Default status
                 'customers_change' => (string) $request->changeAmount, // Store as string
+                'cash_received' => $request->cashReceived, // ✅ Store this
             ]);
     
             // Insert into the 'order_details' table

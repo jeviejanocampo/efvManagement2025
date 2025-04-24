@@ -7,6 +7,9 @@
   }
 </style>
 
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="max-w-full mx-auto">
 
@@ -128,12 +131,14 @@
             <div class="pt-2 border-b border-gray pb-4">
                 <h3 for="customerSelect" class="font-semibold text-1xl mb-2">Payment Method</h3>
                 <div class="flex items-center gap-2">
-                    <select id="customerSelect" class="w-full border  px-3 py-2">
+
+                    <select id="customerSelect" class="w-full border px-3 py-2">
                         <option value="" disabled selected>Select a customer</option>
                         @foreach($customers as $customer)
                             <option value="{{ $customer->id }}" data-name="{{ $customer->full_name }}">{{ $customer->full_name }}</option>
                         @endforeach
                     </select>
+
                     <button class="bg-black text-white px-3 py-3 flex items-center justify-center" title="Add Customer" onclick="document.getElementById('addCustomerModal').classList.remove('hidden')">
                         <i class="fas fa-plus"></i>
                     </button>
@@ -189,10 +194,26 @@
                 </div>
             </div>
 
+            <!-- Customer Select Error -->
+            <p id="customerError" class="text-red-600 text-sm mt-2 hidden">Please select a customer.</p>
 
-            <button onclick="saveOrder()" class="mt-4 bg-green-600 text-white px-4 py-2  w-full">
+            <!-- Cash Received Error -->
+            <p id="cashError" class="text-red-600 text-sm mt-2 hidden">Cash received must be greater than or equal to the total amount.</p>
+
+
+
+            <button onclick="confirmSaveOrder()" class="mt-4 bg-green-600 text-white px-4 py-2 w-full">
                 Save Order
             </button>
+
+            <script>
+            function confirmSaveOrder() {
+                if (confirm('Are you sure you want to proceed with saving this order?')) {
+                    saveOrder();
+                }
+            }
+            </script>
+
 
 
 
@@ -231,6 +252,20 @@
         </form>
     </div>
 </div>
+
+
+<script>
+    new TomSelect("#customerSelect", {
+        placeholder: "Select a customer",
+        allowEmptyOption: true,
+        maxOptions: 100,
+        create: false,
+        sortField: {
+            field: "text",
+            direction: "asc"
+        }
+    });
+</script>
 
 
 <script>

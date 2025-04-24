@@ -24,6 +24,7 @@ class Order extends Model
         'total_items',
         'total_price',
         'original_total_amount',
+        'cash_received',
         'customers_change',
         'order_notes',
         'pickup_date',

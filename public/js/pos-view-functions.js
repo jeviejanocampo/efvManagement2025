@@ -366,6 +366,23 @@ function saveOrder() {
     const orderData = [];
     const customerId = document.getElementById('customerSelect').value;
     const customerName = document.getElementById('chosenCustomer').textContent;
+    const total = parseFloat(document.getElementById('totalAmount').textContent.replace('₱', '').replace(/,/g, '')) || 0;
+    const cashInput = document.getElementById('cashInput');
+    const cash = parseFloat(cashInput.value.replace(/,/g, '')) || 0;
+    const customerSelect = document.getElementById('customerSelect');
+
+    if (!customerSelect.value) {
+        alert('Please select a customer before saving the order.');
+        customerSelect.focus();
+        return;
+    }
+
+    // ✅ Cash vs Total validation
+    if (document.querySelector('input[name="paymentMethod"]:checked').value === 'cash' && cash < total) {
+        alert('Cash received is less than the total amount. Please enter the correct amount.');
+        cashInput.focus();
+        return;
+    }
 
     let referenceId = ""; // This will hold the reference_id.
     let totalAmount = 0;   // To track total price
@@ -436,6 +453,7 @@ function saveOrder() {
         totalItems: totalItems,
         totalPrice: totalAmount,
         changeAmount: changeAmount,  // Send the numeric value of the change
+        cashReceived: cash, // ✅ add this line to send the cash input
         orderItems: orderData
     };
 
