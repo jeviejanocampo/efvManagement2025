@@ -52,12 +52,19 @@
             </a>
 
             <!-- <p class="text-white text-1xl font-bold">Queue</p> -->
-            <a href="{{ route('staffQueue') }}" class="flex items-center text-gray hover:text-white ml-1 gap-2">
+            <a href="{{ route('staffPOS.view') }}" class="flex items-center text-gray hover:text-white ml-1 gap-2">
+                <span class="bg-gray-600 p-2 rounded-lg">
+                    <i class="fa-solid fa-list text-gray-200"></i>
+                </span>
+                <span class="text-sm"> POS </span>
+            </a>
+
+            <!-- <a href="#" class="flex items-center text-gray hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-list-check text-gray-200"></i>
                 </span>
                 <span class="text-sm"> Orders Queue </span>
-            </a>
+            </a> -->
 
             <p class="text-white text-1xl font-bold pt-3">Replacement/Refund</p>
             <a href="{{ route('staff.refundRequests') }}" class="flex items-center text-gray hover:text-white ml-1 gap-2">

@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Variant;
+use App\Http\Controllers\StaffPOSController;
+
 
 
 
@@ -41,6 +43,8 @@ Route::middleware(['staff'])->group(function () {
     Route::get('/staff/queue', function () {
         return view('staff.content.staffOrders');
     })->name('staffQueue');
+
+    Route::get('/staff/pos-view', [StaffPOSController::class, 'index'])->name('staffPOS.view');
 
     Route::get('/staff/refund-requests', [OrderController::class, 'refundRequests'])->name('staff.refundRequests');
 
