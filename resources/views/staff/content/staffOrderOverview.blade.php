@@ -104,7 +104,7 @@
                         <td class="px-4 py-3">{{ $order->created_at->diffForHumans() }}</td>
                         <td class="px-4 py-3">
                             <span class="
-                                px-4 py-1 rounded-full text-sm text-white text-center 
+                                px-4 py-1 rounded-full text-sm text-white text-left 
                                 @if ($order->status === 'Pending') bg-yellow-500
                                 @elseif ($order->status === 'Ready to Pickup') bg-blue-500
                                 @elseif ($order->status === 'Cancelled') bg-red-500

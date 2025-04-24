@@ -98,10 +98,10 @@ class StaffController extends Controller
     public function StaffLogin(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'name' => 'required|string',
             'password' => 'required|string|min:8',
         ]);
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::where('name', $credentials['name'])->first();
         if ($user && Hash::check($credentials['password'], $user->password)) {
             if ($user->role === 'staff') {
                 Auth::login($user);
@@ -139,12 +139,12 @@ class StaffController extends Controller
     {
         // Validate the login form input
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'name' => 'required|string',
             'password' => 'required|string|min:8',
         ]);
 
         // Attempt to log the user in
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::where('name', $credentials['name'])->first();
 
         if ($user && Hash::check($credentials['password'], $user->password)) {
             if ($user->role === 'stock clerk') {
@@ -170,12 +170,12 @@ class StaffController extends Controller
     {
         // Validate the login form input
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'name' => 'required|string',
             'password' => 'required|string|min:8',
         ]);
 
         // Attempt to log the user in
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::where('name', $credentials['name'])->first();
 
         if ($user && Hash::check($credentials['password'], $user->password)) {
             if ($user->role === 'manager') {
@@ -201,12 +201,12 @@ class StaffController extends Controller
     {
         // Validate the login form input
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'name' => 'required|string',
             'password' => 'required|string|min:8',
         ]);
 
         // Attempt to log the user in
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::where('name', $credentials['name'])->first();
 
         if ($user && Hash::check($credentials['password'], $user->password)) {
             if ($user->role === 'admin') {
