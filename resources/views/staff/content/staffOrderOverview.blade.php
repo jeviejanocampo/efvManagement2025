@@ -18,7 +18,7 @@
 @extends('staff.dashboard.StaffMain')
 @section('content')
 
-<div class="container mx-auto p-4 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+<div class="container mx-auto max-w-full p-4 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
     <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333; display: flex; align-items: center;" class=" border-b border-gray-200">
         <i class="fas fa-box-open mr-3"></i> Reserved and Pre-Orders

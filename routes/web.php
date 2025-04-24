@@ -45,6 +45,8 @@ Route::middleware(['staff'])->group(function () {
     })->name('staffQueue');
 
     Route::get('/staff/pos-view', [StaffPOSController::class, 'index'])->name('staffPOS.view');
+    
+    Route::get('/staff/get-models-by-brand/{brand_id}', [StaffPOSController::class, 'getModelsByBrand']);
 
     Route::get('/staff/refund-requests', [OrderController::class, 'refundRequests'])->name('staff.refundRequests');
 
