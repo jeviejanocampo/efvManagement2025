@@ -152,6 +152,7 @@
             </div>
 
             <div class="bg-white mt-2 border-b border-gray space-y-4">
+
                 <h3 class="font-semibold text-1xl mb-2">Payment Method</h3>
 
                 <div class="flex items-center gap-4 mb-4">
@@ -163,6 +164,33 @@
                         <input type="radio" name="paymentMethod" value="gcash" onchange="togglePaymentInput()" />
                         GCash
                     </label>
+                </div>
+
+                <!-- GCash Payment Modal -->
+                <div id="gcashModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <h3 class="text-lg font-semibold mb-4">GCash Payment</h3>
+                        
+                        <!-- Display the default QR code image -->
+                        <img id="gcashQRCode" src="{{ asset('product-images/gcashqrcode.webp') }}" alt="GCash QR Code" class="mb-4 w-full h-auto">
+                        
+                        <!-- Image Upload Section -->
+                        <div class="mb-4">
+                            <label for="uploadImage" class="block text-sm">Upload Screenshot</label>
+                            <input type="file" id="uploadImage" class="w-full border px-3 py-2">
+                        </div>
+                        
+                        <button onclick="saveGCashPayment()" class="bg-green-600 text-white px-4 py-2 rounded w-full">Save</button>
+                        <button onclick="closeModal()" class="text-red-600 mt-2 w-full">Close</button>
+                    </div>
+                </div>
+
+                <!-- GCash Payment Information Display (Initially Hidden) -->
+                <div id="gcashPaymentInfo" class="hidden">
+                    <div class="p-4 bg-green-200 rounded-lg mb-4">
+                        <p class="text-green-800">GCash payment saved.</p>
+                        <button onclick="editGCashPayment()" class="text-blue-600">Edit</button>
+                    </div>
                 </div>
 
                 <div id="cashInputSection" class="mb-2 border-b border-gray">
@@ -206,21 +234,11 @@
                 Save Order
             </button>
 
-            <script>
-            function confirmSaveOrder() {
-                if (confirm('Are you sure you want to proceed with saving this order?')) {
-                    saveOrder();
-                }
-            }
-            </script>
-
-
-
-
         </div>
 
 
     </div>
+    
 </div>
 
 <div id="addCustomerModal" class="fixed inset-0 bg-black bg-opacity-50 {{ $errors->any() ? 'flex' : 'hidden' }} justify-center items-center z-50 flex">
@@ -266,8 +284,13 @@
         }
     });
 </script>
-
-
+<script>
+    function confirmSaveOrder() {
+        if (confirm('Are you sure you want to proceed with saving this order?')) {
+            saveOrder();
+        }
+        }
+</script>
 <script>
     // Check if there is a success or error message in the session
     @if (session('success'))

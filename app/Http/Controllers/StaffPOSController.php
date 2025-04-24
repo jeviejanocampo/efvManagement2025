@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\GcashPayment;
 use DB;
 
 
@@ -135,7 +136,7 @@ class StaffPOSController extends Controller
                 'total_items' => $request->totalItems,
                 'total_price' => $request->totalPrice,
                 'original_total_amount' => $request->totalPrice,  // Assuming original total is same
-                'payment_method' => $request->paymentMethod ?? 'Cash',  // Default 'Cash' if not provided
+                'payment_method' => ucfirst(strtolower($request->paymentMethod ?? 'Cash')),
                 'status' => 'Completed',  // Default status
                 'overall_status' => 'Completed',  // Default status
                 'customers_change' => (string) $request->changeAmount, // Store as string
@@ -180,6 +181,15 @@ class StaffPOSController extends Controller
                     'product_status' => 'Completed',
                     'part_id' => $partId ?? '0000', // If part_id is not provided, use default
                     'm_part_id' => $mPartId ?? '000',  // If m_part_id is null, use default
+                ]);
+            }
+
+            // ✅ 3. Insert into 'gcash_payment' if image is provided
+            if (!empty($request->image)) {
+                GcashPayment::create([
+                    'order_id' => $order->order_id,
+                    'image' => $request->image,
+                    'status' => 'Completed',
                 ]);
             }
     

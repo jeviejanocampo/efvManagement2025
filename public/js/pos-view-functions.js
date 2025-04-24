@@ -67,6 +67,11 @@
 //         });
 // }
 
+// document.addEventListener('DOMContentLoaded', function () {
+//     initOrderSystem();
+// });
+
+
 function showBrandId(id) {
     document.getElementById('selectedBrandId').textContent = id;
 }
@@ -101,10 +106,71 @@ function filterModels() {
 })();
 
 
+//GCash Payment Modal
 function togglePaymentInput() {
     const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-    document.getElementById('cashInputSection').style.display = method === 'cash' ? 'block' : 'none';
+    const cashInputSection = document.getElementById('cashInputSection');
+    const gcashModal = document.getElementById('gcashModal');
+    const gcashPaymentInfo = document.getElementById('gcashPaymentInfo');
+
+    // Show or hide Cash Input Section
+    cashInputSection.style.display = method === 'cash' ? 'block' : 'none';
+
+    // Show GCash Modal when GCash is selected
+    if (method === 'gcash') {
+        gcashModal.style.display = 'flex';
+        gcashPaymentInfo.style.display = 'none'; // Hide the saved info initially
+    } else {
+        gcashModal.style.display = 'none';
+    }
 }
+
+let uploadedGCashImageBase64 = null;
+let uploadedGCashImageFilename = null;
+
+function saveGCashPayment() {
+    const uploadInput = document.getElementById('uploadImage');
+    const uploadedImage = uploadInput.files[0];
+
+    if (uploadedImage) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            uploadedGCashImageBase64 = e.target.result;
+            uploadedGCashImageFilename = uploadedImage.name;
+
+            const gcashPaymentInfo = document.getElementById('gcashPaymentInfo');
+            gcashPaymentInfo.innerHTML = `
+                <div class="p-4 bg-green-200 rounded-lg mb-4">
+                    <p class="text-green-800">GCash payment saved.</p>
+                    <button onclick="editGCashPayment()" class="text-blue-600">Edit</button>
+                </div>
+                <img src="${e.target.result}" alt="Uploaded GCash Screenshot" class="mt-4 w-full h-auto rounded-md">
+                <p class="text-sm mt-2 text-gray-600">File: ${uploadedImage.name}</p>
+            `;
+            gcashPaymentInfo.style.display = 'block';
+            closeModal();
+        };
+        reader.readAsDataURL(uploadedImage);
+    } else {
+        alert("Please upload a screenshot of the GCash payment.");
+    }
+}
+
+
+function closeModal() {
+    const gcashModal = document.getElementById('gcashModal');
+    gcashModal.style.display = 'none';
+}
+
+function editGCashPayment() {
+    const gcashModal = document.getElementById('gcashModal');
+    const gcashPaymentInfo = document.getElementById('gcashPaymentInfo');
+    
+    gcashPaymentInfo.style.display = 'none'; // Hide saved info
+    gcashModal.style.display = 'flex'; // Show the modal again for editing
+}
+//End
+
 
 function formatCashInput(input) {
     const rawValue = input.value.replace(/,/g, '');
@@ -121,6 +187,10 @@ function calculateChange() {
     document.getElementById('changeAmount').textContent = `₱${change > 0 ? change.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}`;
 }
 
+// Helper function to format currency
+function formatCurrency(amount) {
+    return '₱' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+}
 
 (function initBrandSelector() {
     function handleBrandClick(event) {
@@ -167,10 +237,6 @@ function calculateChange() {
     // Run it once DOM is ready
     document.addEventListener('DOMContentLoaded', bindBrandSelectors);
 })();
-
-// document.addEventListener('DOMContentLoaded', function () {
-//     initOrderSystem();
-// });
 
 
 const POSUtils = (() => {
@@ -227,6 +293,7 @@ const POSUtils = (() => {
         renderModelCard
     };
 })();
+
 
 (function initOrderSystem() {
     const orderList = document.getElementById('orderList');
@@ -370,6 +437,7 @@ function saveOrder() {
     const cashInput = document.getElementById('cashInput');
     const cash = parseFloat(cashInput.value.replace(/,/g, '')) || 0;
     const customerSelect = document.getElementById('customerSelect');
+    const imageInput = document.getElementById('imageInput'); // Assuming you have an input for the image
 
     if (!customerSelect.value) {
         alert('Please select a customer before saving the order.');
@@ -390,7 +458,6 @@ function saveOrder() {
 
     // Get the change amount, extract the numeric value
     const changeText = document.getElementById('changeAmount').textContent.trim();
-    // Remove the ₱ symbol and any spaces, then convert to integer
     const changeAmount = parseInt(changeText.replace('₱', '').replace(/,/g, '').trim(), 10) || 0;
 
     items.forEach(item => {
@@ -399,7 +466,6 @@ function saveOrder() {
         const quantity = parseInt(item.querySelector('.quantity').textContent);
         const subtotal = price * quantity;
 
-        // Update total values
         totalAmount += subtotal;
         totalItems += quantity;
 
@@ -416,35 +482,35 @@ function saveOrder() {
             if (text.includes('M Part ID')) mPartId = text.split(': ')[1];
         });
 
-        // Ensure m_part_id is always set, either from itself or fallback to part_id
         if (!mPartId) {
-            mPartId = partId;  // If m_part_id is null, use part_id
+            mPartId = partId;
         }
 
-        // Generate reference_id using last 6 characters of part_id or m_part_id
         let referenceSuffix = "";
         if (variantId) {
-            referenceSuffix = partId ? partId.slice(-6) : "000000"; // Take last 6 chars of partId if variantId exists
+            referenceSuffix = partId ? partId.slice(-6) : "000000";
         } else {
-            referenceSuffix = mPartId ? mPartId.slice(-6) : "000000"; // Last 6 chars of m_part_id
+            referenceSuffix = mPartId ? mPartId.slice(-6) : "000000";
         }
 
         referenceSuffix = referenceSuffix.padStart(12, "0");
+        referenceId = referenceSuffix + "-OR000";
 
-        referenceId = referenceSuffix + "-OR000";  // Only one dash before OR000
-
-        // Prepare the order data for backend insertion
         orderData.push({
             model_id: modelId,
             variant_id: variantId || null,
-            part_id: partId || null, // Ensure part_id is either partId or null
-            m_part_id: mPartId || null, // Ensure m_part_id is set (fallback to part_id if null)
+            part_id: partId || null,
+            m_part_id: mPartId || null,
             product_name: name,
             price: price,
             quantity: quantity,
             total_price: subtotal
         });
     });
+
+    const image = uploadedGCashImageFilename || null;
+
+    const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
 
     // Prepare the full payload for the backend
     const payload = {
@@ -454,6 +520,8 @@ function saveOrder() {
         totalPrice: totalAmount,
         changeAmount: changeAmount,  // Send the numeric value of the change
         cashReceived: cash, // ✅ add this line to send the cash input
+        paymentMethod: selectedPaymentMethod, 
+        image: image, // ✅ Add this line
         orderItems: orderData
     };
 
@@ -482,10 +550,5 @@ function saveOrder() {
 }
 
 
-
-// Helper function to format currency
-function formatCurrency(amount) {
-    return '₱' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-}
 
 
