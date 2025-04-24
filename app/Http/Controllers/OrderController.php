@@ -658,7 +658,7 @@ class OrderController extends Controller
 
     public function staffOrderOverview()
     {
-        $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
+        $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status', 'reference_id')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
     
@@ -667,7 +667,7 @@ class OrderController extends Controller
             $existingReference = \App\Models\OrderReference::where('order_id', $order->order_id)->value('reference_id');
     
             if ($existingReference) {
-                $order->reference_id = $existingReference;
+                $order->custom_reference_id = $existingReference; // Keep original reference_id, add custom_reference_id
                 continue; // Skip the rest of the loop and use the existing reference
             }
     
@@ -697,7 +697,7 @@ class OrderController extends Controller
             $finalBrand = $brandNames->isNotEmpty() ? $brandNames->first() : $shortProductBrand;
     
             if ($cleanParts->count() === 2) {
-                $order->reference_id = $finalBrand . '-' . $cleanParts[0] . '' . $cleanParts[1];
+                $order->custom_reference_id = $finalBrand;
             } elseif ($cleanParts->count() === 1) {
                 $order->reference_id = $finalBrand . '-' . $cleanParts[0];
             } else {

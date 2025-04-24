@@ -247,11 +247,11 @@ const POSUtils = (() => {
                     <img src="/product-images/${data.variant_image}" class="h-24 w-24 object-cover mx-auto mb-2">
                     <h3 class="text-sm font-semibold">${data.product_name}</h3>
                     <p class="text-green-600 font-medium mt-1">₱${parseFloat(data.price).toFixed(2)}</p>
-                    <p class="text-sm">Model ID: ${data.model_id}</p>
-                    <p class="text-sm">Part ID: ${data.part_id}</p>
-                    <p class="text-sm">Stocks: ${data.stocks_quantity}</p>
-                    <p class="text-sm">Variant ID: ${data.variant_id}</p>
-                    <button class="add-to-order mt-auto bg-black text-white px-3 py-1 flex items-center justify-center gap-2 w-full"
+                    <p class="text-sm hidden">Model ID: ${data.model_id}</p>
+                    <p class="text-sm hidden">Part ID: ${data.part_id}</p>
+                    <p class="text-sm hidden">Stocks: ${data.stocks_quantity}</p>
+                    <p class="text-sm hidden">Variant ID: ${data.variant_id}</p>
+                    <button class="add-to-order mt-auto bg-black text-white px-3 py-1 flex items-center justify-center gap-2 pt-2 w-full"
                         data-name="${data.product_name}"
                         data-price="${parseFloat(data.price)}"
                         data-id="${data.variant_id}"
@@ -259,7 +259,7 @@ const POSUtils = (() => {
                         data-model-id="${data.model_id}"
                         data-stocks="${data.stocks_quantity}"
                         data-part-id="${data.part_id}">
-                        <i class="fas fa-plus text-white"></i> Add
+                        <i class="fas fa-plus text-white"></i> 
                     </button>
                 </div>
             `;
@@ -271,16 +271,16 @@ const POSUtils = (() => {
                     <img src="/product-images/${data.model_img}" class="h-24 w-24 object-cover mx-auto mb-2">
                     <h2 class="text-sm font-semibold">${data.model_name}</h2>
                     <p class="text-green-600 font-medium mt-1">₱${parseFloat(data.price).toFixed(2)}</p>
-                    <p class="text-sm">Model ID: ${data.model_id}</p>
-                    <p class="text-sm">Part ID: ${partIds}</p>
-                    <button class="add-to-order mt-auto bg-black text-white px-3 py-1 flex items-center justify-center gap-2 w-full"
+                    <p class="text-sm hidden">Model ID: ${data.model_id}</p>
+                    <p class="text-sm hidden">Part ID: ${partIds}</p>
+                    <button class="add-to-order mt-auto bg-black text-white px-3 py-1 flex items-center justify-center gap-2 pt-2 w-full"
                         data-name="${data.model_name}"
                         data-price="${parseFloat(data.price)}"
                         data-id="${data.model_id}"
                         data-type="model"
                         data-stocks="${stockQuantity}"
                         data-part-id="${partIds}">
-                        <i class="fas fa-plus text-white"></i> Add
+                        <i class="fas fa-plus text-white"></i> 
                     </button>
                 </div>
             `;
@@ -319,31 +319,43 @@ const POSUtils = (() => {
         if (exists) return;
     
         const item = document.createElement('li');
-        item.className = "flex justify-between items-center bg-gray-50 p-2 rounded-md";
-        item.setAttribute('data-order-id', id);
-    
-        item.innerHTML = `
-            <div>
-                <p class="font-medium text-sm">${name}</p>
-                <p class="text-green-600 text-sm">₱${price.toFixed(2)}</p>
-                <p class="text-gray-500 text-sm">${idLabel}: ${id}</p>
-                <p class="text-gray-500 text-sm">Part ID: ${partId}</p>
-                ${type === 'variant' ? `<p class="text-gray-500 text-sm">Model ID: ${modelId}</p>` : ''}
-                <p class="text-sm flex items-center gap-2 mt-1">
-                    Quantity:
-                    <button class="qty-decrease px-2 bg-black text-white rounded">−</button>
-                    <span class="quantity">1</span>
-                    <button class="qty-increase px-2 bg-black text-white rounded">+</button>
-                </p>
-                <p class="text-red-700 font-semibold text-sm stock-info">Stocks left: ${stocks - 1}</p>
-                <p class="text-black font-medium text-1xl pt-4">
-                    Subtotal: <span class="subtotal">${formatCurrency(price)}</span>
-                </p>
-            </div>
-            <button class="text-red-500 hover:text-red-700 remove-item">
-                <i class="fas fa-trash"></i>
-            </button>
-        `;
+            item.className = "bg-gray-200 p-3 rounded-md flex flex-col justify-between";
+            item.setAttribute('data-order-id', id);
+
+            item.innerHTML = `
+                <div class="mb-2">
+                    <p class="font-medium text-lg">${name}</p>
+                    <p class="text-green-600 text-lg">₱${price.toFixed(2)}</p>
+                    <p class="text-gray-500 text-lg hidden">${idLabel}: ${id}</p>
+                    <p class="text-gray-500 text-lg hidden">Part ID: ${partId}</p>
+                    ${type === 'variant' ? `<p class="text-gray-500 text-lg hidden">Model ID: ${modelId}</p>` : ''}
+                    <p class="text-red-700 font-semibold text-sm stock-info mt-1 ">Stocks left: ${stocks - 1}</p>
+                </div>
+
+                <div class="flex justify-between items-end mt-2">
+                    <!-- Left side: Subtotal -->
+                    <p class="text-black font-medium text-sm">
+                        Subtotal: <span class="subtotal">${formatCurrency(price)}</span>
+                    </p>
+
+                    <div class="flex items-center gap-3">
+                        <span class="text-base">Qty:</span>
+                        <button class="qty-decrease px-2 py-1 bg-black text-white rounded text-md">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="quantity text-lg font-medium">1</span>
+                        <button class="qty-increase px-2 py-1 bg-black text-white rounded text-md">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="text-red-500 hover:text-red-700 remove-item text-xl">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+
+
+                </div>
+            `;
+
     
         orderList.appendChild(item);
         totalAmount += price;
@@ -488,13 +500,13 @@ function saveOrder() {
 
         let referenceSuffix = "";
         if (variantId) {
-            referenceSuffix = partId ? partId.slice(-6) : "000000";
+            referenceSuffix = partId ? partId.slice(-6) : "0000";
         } else {
-            referenceSuffix = mPartId ? mPartId.slice(-6) : "000000";
+            referenceSuffix = mPartId ? mPartId.slice(-6) : "0000";
         }
 
-        referenceSuffix = referenceSuffix.padStart(12, "0");
-        referenceId = referenceSuffix + "-OR000";
+        referenceSuffix = referenceSuffix.padStart(6, "0");
+        referenceId = referenceSuffix + "OR00";
 
         orderData.push({
             model_id: modelId,
@@ -535,18 +547,137 @@ function saveOrder() {
         body: JSON.stringify(payload)
     })
     .then(response => response.json())
+
     .then(data => {
         if (data.success) {
-            alert('Order saved successfully!');
-            // Optionally reset the form or reload
-            location.reload();
+            // SweetAlert2 success message
+            Swal.fire({
+                title: 'Purchase Successful!',
+                text: 'The order has been saved successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Print the fetched order data
+                console.log('Order:', data.order);  // This will print the order data in the console
+        
+                // Create a custom HTML structure for the order details report
+                let orderDetailsHTML = `
+                    <h2 class="text-lg font-bold mb-4">Order Summary</h2>
+                    <table style="width: 100%; border-collapse: collapse;" class="text-sm">
+                        <tr>
+                            <td><strong>Reference ID:</strong></td>
+                            <td>${data.order.reference_id}${data.order.order_id}</td>
+                        </tr>
+                         <tr>
+                            <td><strong>Created:</strong></td>
+                            <td>${new Date(data.order.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cash Received:</strong></td>
+                            <td>₱${data.order.cash_received}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Change:</strong></td>
+                            <td>₱${data.order.customers_change}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Payment Method:</strong></td>
+                            <td>${data.order.payment_method}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Order Status:</strong></td>
+                            <td>${data.order.status}</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <table style="width: 100%; border-collapse: collapse;" class="text-sm">
+                        <thead>
+                            <tr>
+                                <th class="border px-4 py-2">Product Name</th>
+                                <th class="border px-4 py-2">Brand Name</th>
+                                <th class="border px-4 py-2">Qty</th>
+                                <th class="border px-4 py-2">Price</th>
+                                <th class="border px-4 py-2">SubTotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.order.order_details.map(item => `
+                                <tr>
+                                    <td class="border px-4 py-2">${item.product_name}</td>
+                                    <td class="border px-4 py-2">${item.brand_name}</td>
+                                    <td class="border px-4 py-2">${item.quantity}</td>
+                                    <td class="border px-4 py-2">₱${item.price}</td>
+                                    <td class="border px-4 py-2">₱${item.total_price}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                  <div style="margin-top: 20px; width: 250px; margin-left: auto; font-size: 0.875rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <div><strong>Total Items:</strong></div>
+                        <div>${data.order.total_items}</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <div><strong>Total Price:</strong></div>
+                        <div>₱${data.order.total_price}</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <div><strong>Amount Paid:</strong></div>
+                        <div>₱${data.order.cash_received}</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div><strong>Change:</strong></div>
+                        <div>₱${data.order.customers_change}</div>
+                    </div>
+                </div>
+
+                    <hr class="my-4" />
+                    <h4 class="text-center font-semibold">Thank you for your purchase!</h4>
+                `;
+        
+                // Show the order details in SweetAlert2 modal
+                Swal.fire({
+                    title: 'EFV Auto Parts Merchandise',
+                    html: orderDetailsHTML,
+                    icon: 'info',
+                    confirmButtonText: 'Done',
+                    showCancelButton: true,
+                    cancelButtonText: 'Print',
+                    focusConfirm: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Optionally, handle confirmation (like redirecting or resetting)
+                        location.reload();
+                    } else {
+                        // Trigger print functionality if 'Print' is clicked
+                        const printWindow = window.open('', '', 'height=500,width=800');
+                        printWindow.document.write('<html><head><title>EFV Auto Parts Merchandise</title></head><body>');
+                        printWindow.document.write(orderDetailsHTML);  // Inject the HTML into the print window
+                        printWindow.document.write('</body></html>');
+                        printWindow.document.close();
+                        printWindow.print();  // Trigger the print dialog
+                    }
+                });
+            });
         } else {
-            alert('Failed to save order: ' + data.message);
+            // SweetAlert2 error message
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to save order: ' + data.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         }
-    })
-    .catch(error => {
-        alert('Error sending order: ' + error.message);
     });
+    
+    
+
+    
 }
 
 

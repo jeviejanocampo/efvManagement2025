@@ -10,13 +10,19 @@
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.min.css" rel="stylesheet">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.10/dist/sweetalert2.all.min.js"></script>
+
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="max-w-full mx-auto">
 
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-12 gap-4">
         
 
-        <div class="col-span-2 bg-white p-4 w-full" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
+        <div class="col-span-6 bg-white p-4 w-full" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
 
             <h1 class="text-2xl font-regular pb-2 border-b border-gray">Select Brand</h1>
 
@@ -48,7 +54,7 @@
                 />
             </div>
 
-            <div id="modelsContainer" class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6">
+            <div id="modelsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
              @forelse($models as $model)
                 @php
                     $stockQuantity = $model->products->sum('stocks_quantity');
@@ -120,12 +126,12 @@
         </div>
 
         
-        <div class="col-span-1 bg-white p-4 w-full" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
+        <div class="col-span-6 bg-white p-4 w-full" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
 
             <h1 class="text-2xl font-regular pb-2 border-b border-gray">Order Details</h1>
 
-            <ul id="orderList" class="mt-4 space-y-2 text-sm max-h-96 overflow-y-auto pr- border-b border-gray pb-4">
-                <!-- Items will appear here -->
+            <ul id="orderList" class="mt-4 space-y-2 text-sm max-h-[600px] overflow-y-auto pr-4 border-b border-gray-300 pb-4">
+            <!-- Items will appear here -->
             </ul>
 
             <div class="pt-2 border-b border-gray pb-4">
@@ -180,8 +186,8 @@
                             <input type="file" id="uploadImage" class="w-full border px-3 py-2">
                         </div>
                         
-                        <button onclick="saveGCashPayment()" class="bg-green-600 text-white px-4 py-2 rounded w-full">Save</button>
-                        <button onclick="closeModal()" class="text-red-600 mt-2 w-full">Close</button>
+                        <button onclick="saveGCashPayment()" class="bg-green-600 text-white px-4 py-2 rounded w-full mb-2">Save</button>
+                        <button onclick="closeModal()" class="bg-red-600 text-white px-4 py-2 rounded w-full">Close</button>
                     </div>
                 </div>
 
@@ -194,7 +200,7 @@
                 </div>
 
                 <div id="cashInputSection" class="mb-2 border-b border-gray">
-                    <label for="cashInput" class="block text-sm font-medium">Cash Received</label>
+                    <label for="cashInput" class="block text-sm font-medium">Payment Received</label>
                     <input 
                         type="text" 
                         id="cashInput" 
@@ -210,15 +216,15 @@
                 </div>
             </div>
 
-            <div id="orderSummary" class="bg-white p-4 mt-4">
-                <h3 class="font-semibold text-1xl">Summary</h3>
+            <div id="orderSummary" class="bg-white mt-6">
+                <h3 class="font-medium text-2xl border-b border-gray pb-2">Summary</h3>
+                <div class="flex justify-between mt-2">
+                    <p class="text-1xl">Total Items:</p>
+                    <p id="totalItems" class="text-1xl font-medium text-blue-600">0</p>
+                </div>
                 <div class="flex justify-between mt-2">
                     <p class="text-2xl">Total:</p>
                     <p id="totalAmount" class="text-2xl font-medium text-blue-600">₱0.00</p>
-                </div>
-                <div class="flex justify-between mt-2">
-                    <p class="text-2xl">Total Items:</p>
-                    <p id="totalItems" class="text-2xl font-medium text-blue-600">0</p>
                 </div>
             </div>
 
@@ -230,8 +236,8 @@
 
 
 
-            <button onclick="confirmSaveOrder()" class="mt-4 bg-green-600 text-white px-4 py-2 w-full">
-                Save Order
+            <button onclick="confirmSaveOrder()" class="mt-4 bg-green-600 text-white px-4 py-3 w-full font-semibold">
+                CONFIRM ORDER
             </button>
 
         </div>
@@ -262,11 +268,12 @@
             </div>
             <div class="mb-3">
                 <label class="block font-medium mb-1">Password (default)</label>
-                <input type="text" value="customer12345678" class="w-full border rounded px-3 py-2 bg-gray-100 text-gray-500" disabled>
+                <input type="text" value="customer12345678" class="w-full border rounded px-3 py-2 bg-gray-100 text-gray-500 hidden" disabled>
+                <p class="text-sm">Staff will gave you the password once adding customer is complete</p>
                 <input type="hidden" name="password" value="customer123">
             </div>
             <button type="submit" class="bg-black text-white px-4 py-2 rounded">Save</button>
-            <button type="button" id="closeModal" class="ml-2 text-gray-600" onclick="document.getElementById('addCustomerModal').classList.add('hidden')">Cancel</button>
+            <button type="button"  class="bg-red-500 text-white px-4 py-2 rounded" id="closeModal" class="ml-2 text-gray-600" onclick="document.getElementById('addCustomerModal').classList.add('hidden')" >Cancel</button>
         </form>
     </div>
 </div>
@@ -286,11 +293,23 @@
 </script>
 <script>
     function confirmSaveOrder() {
-        if (confirm('Are you sure you want to proceed with saving this order?')) {
-            saveOrder();
-        }
-        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to proceed with saving this order?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, confirm!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true  // Reverses the order of buttons, so 'Cancel' comes first
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // If confirmed, save the order
+                saveOrder();
+            }
+        });
+    }
 </script>
+
 <script>
     // Check if there is a success or error message in the session
     @if (session('success'))

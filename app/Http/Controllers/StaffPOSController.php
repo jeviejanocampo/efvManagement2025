@@ -156,7 +156,7 @@ class StaffPOSController extends Controller
                 // Fetch brand_id from the 'models' table based on the model_id
                 $model = Models::find($item['model_id']);
                 $brandName = null;
-                
+    
                 // If the model exists, fetch the brand_name from the 'brands' table
                 if ($model) {
                     $brand = $model->brand; // The brand relation in the Models model
@@ -183,7 +183,7 @@ class StaffPOSController extends Controller
                     'm_part_id' => $mPartId ?? '000',  // If m_part_id is null, use default
                 ]);
             }
-
+    
             // ✅ 3. Insert into 'gcash_payment' if image is provided
             if (!empty($request->image)) {
                 GcashPayment::create([
@@ -195,10 +195,14 @@ class StaffPOSController extends Controller
     
             DB::commit();
     
-            // Success Message
+            // Fetch the latest order and order details
+            $latestOrder = Order::with('orderDetails')->find($order->order_id);
+    
+            // Return success with the order data
             return response()->json([
                 'success' => true,
-                'message' => 'Order saved successfully!'
+                'message' => 'Order saved successfully!',
+                'order' => $latestOrder // Send the latest order and details
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -209,6 +213,7 @@ class StaffPOSController extends Controller
             ]);
         }
     }
+    
     
     
 
