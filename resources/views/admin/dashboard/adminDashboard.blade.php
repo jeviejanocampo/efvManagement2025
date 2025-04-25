@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            zoom: 90%;
+            zoom: 80%;
         }
     </style>
 </head>
@@ -18,8 +18,11 @@
     <div class="flex h-screen">
         
         <!-- Sidebar -->
-        <div id="sidebar" class="bg-gray-900 text-white w-64 space-y-6 py-7 px-4 transform -translate-x-full md:translate-x-0 
-        transition-transform duration-300 fixed top-0 bottom-0 z-40">
+        <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-8 px-4 transform -translate-x-full 
+            md:translate-x-0 transition-transform duration-300 fixed top-0 bottom-0 z-40 
+            rounded-tr-2xl shadow-lg overflow-y-auto pb-12" 
+            style="margin-right: 14px; margin-top: 14px">
+
         
             <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
 
@@ -28,13 +31,91 @@
                 <!-- <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Admin Panel</a></p> -->
             </div>
             <!-- Navigation -->
-            <nav class="space-y-8">
+            <nav class="space-y-7">
                 <p class="text-white text-sm font-bold">Main</p>
 
                 <a href="{{ route('admin.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-2">
                     <i class="fas fa-dashboard mr-3"></i>
                    <span class="text-sm"> Dashboard </span>
                 </a>
+
+                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class="fa-solid fa-box  mr-3"></i>
+                    </span>
+                    <span class="text-sm"> Order Overview
+                   
+                </a>
+
+                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class="fa-solid fa-list-check  mr-3"></i>
+                    </span>
+                    <span class="text-sm"> POS
+                   
+                </a>
+
+                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class="fa-solid fa-box  mr-3"></i>
+                    </span>
+                    <span class="text-sm"> Order Overview
+                   
+                </a>
+
+                <p class="text-white text-sm font-bold">Products Management</p>
+
+                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class="fa-solid fa-box  mr-3"></i>
+                    </span>
+                    <span class="text-sm"> Products
+                   
+                </a>
+                
+                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class=" fas fa-plus-square  mr-3"></i>
+                    </span>
+                    <span class="text-sm"> Add Products
+                   
+                </a>
+                
+                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class="fa-solid fa-eye  mr-3"></i>
+                    </span>
+                    <span class="text-sm">  Brands
+                   
+                </a>
+
+                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class="fa-solid fa-eye  mr-3"></i>
+                    </span>
+                    <span class="text-sm">  Categories
+                   
+                </a>
+
+                <p class="text-white text-sm font-bold">Replacement/Refund</p>
+
+                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class="fa-solid fa-copy  mr-3"></i>
+                    </span>
+                    <span class="text-sm"> Order Details
+                   
+                </a>
+
+
+                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class="fa-solid fa-copy  mr-3"></i>
+                    </span>
+                    <span class="text-sm"> Replacement Report
+                   
+                </a>
+
 
                 <p class="text-white text-sm font-bold">User Management</p>
                 <a href="{{ route('admin.users') }}" class="flex items-center text-white hover:text-white ml-2">
@@ -64,7 +145,9 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col ml-0 md:ml-64">
             <!-- Header -->
-            <header class="bg-gray-900 text-white py-2 px-4 flex justify-between items-center   top-0 w-full">
+            <header class="text-white py-4 px-4 flex justify-between items-center top-0 w-70 rounded-tl-lg bg-cover bg-center"
+            style="margin: 20px; margin-left: 12px; background-image: url('{{ asset('assets/product-images/dashboarddisplay.png') }}');">
+
                 <div class="flex items-center space-x-4">
                     <!-- Hamburger for Small Screens -->
                     <button class="md:hidden focus:outline-none" onclick="toggleSidebar()">
@@ -72,8 +155,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                    <h1 class="text-lg md:text-xl font-semibold">EFV Auto Parts Management System</h1>
-                </div>
+                    <div class="space-x-2">
+                        <h1 class="text-lg md:text-2xl font-semibold mt-2">EFV AUTO PARTS MANAGEMENT SYSTEM</h1>
+                        <h2 class="text-1xl font-medium">Admin Main</h2>
+                    </div>                </div>
 
                 <div class="relative flex items-center space-x-4">
                         <!-- Greeting -->
