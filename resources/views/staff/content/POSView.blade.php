@@ -175,6 +175,10 @@
                         <input type="radio" name="paymentMethod" value="gcash" onchange="togglePaymentInput()" />
                         GCash
                     </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="paymentMethod" value="pnb" onchange="togglePaymentInput()" />
+                        PNB
+                    </label>
                 </div>
 
                 <!-- GCash Payment Modal -->
@@ -192,7 +196,7 @@
                         </div>
                         
                         <button onclick="saveGCashPayment()" class="bg-green-600 text-white px-4 py-2 rounded w-full mb-2">Save</button>
-                        <button onclick="closeModal()" class="bg-red-600 text-white px-4 py-2 rounded w-full">Close</button>
+                        <button onclick="closeModal('gcashModal')" class="bg-red-600 text-white px-4 py-2 rounded w-full">Close</button>
                     </div>
                 </div>
 
@@ -203,6 +207,34 @@
                         <button onclick="editGCashPayment()" class="text-blue-600">Edit</button>
                     </div>
                 </div>
+
+                <!-- PNB Payment Modal -->
+                <div id="pnbModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <h3 class="text-lg font-semibold mb-4 text-center">PNB Payment</h3>
+                                                
+                        <h2 class="text-lg font-semibold mb-4">Account Number: 392310196887 </h2>
+                        <h2 class="text-lg font-semibold mb-4">Account Name: Antinio Efro Montero</h2>
+
+                        <!-- Image Upload Section -->
+                        <div class="mb-4">
+                            <label for="uploadPNBImage" class="block text-sm">Upload Screenshot</label>
+                            <input type="file" id="uploadPNBImage" class="w-full border px-3 py-2">
+                        </div>
+                        
+                        <button onclick="savePNBPayment()" class="bg-blue-600 text-white px-4 py-2 rounded w-full mb-2">Save</button>
+                        <button onclick="closeModal('pnbModal')" class="bg-red-600 text-white px-4 py-2 rounded w-full">Close</button>
+                    </div>
+                </div>
+
+                <!-- PNB Payment Info Display -->
+                <div id="pnbPaymentInfo" class="hidden">
+                    <div class="p-4 bg-blue-200 rounded-lg mb-4">
+                        <p class="text-blue-800">PNB payment saved.</p>
+                        <button onclick="editPNBPayment()" class="text-blue-600">Edit</button>
+                    </div>
+                </div>
+
 
                 <div id="cashInputSection" class="mb-2 border-b border-gray">
                     <label for="cashInput" class="block text-1xl font-semibold">Payment Received</label>

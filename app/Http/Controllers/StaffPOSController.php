@@ -149,34 +149,50 @@ class StaffPOSController extends Controller
                 $variantId = $item['variant_id'] ?? null;
                 $productId = $item['model_id'];
                 $quantity = $item['quantity'];
-                $brandName = 'Unknown';
-    
+                $brandName = 'Unknown';  // Default brand name if no match is found.
+            
+                // If variant_id is not null or 0
                 if (!empty($variantId) && $variantId != 0) {
                     $variant = Variant::find($variantId);
-    
+            
                     if (!$variant) {
                         throw new \Exception("Variant with variant_id $variantId not found.");
                     }
-    
+            
                     $variant->stocks_quantity = max(0, $variant->stocks_quantity - $quantity);
                     $variant->save();
-                } else {
+            
+                    // Use model_id from the variant to fetch brand_name
+                    $model = Models::where('model_id', $productId)->first();
+                    if ($model) {
+                        $brand = Brand::where('brand_id', $model->brand_id)->first();
+                        if ($brand) {
+                            $brandName = $brand->brand_name;  // Use the brand name from the brands table.
+                        }
+                    }
+            
+                } else {  // If variant_id is 0 or null
+                    // Use model_id from the products table to get the brand_name
                     $product = Products::where('model_id', $productId)->first();
-    
+            
                     if (!$product) {
                         throw new \Exception("Product with model_id $productId not found.");
                     }
-    
+            
                     $product->stocks_quantity = max(0, $product->stocks_quantity - $quantity);
                     $product->save();
+            
+                    // Fetch brand_name from the products table
+                    $brandName = $product->brand_name;
                 }
-    
+            
+                // Create order detail with the correct brand_name
                 OrderDetail::create([
                     'order_id' => $order->order_id,
                     'model_id' => $productId,
                     'variant_id' => $variantId,
                     'product_name' => $item['product_name'],
-                    'brand_name' => $brandName,
+                    'brand_name' => $brandName,  // Insert the fetched brand_name here
                     'quantity' => $quantity,
                     'price' => $item['price'],
                     'total_price' => $item['total_price'],
@@ -184,7 +200,7 @@ class StaffPOSController extends Controller
                     'part_id' => $partId ?? '0000',
                     'm_part_id' => $mPartId ?? '000',
                 ]);
-            }
+            }            
     
             if (!empty($request->image)) {
                 GcashPayment::create([

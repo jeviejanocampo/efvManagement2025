@@ -111,18 +111,17 @@ function togglePaymentInput() {
     const method = document.querySelector('input[name="paymentMethod"]:checked').value;
     const cashInputSection = document.getElementById('cashInputSection');
     const gcashModal = document.getElementById('gcashModal');
+    const pnbModal = document.getElementById('pnbModal');
     const gcashPaymentInfo = document.getElementById('gcashPaymentInfo');
+    const pnbPaymentInfo = document.getElementById('pnbPaymentInfo');
 
-    // Show or hide Cash Input Section
+    // Toggle sections
     cashInputSection.style.display = method === 'cash' ? 'block' : 'none';
+    gcashModal.style.display = method === 'gcash' ? 'flex' : 'none';
+    pnbModal.style.display = method === 'pnb' ? 'flex' : 'none';
 
-    // Show GCash Modal when GCash is selected
-    if (method === 'gcash') {
-        gcashModal.style.display = 'flex';
-        gcashPaymentInfo.style.display = 'none'; // Hide the saved info initially
-    } else {
-        gcashModal.style.display = 'none';
-    }
+    if (method !== 'gcash') gcashPaymentInfo.style.display = 'none';
+    if (method !== 'pnb') pnbPaymentInfo.style.display = 'none';
 }
 
 let uploadedGCashImageBase64 = null;
@@ -156,11 +155,20 @@ function saveGCashPayment() {
     }
 }
 
+function closeModal(modalId = null) {
+    if (modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.style.display = 'none';
+    } else {
+        // Default behavior: close all known modals
+        const gcashModal = document.getElementById('gcashModal');
+        const pnbModal = document.getElementById('pnbModal');
 
-function closeModal() {
-    const gcashModal = document.getElementById('gcashModal');
-    gcashModal.style.display = 'none';
+        if (gcashModal) gcashModal.style.display = 'none';
+        if (pnbModal) pnbModal.style.display = 'none';
+    }
 }
+
 
 function editGCashPayment() {
     const gcashModal = document.getElementById('gcashModal');
@@ -168,6 +176,47 @@ function editGCashPayment() {
     
     gcashPaymentInfo.style.display = 'none'; // Hide saved info
     gcashModal.style.display = 'flex'; // Show the modal again for editing
+}
+//End
+
+//PNG Payment Modal
+let uploadedPNBImageBase64 = null;
+let uploadedPNBImageFilename = null;
+
+function savePNBPayment() {
+    const uploadInput = document.getElementById('uploadPNBImage');
+    const uploadedImage = uploadInput.files[0];
+
+    if (uploadedImage) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            uploadedPNBImageBase64 = e.target.result;
+            uploadedPNBImageFilename = uploadedImage.name;
+
+            const pnbPaymentInfo = document.getElementById('pnbPaymentInfo');
+            pnbPaymentInfo.innerHTML = `
+                <div class="p-4 bg-blue-200 rounded-lg mb-4">
+                    <p class="text-blue-800">PNB payment saved.</p>
+                    <button onclick="editPNBPayment()" class="text-blue-600">Edit</button>
+                </div>
+                <img src="${e.target.result}" alt="Uploaded PNB Screenshot" class="mt-4 w-full h-auto rounded-md">
+                <p class="text-sm mt-2 text-gray-600">File: ${uploadedImage.name}</p>
+            `;
+            pnbPaymentInfo.style.display = 'block';
+            closeModal('pnbModal');
+        };
+        reader.readAsDataURL(uploadedImage);
+    } else {
+        alert("Please upload a screenshot of the PNB payment.");
+    }
+}
+
+function editPNBPayment() {
+    const pnbModal = document.getElementById('pnbModal');
+    const pnbPaymentInfo = document.getElementById('pnbPaymentInfo');
+    
+    pnbPaymentInfo.style.display = 'none';
+    pnbModal.style.display = 'flex';
 }
 //End
 
@@ -520,10 +569,15 @@ function saveOrder() {
         });
     });
 
-    const image = uploadedGCashImageFilename || null;
-
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
 
+    let image = null;
+    if (selectedPaymentMethod === 'gcash') {
+        image = uploadedGCashImageFilename || null;
+    } else if (selectedPaymentMethod === 'pnb') {
+        image = uploadedPNBImageFilename || null;
+    }
+    
     // Prepare the full payload for the backend
     const payload = {
         customerId: customerId,
@@ -559,6 +613,10 @@ function saveOrder() {
             }).then(() => {
                 // Print the fetched order data
                 console.log('Order:', data.order);  // This will print the order data in the console
+
+                let isTransferPayment = ['gcash', 'pnb'].includes(data.order.payment_method.toLowerCase());
+                let amountLabel = isTransferPayment ? "Amount Transferred" : "Amount Paid";
+                let amountValue = isTransferPayment ? data.order.total_price : data.order.cash_received;
         
                 // Create a custom HTML structure for the order details report
                 let orderDetailsHTML = `
@@ -626,9 +684,10 @@ function saveOrder() {
                         <div><strong>Total Price:</strong></div>
                         <div>₱${data.order.total_price}</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <div><strong>Amount Paid:</strong></div>
-                        <div>₱${data.order.cash_received}</div>
+                    
+                     <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <div><strong>${amountLabel}:</strong></div>
+                        <div>₱${amountValue}</div>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
                         <div><strong>Change:</strong></div>
