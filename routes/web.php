@@ -83,6 +83,10 @@ Route::middleware(['staff'])->group(function () {
 
 Route::post('/save-order-pos', [StaffPOSController::class, 'saveOrderPOS'])->name('saveOrderPOS');
 
+Route::post('/save-gcash-image', [StaffPOSController::class, 'saveGCashImage']);
+
+Route::post('/save-pnb-image', [StaffPOSController::class, 'savePNBImage']);
+
 Route::post('/customers/store', [StaffPOSController::class, 'CustomerStore'])->name('customers.store.new');
 
 Route::post('/update-order-details', [RefundOrderController::class, 'updateOrderDetails'])->name('update.order.details.preorder');

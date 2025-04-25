@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Brand;
 use App\Models\Models;
 use App\Models\Variant;
@@ -123,6 +124,54 @@ class StaffPOSController extends Controller
         // Redirect back with success message
         return Redirect::back()->with('success', 'Customer added successfully!');
     }
+
+    public function saveGCashImage(Request $request)
+    {
+        try {
+            $imageData = $request->input('image'); // Get the base64 encoded image data
+            $filename = $request->input('filename'); // Get the file name
+    
+            // Check if the file already exists
+            $filePath = public_path('onlinereceipts/' . $filename);
+            if (file_exists($filePath)) {
+                return response()->json(['success' => false, 'message' => 'This image has already been saved.']);
+            }
+    
+            // Decode the image and save it to the specified location
+            $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $imageData));
+    
+            file_put_contents($filePath, $image);
+    
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    
+
+    public function savePNBImage(Request $request)
+    {
+        try {
+            $imageData = $request->input('image'); // Get the base64 encoded image data
+            $filename = $request->input('filename'); // Get the file name
+    
+            // Check if the file already exists
+            $filePath = public_path('onlinereceipts/' . $filename);
+            if (file_exists($filePath)) {
+                return response()->json(['success' => false, 'message' => 'This image has already been saved.']);
+            }
+    
+            // Decode the image and save it to the specified location
+            $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $imageData));
+    
+            file_put_contents($filePath, $image);
+    
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    
     
 
     public function saveOrderPOS(Request $request)

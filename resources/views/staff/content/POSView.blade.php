@@ -205,6 +205,7 @@
                     <div class="p-4 bg-green-200 rounded-lg mb-4">
                         <p class="text-green-800">GCash payment saved.</p>
                         <button onclick="editGCashPayment()" class="text-blue-600">Edit</button>
+                        <button onclick="saveGCashImage()" class="text-green-600 ml-20">Save</button>
                     </div>
                 </div>
 
@@ -232,6 +233,7 @@
                     <div class="p-4 bg-blue-200 rounded-lg mb-4">
                         <p class="text-blue-800">PNB payment saved.</p>
                         <button onclick="editPNBPayment()" class="text-blue-600">Edit</button>
+                        <button onclick="savePNBImage()" class="text-blue-600 ml-4">Save</button>
                     </div>
                 </div>
 

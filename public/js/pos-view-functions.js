@@ -142,12 +142,17 @@ function saveGCashPayment() {
                 <div class="p-4 bg-green-200 rounded-lg mb-4">
                     <p class="text-green-800">GCash payment saved.</p>
                     <button onclick="editGCashPayment()" class="text-blue-600">Edit</button>
+                    <button onclick="saveGCashImage()" class="text-green-600 ml-4">Save Image</button> <!-- Save Button -->
                 </div>
                 <img src="${e.target.result}" alt="Uploaded GCash Screenshot" class="mt-4 w-full h-auto rounded-md">
                 <p class="text-sm mt-2 text-gray-600">File: ${uploadedImage.name}</p>
             `;
             gcashPaymentInfo.style.display = 'block';
             closeModal();
+
+            // Show the Save button and the image
+            document.getElementById('gcashImage').src = e.target.result;
+            document.getElementById('gcashImageFileName').innerText = `File: ${uploadedImage.name}`;
         };
         reader.readAsDataURL(uploadedImage);
     } else {
@@ -198,12 +203,17 @@ function savePNBPayment() {
                 <div class="p-4 bg-blue-200 rounded-lg mb-4">
                     <p class="text-blue-800">PNB payment saved.</p>
                     <button onclick="editPNBPayment()" class="text-blue-600">Edit</button>
+                    <button onclick="savePNBImage()" class="text-blue-600 ml-4">Save</button> <!-- Save Button -->
                 </div>
                 <img src="${e.target.result}" alt="Uploaded PNB Screenshot" class="mt-4 w-full h-auto rounded-md">
                 <p class="text-sm mt-2 text-gray-600">File: ${uploadedImage.name}</p>
             `;
             pnbPaymentInfo.style.display = 'block';
-            closeModal('pnbModal');
+            closeModal();
+
+            // Show the Save button and the image
+            document.getElementById('pnbImage').src = e.target.result;
+            document.getElementById('pnbImageFileName').innerText = `File: ${uploadedImage.name}`;
         };
         reader.readAsDataURL(uploadedImage);
     } else {
@@ -488,6 +498,63 @@ const POSUtils = (() => {
 })();
 
 
+function saveGCashImage() {
+    if (uploadedGCashImageBase64) {
+        if (confirm("Are you sure you want to save this GCash screenshot?")) {
+            fetch('/save-gcash-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    image: uploadedGCashImageBase64,
+                    filename: uploadedGCashImageFilename
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("GCash payment saved successfully!");
+                } else {
+                    alert(data.message); // Display the error message if file already exists
+                }
+            })
+            .catch(() => alert("An error occurred while saving the GCash payment."));
+        }
+    } else {
+        alert("No GCash image to save.");
+    }
+}
+
+function savePNBImage() {
+    if (uploadedPNBImageBase64) {
+        if (confirm("Are you sure you want to save this PNB screenshot?")) {
+            fetch('/save-pnb-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    image: uploadedPNBImageBase64,
+                    filename: uploadedPNBImageFilename
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("PNB payment saved successfully!");
+                } else {
+                    alert(data.message); // Display the error message if file already exists
+                }
+            })
+            .catch(() => alert("An error occurred while saving the PNB payment."));
+        }
+    } else {
+        alert("No PNB image to save.");
+    }
+}
 
 function saveOrder() {
     const items = document.querySelectorAll('#orderList li');
