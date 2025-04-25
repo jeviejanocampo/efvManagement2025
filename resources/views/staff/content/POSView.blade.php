@@ -5,6 +5,7 @@
   td {
     text-align: center;
   }
+  
 </style>
 
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -24,18 +25,22 @@
 
         <div class="col-span-6 bg-white p-4 w-full" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
 
-            <h1 class="text-2xl font-regular pb-2 border-b border-gray">Select Brand</h1>
+            <h1 class="text-2xl font-semibold pb-2 border-b border-gray">Select Brand</h1>
 
-            <div class="overflow-x-auto overflow-y-hidden whitespace-nowrap flex space-x-4 pb-4 pt-4 border-b border-gray">
-            @foreach($brands as $brand)
-                <div 
-                    class="brand-select-box inline-block text-center cursor-pointer border border-gray-300 p-2 {{ $selectedBrandId == $brand->brand_id ? 'bg-green-100 ring-2 ring-green-400' : '' }}" 
-                    data-brand-id="{{ $brand->brand_id }}"
-                >
-                    <img src="{{ asset('product-images/' . $brand->brand_image) }}" class="h-16 w-16 object-contain mx-auto mb-2" alt="{{ $brand->brand_name }}">
-                </div>
-            @endforeach
+            <div class="overflow-x-auto overflow-y-hidden whitespace-nowrap flex scroll-smooth no-scrollbar space-x-4 pb-4 pt-4 border-b border-gray">
+                @foreach($brands as $brand)
+                    <div 
+                        class="brand-select-box flex-none w-1/5 text-center cursor-pointer p-2 {{ $selectedBrandId == $brand->brand_id ? 'bg-green-100 ring-2 ring-green-400' : '' }}" 
+                        data-brand-id="{{ $brand->brand_id }}"
+                    >
+                        <img 
+                            src="{{ asset('product-images/' . $brand->brand_image) }}" 
+                            class="h-24 w-24 object-contain mx-auto mb-2 rounded-md shadow" 
+                            alt="{{ $brand->brand_name }}">
+                    </div>
+                @endforeach
             </div>
+
 
 
             
@@ -44,7 +49,7 @@
                 <p id="selectedBrandId" class="text-lg font-semibold text-gray-800 mt-1">None</p>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-4 mt-4">
                 <input 
                     type="text" 
                     id="modelSearchInput" 
@@ -128,14 +133,14 @@
         
         <div class="col-span-6 bg-white p-4 w-full" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
 
-            <h1 class="text-2xl font-regular pb-2 border-b border-gray">Order Details</h1>
+            <h1 class="text-2xl font-semibold pb-2 border-b border-gray">Order Details</h1>
 
             <ul id="orderList" class="mt-4 space-y-2 text-sm max-h-[600px] overflow-y-auto pr-4 border-b border-gray-300 pb-4">
             <!-- Items will appear here -->
             </ul>
 
             <div class="pt-2 border-b border-gray pb-4">
-                <h3 for="customerSelect" class="font-semibold text-1xl mb-2">Payment Method</h3>
+                <h3 for="customerSelect" class="font-semibold text-1xl mb-2">Select Customer</h3>
                 <div class="flex items-center gap-2">
 
                     <select id="customerSelect" class="w-full border px-3 py-2">
@@ -200,7 +205,7 @@
                 </div>
 
                 <div id="cashInputSection" class="mb-2 border-b border-gray">
-                    <label for="cashInput" class="block text-sm font-medium">Payment Received</label>
+                    <label for="cashInput" class="block text-1xl font-semibold">Payment Received</label>
                     <input 
                         type="text" 
                         id="cashInput" 
@@ -211,7 +216,7 @@
                 </div>
 
                 <div class="mt-2">
-                    <label class="block text-sm font-medium text-gray-600">Change</label>
+                    <label class="block text-1xl font-semibold text-black">Change</label>
                     <p id="changeAmount" class="text-xl font-bold text-green-600">₱0.00</p>
                 </div>
             </div>
@@ -219,11 +224,23 @@
             <div id="orderSummary" class="bg-white mt-6">
                 <h3 class="font-medium text-2xl border-b border-gray pb-2">Summary</h3>
                 <div class="flex justify-between mt-2">
-                    <p class="text-1xl">Total Items:</p>
+                    <p class="text-1xl">Total Items</p>
                     <p id="totalItems" class="text-1xl font-medium text-blue-600">0</p>
                 </div>
+                <!-- <div class="flex justify-between mt-2">
+                    <p class="text-1xl">Discount</p>
+                    <p class="text-1xl font-medium text-blue-600">₱0.00</p>
+                </div>
                 <div class="flex justify-between mt-2">
-                    <p class="text-2xl">Total:</p>
+                    <p class="text-1xl">Service Charge</p>
+                    <p class="text-1xl font-medium text-blue-600">₱0.00</p>
+                </div>
+                <div class="flex justify-between mt-2 border-b border-gray pb-4">
+                    <p class="text-1xl">Tax</p>
+                    <p class="text-1xl font-medium text-blue-600">₱0.00</p>
+                </div> -->
+                <div class="flex justify-between mt-2">
+                    <p class="text-2xl">Total</p>
                     <p id="totalAmount" class="text-2xl font-medium text-blue-600">₱0.00</p>
                 </div>
             </div>
@@ -236,8 +253,15 @@
 
 
 
-            <button onclick="confirmSaveOrder()" class="mt-4 bg-green-600 text-white px-4 py-3 w-full font-semibold">
-                CONFIRM ORDER
+            <button onclick="confirmSaveOrder()" class="mt-8 bg-green-600 text-white px-4 py-3 w-full font-semibold">
+                CONFIRM PURCHASE
+            </button>
+
+           <!-- Restart Purchase Button -->
+            <button 
+                class="mt-2 bg-red-600 text-white px-4 py-3 w-full font-semibold"
+                onclick="confirmReload();">
+                RESTART PURCHASE
             </button>
 
         </div>
@@ -294,12 +318,12 @@
 <script>
     function confirmSaveOrder() {
         Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to proceed with saving this order?',
+            title: 'Confirming Purchase',
+            text: 'Select confirm of the purchase after payment',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes, confirm!',
-            cancelButtonText: 'No, cancel!',
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
             reverseButtons: true  // Reverses the order of buttons, so 'Cancel' comes first
         }).then((result) => {
             if (result.isConfirmed) {
@@ -309,7 +333,23 @@
         });
     }
 </script>
-
+<script>
+    function confirmReload() {
+        Swal.fire({
+            title: 'Restart Purchase?',
+            text: 'This will reset your current order. Do you want to continue?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Restart',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload(); // Reload the page
+            }
+        });
+    }
+</script>
 <script>
     // Check if there is a success or error message in the session
     @if (session('success'))

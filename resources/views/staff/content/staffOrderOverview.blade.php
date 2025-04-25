@@ -97,7 +97,7 @@
                                 ($order->reference_id ?? 'N/A') . '-ORD000' . $order->order_id }}
                         </td> -->
                         <td class="px-4 py-3">
-                            {{ ($order->reference_id ?? '') . '-ORD' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT) }}
+                            {{ ($order->reference_id ?? '') . 'ORD00' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT) }}
                         </td>
                         <td class="px-4 py-3">
                             {{ $order->customer ? $order->customer->full_name : 'N/A' }}

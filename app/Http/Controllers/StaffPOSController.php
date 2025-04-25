@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Brand;
 use App\Models\Models;
+use App\Models\Variant;
 use App\Models\Products;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Log;
@@ -129,62 +130,62 @@ class StaffPOSController extends Controller
         DB::beginTransaction();
     
         try {
-            // Insert into the 'orders' table
             $order = Order::create([
                 'user_id' => $request->customerId,
                 'reference_id' => $request->referenceId,
                 'total_items' => $request->totalItems,
                 'total_price' => $request->totalPrice,
-                'original_total_amount' => $request->totalPrice,  // Assuming original total is same
+                'original_total_amount' => $request->totalPrice,
                 'payment_method' => ucfirst(strtolower($request->paymentMethod ?? 'Cash')),
-                'status' => 'Completed',  // Default status
-                'overall_status' => 'Completed',  // Default status
-                'customers_change' => (string) $request->changeAmount, // Store as string
-                'cash_received' => $request->cashReceived, // ✅ Store this
+                'status' => 'Completed',
+                'overall_status' => 'Completed',
+                'customers_change' => (string) $request->changeAmount,
+                'cash_received' => $request->cashReceived,
             ]);
     
-            // Insert into the 'order_details' table
             foreach ($request->orderItems as $item) {
                 $partId = $item['part_id'] ?? null;
-                $mPartId = $item['m_part_id'] ?? null;
+                $mPartId = $item['m_part_id'] ?? $partId;
+                $variantId = $item['variant_id'] ?? null;
+                $productId = $item['model_id'];
+                $quantity = $item['quantity'];
+                $brandName = 'Unknown';
     
-                // If m_part_id is null, use part_id
-                if ($mPartId === null) {
-                    $mPartId = $partId;
-                }
+                if (!empty($variantId) && $variantId != 0) {
+                    $variant = Variant::find($variantId);
     
-                // Fetch brand_id from the 'models' table based on the model_id
-                $model = Models::find($item['model_id']);
-                $brandName = null;
-    
-                // If the model exists, fetch the brand_name from the 'brands' table
-                if ($model) {
-                    $brand = $model->brand; // The brand relation in the Models model
-                    if ($brand) {
-                        $brandName = $brand->brand_name; // Get the brand_name from the related Brand
+                    if (!$variant) {
+                        throw new \Exception("Variant with variant_id $variantId not found.");
                     }
+    
+                    $variant->stocks_quantity = max(0, $variant->stocks_quantity - $quantity);
+                    $variant->save();
+                } else {
+                    $product = Products::where('model_id', $productId)->first();
+    
+                    if (!$product) {
+                        throw new \Exception("Product with model_id $productId not found.");
+                    }
+    
+                    $product->stocks_quantity = max(0, $product->stocks_quantity - $quantity);
+                    $product->save();
                 }
     
-                // Default to 'Unknown' if brand_name is not found
-                $brandName = $brandName ?? 'Unknown';
-    
-                // Insert into the order_details table
                 OrderDetail::create([
-                    'order_id' => $order->order_id,  // Link to the order just created
-                    'model_id' => $item['model_id'],
-                    'variant_id' => $item['variant_id'] ?? null,  // Allow null for variants
+                    'order_id' => $order->order_id,
+                    'model_id' => $productId,
+                    'variant_id' => $variantId,
                     'product_name' => $item['product_name'],
-                    'brand_name' => $brandName,  // Set the brand_name
-                    'quantity' => $item['quantity'],
+                    'brand_name' => $brandName,
+                    'quantity' => $quantity,
                     'price' => $item['price'],
                     'total_price' => $item['total_price'],
                     'product_status' => 'Completed',
-                    'part_id' => $partId ?? '0000', // If part_id is not provided, use default
-                    'm_part_id' => $mPartId ?? '000',  // If m_part_id is null, use default
+                    'part_id' => $partId ?? '0000',
+                    'm_part_id' => $mPartId ?? '000',
                 ]);
             }
     
-            // ✅ 3. Insert into 'gcash_payment' if image is provided
             if (!empty($request->image)) {
                 GcashPayment::create([
                     'order_id' => $order->order_id,
@@ -195,24 +196,23 @@ class StaffPOSController extends Controller
     
             DB::commit();
     
-            // Fetch the latest order and order details
             $latestOrder = Order::with('orderDetails')->find($order->order_id);
     
-            // Return success with the order data
             return response()->json([
                 'success' => true,
                 'message' => 'Order saved successfully!',
-                'order' => $latestOrder // Send the latest order and details
+                'order' => $latestOrder
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            // Error Message
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to save order: ' . $e->getMessage()
             ]);
         }
     }
+    
+
     
     
     

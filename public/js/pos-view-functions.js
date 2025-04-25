@@ -506,7 +506,7 @@ function saveOrder() {
         }
 
         referenceSuffix = referenceSuffix.padStart(6, "0");
-        referenceId = referenceSuffix + "OR00";
+        referenceId = referenceSuffix ;
 
         orderData.push({
             model_id: modelId,

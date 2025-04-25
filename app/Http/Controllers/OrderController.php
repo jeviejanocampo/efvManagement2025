@@ -699,7 +699,7 @@ class OrderController extends Controller
             if ($cleanParts->count() === 2) {
                 $order->custom_reference_id = $finalBrand;
             } elseif ($cleanParts->count() === 1) {
-                $order->reference_id = $finalBrand . '-' . $cleanParts[0];
+                $order->reference_id = $finalBrand . $cleanParts[0];
             } else {
                 $order->reference_id = $finalBrand;
             }
