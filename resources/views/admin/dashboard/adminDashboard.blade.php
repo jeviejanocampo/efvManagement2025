@@ -39,7 +39,7 @@
                    <span class="text-sm"> Dashboard </span>
                 </a>
 
-                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                <a href="{{ route('AdminoverView') }}" class="flex items-center text-white hover:text-white ml-2"  >
                     <span>
                         <i class="fa-solid fa-box  mr-3"></i>
                     </span>
@@ -47,7 +47,7 @@
                    
                 </a>
 
-                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                <a href="{{ route('adminPOS.view') }}" class="flex items-center text-white hover:text-white ml-2"  >
                     <span>
                         <i class="fa-solid fa-list-check  mr-3"></i>
                     </span>
@@ -190,7 +190,7 @@
             </header>
 
             <!-- Dynamic Content -->
-            <main class="p-4 sm: pt-7">
+            <main class="p-6 sm: pt-2">
                 @yield('content')
             </main>
         </div>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Overview</title>
+</head>
+<style>
+    td {
+        font-size: 13px;
+        text-align: 'center'
+    }
+    th{
+        text-align: 'center'
+    }
+</style>
+<body>
+@extends('admin.dashboard.adminDashboard')
+@section('content')
+
+<div class="container mx-auto max-w-full p-4 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+
+    <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333; display: flex; align-items: center;" class=" border-b border-gray-200">
+        <i class="fas fa-box-open mr-3"></i> Reserved and Pre-Orders
+        
+
+        <p class="border-b border-b-[1px] border-gray-300 mt-2">
+            <!-- Your content here -->
+        </p>
+    </div>
+
+
+    <div class="flex justify-between items-center mb-4 space-x-4">
+
+        <!-- Status filter -->
+        <div class="w-full sm:w-1/3">
+            <select 
+                id="status-filter" 
+                class="w-full px-4 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:outline-none">
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="In Process">In Process</option>
+                <option value="Ready to Pickup">Ready to Pickup</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+        </div>
+        
+        <!-- Date Range Filter -->
+        <div class="w-full sm:w-1/3 flex space-x-2">
+            <input 
+                type="date" 
+                id="start-date" 
+                class="w-full text-sm px-4 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:outline-none">
+            <input 
+                type="date" 
+                id="end-date" 
+                class="w-full text-sm px-4 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:outline-none">
+        </div>
+
+         <!-- Search bar -->
+         <div class="w-full sm:w-1/3">
+            <input 
+                type="text" 
+                id="search-bar" 
+                class="w-full px-4 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:outline-none" 
+                placeholder="Search by Order ID or User ID">
+        </div>
+
+    </div>
+
+    <div class="overflow-x-auto">
+    <table class="table-auto w-full border-collapse">
+        <thead>
+            <tr class="bg-gray-100 border-b border-gray-300">
+                <th class="px-4 py-3">Reference ID</th> 
+                <th class="px-4 py-3">User</th>
+                <th class="px-4 py-3">Total Items</th>
+                <th class="px-4 py-3">Total</th>
+                <th class="px-4 py-3">Created At</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">Action</th>
+            </tr>
+        </thead>
+        <tbody id="order-table">
+            @if ($orders->isEmpty())
+                <tr class="border-b border-gray-300">
+                    <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+                        No orders available.
+                    </td>
+                </tr>
+            @else
+                @foreach ($orders as $order)
+                    <tr class="border-b border-gray-300 transition-transform duration-300 hover:bg-gray-100 text-center">
+                        <!-- <td class="px-4 py-3">
+                            {{ Str::contains($order->reference_id, 'ORD000') ? $order->reference_id : 
+                                ($order->reference_id ?? 'N/A') . '-ORD000' . $order->order_id }}
+                        </td> -->
+                        <td class="px-4 py-3">
+                            {{ ($order->reference_id ?? '') . 'ORD00' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT) }}
+                        </td>
+                        <td class="px-4 py-3">
+                            {{ $order->customer ? $order->customer->full_name : 'N/A' }}
+                        </td>
+                        <td class="px-4 py-3">{{ $order->total_items }}</td>
+                        <td class="px-4 py-3">₱ {{ number_format($order->total_price, 2) }}</td>
+                        <td class="px-4 py-3">{{ $order->created_at->diffForHumans() }}</td>
+                        <td class="px-4 py-3">
+                            <span class="
+                                px-4 py-1 rounded-full text-sm text-white text-left 
+                                @if ($order->status === 'Pending') bg-yellow-500
+                                @elseif ($order->status === 'Ready to Pickup') bg-blue-500
+                                @elseif ($order->status === 'Cancelled') bg-red-500
+                                @elseif ($order->status === 'In Process') bg-orange-500
+                                @elseif ($order->status === 'Completed') bg-green-500
+                                @else bg-gray-500
+                                @endif
+                            ">
+                                {{ $order->status }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <p style="text-align: center;">
+                                <a href="{{ route('AdminoverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
+                                class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-2">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </p>
+                        </td>
+                    </tr>
+                @endforeach
+            @endif
+        </tbody>
+    </table>
+    <div class="mt-4">
+        {{ $orders->links() }}
+    </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    const startDate = document.getElementById("start-date");
+    const endDate = document.getElementById("end-date");
+    const orderTable = document.getElementById("order-table");
+
+    startDate.addEventListener("change", filterByDateRange);
+    endDate.addEventListener("change", filterByDateRange);
+
+    function filterByDateRange() {
+        const startValue = startDate.value ? new Date(startDate.value) : null;
+        const endValue = endDate.value ? new Date(endDate.value) : null;
+        const rows = orderTable.querySelectorAll("tr");
+
+        rows.forEach((row) => {
+            const createdAtText = row.cells[4].textContent.trim(); // Assuming date is in the 5th column
+            const createdAtDate = new Date(createdAtText);
+
+            const matchesDate =
+                (!startValue || createdAtDate >= startValue) &&
+                (!endValue || createdAtDate <= endValue);
+
+            if (matchesDate) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+    });
+
+</script>
+<script src="{{ asset('js/overview-orders-filter.js') }}"></script>
+
+@endsection
+
+@section('scripts')
+@endsection
+</body>
+</html>

@@ -81,7 +81,7 @@ Route::middleware(['staff'])->group(function () {
 
 });
 
-Route::post('/save-order-pos', [StaffPOSController::class, 'saveOrderPOS'])->name('saveOrderPOS');
+Route::post('/save-order-pos', [StaffPOSController::class, 'saveOrderPOS'])->name('staff.saveOrderPOS');
 
 Route::post('/save-gcash-image', [StaffPOSController::class, 'saveGCashImage']);
 
@@ -201,12 +201,35 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/admin/users/create', [AdminController::class, 'createUser'])->name('admin.users.create');
 
-    Route::get('/admin-view', [ProductController::class, 'Adminindex'])->name('adminproductsView');
+    Route::get('/admin-view-side', [AdminController::class, 'AdminindexdDashboard'])->name('adminproductsView');
 
     Route::get('/admin/generate-report', [ActivityLogController::class, 'AdminGenerateIndex'])->name('admin.generateReport');
 
+    Route::get('/admin/overview', [AdminController::class, 'AdminOrderOverview'])->name('AdminoverView');
+
+    Route::get('/admin/overview/details/{order_id}', [AdminController::class, 'Admindetails'])->name('AdminoverViewDetails');
+
+    Route::get('/admin-order/{order_id}/edit-details', [AdminController::class, 'AdmineditDetails'])->name('admin.edit.product');
+
+    Route::get('/admin/pos-view', [AdminController::class, 'AdminindexView'])->name('adminPOS.view');
+
+    Route::get('/admin/get-brand-models/{brand_id}', [AdminController::class, 'AdmingetBrandModels'])->name('AdminPOS.getModels');
+
+
 });
 
+
+Route::post('/admin-update-order-details', [AdminController::class, 'AdminupdateOrderDetails'])->name('admin.update.order.details.preorder');
+
+Route::post('/admin-orders/update-status/{order_id}', [AdminController::class, 'AdminupdateStatus']);
+
+Route::post('/admin-customers/store', [AdminController::class, 'AdminCustomerStore'])->name('admin.customers.store.new');
+
+Route::post('/admin-save-gcash-image', [AdminController::class, 'AdminsaveGCashImage']);
+
+Route::post('/admin-save-pnb-image', [AdminController::class, 'AdminsavePNBImage']);
+
+Route::post('/admin-save-order-pos', [AdminController::class, 'AdminsaveOrderPOS'])->name('admin.saveOrderPOS');
 
 Route::put('/admin/users/update/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
 

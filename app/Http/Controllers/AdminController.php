@@ -4,8 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;  // Make sure the User model is imported
-use Illuminate\Support\Facades\Log;  // Import for logging
+use App\Models\User; 
+use Illuminate\Support\Facades\Log; 
+use App\Models\Order;
+use App\Models\Models;
+use App\Models\Products;
+use App\Models\Variant;
+use App\Models\GcashPayment;
+use App\Models\RefundOrder;
+use App\Models\OrderReference;
+use App\Models\RefundLog;
+use App\Models\OrderDetail;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ActivityLog;  
+use App\Models\Brand;  
+use App\Models\Customer;  
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redirect;
+
 
 class AdminController extends Controller
 {
@@ -191,8 +209,478 @@ class AdminController extends Controller
         return redirect()->route('admin.users.create')->with('success', 'User created successfully!');
     }
 
+    public function AdminOrderOverview()
+    {
+        $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status', 'reference_id')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+    
+        foreach ($orders as $order) {
+            // Check if reference exists in order_reference table
+            $existingReference = \App\Models\OrderReference::where('order_id', $order->order_id)->value('reference_id');
+    
+            if ($existingReference) {
+                $order->custom_reference_id = $existingReference; // Keep original reference_id, add custom_reference_id
+                continue; // Skip the rest of the loop and use the existing reference
+            }
+    
+            $orderDetails = OrderDetail::where('order_id', $order->order_id)
+                ->latest('order_detail_id')
+                ->take(2)
+                ->get(['part_id', 'variant_id', 'brand_name']);
+    
+            $cleanParts = collect();
+            $brandNames = collect();
+    
+            foreach ($orderDetails as $detail) {
+                if (!empty($detail->variant_id) && $detail->variant_id != 0) {
+                    $variantPartId = \App\Models\Variant::where('variant_id', $detail->variant_id)->value('part_id');
+                    $cleanPart = $variantPartId ? substr(preg_replace('/[^A-Za-z0-9]/', '', $variantPartId), 0, 3) : '';
+                    $brandName = $detail->brand_name ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->brand_name), 0, 3)) : '';
+                    $brandNames->push($brandName);
+                } else {
+                    $cleanPart = substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->part_id), 0, 4);
+                }
+    
+                $cleanParts->push($cleanPart);
+            }
+    
+            $productBrandName = \App\Models\Products::whereIn('m_part_id', $orderDetails->pluck('part_id'))->value('brand_name');
+            $shortProductBrand = $productBrandName ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '-', $productBrandName), 0, 3)) : '';
+            $finalBrand = $brandNames->isNotEmpty() ? $brandNames->first() : $shortProductBrand;
+    
+            if ($cleanParts->count() === 2) {
+                $order->custom_reference_id = $finalBrand;
+            } elseif ($cleanParts->count() === 1) {
+                $order->reference_id = $finalBrand . $cleanParts[0];
+            } else {
+                $order->reference_id = $finalBrand;
+            }
+        }
+    
+        session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
+        session(['pendingRefundCount' => \App\Models\RefundOrder::where('status', 'Pending')->count()]);
+    
+        return view('admin.content.adminOrderOverview', compact('orders'));
+    }
         
 
+    public function Admindetails($order_id, Request $request)
+    {
+
+        $reference_id = $request->query('reference_id');
+
+        $order = Order::find($order_id); // Fetch the order by ID
+        if (!$order) {
+            abort(404, 'Order not found'); // Handle invalid order ID
+        }
+    
+        // Fetch the order details based on the order_id
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+    
+        // Fetch images for each order detail's model_id
+        foreach ($orderDetails as $detail) {
+            $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
+        }
+    
+        return view('admin.content.AdminOverviewDetails', compact('order', 'orderDetails'));
+    }
+
+    public function AdmineditDetails($order_id)
+    {
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+    
+        foreach ($orderDetails as $detail) {
+            // Try to find the product in Variant first
+            $variant = \App\Models\Variant::where('model_id', $detail->model_id)
+                                          ->where('product_name', $detail->product_name)
+                                          ->first();
+    
+            if ($variant) {
+                $detail->stocks_quantity = $variant->stocks_quantity;
+            } else {
+                // Fallback to Products table
+                $product = \App\Models\Products::where('model_id', $detail->model_id)
+                                               ->where('model_name', $detail->product_name)
+                                               ->first();
+    
+                $detail->stocks_quantity = $product ? $product->stocks_quantity : 0;
+            }
+        }
+    
+        return view('admin.content.adminEditDetailsRefund', compact('orderDetails'));
+    }
+
+    public function AdminupdateOrderDetails(Request $request)
+    {
+        try {
+            // Start a transaction to ensure data consistency
+            \DB::beginTransaction();
+        
+            // Loop through the order details and update each one
+            foreach ($request->product_name as $orderDetailId => $productName) {
+                $orderDetail = OrderDetail::findOrFail($orderDetailId);
+        
+                // Update quantity and calculate new total_price (quantity * unit_price)
+                $quantity = $request->quantity[$orderDetailId];
+                $unitPrice = $orderDetail->price;
+                $totalPrice = $quantity * $unitPrice;
+        
+                // Update the order detail record
+                $orderDetail->update([
+                    'quantity' => $quantity,
+                    'total_price' => $totalPrice,
+                ]);
+            }
+        
+            // After updating all order details, update the total amount in the orders table
+            $orderId = $request->order_id;
+            $order = Order::findOrFail($orderId);
+        
+            // Recalculate the total amount to pay for the order
+            $totalAmount = OrderDetail::where('order_id', $orderId)->sum('total_price');
+            
+            // Update total_amount and original_total_amount in the orders table
+            $order->update([
+                'total_price' => $totalAmount,               // New total amount to pay
+                'original_total_amount' => $totalAmount,       // Assuming original_total_amount is also updated here
+            ]);
+        
+            // Commit the transaction
+            \DB::commit();
+    
+            // Redirect back with success message
+        return redirect()->route('admin.edit.product', ['order_id' => $orderId])->with('success', 'Order details updated successfully.');
+        } catch (\Exception $e) {
+            // Rollback in case of error
+            \DB::rollBack();
+    
+            // Redirect back with error message
+            return redirect()->route('admin.edit.product', ['order_id' => $request->order_id])->with('error', 'Error updating order details: ' . $e->getMessage());
+        }
+    }
+
+    public function AdminupdateStatus($order_id, Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,Ready to Pickup,In Process,Completed,Cancelled',
+            'reference_id' => 'nullable|string|max:255'
+        ]);
+
+        $order = Order::find($order_id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found.',
+            ], 404);
+        }
+
+        $newStatus = $request->input('status');
+        $oldStatus = $order->status;
+
+        DB::transaction(function () use (&$order, $order_id, $newStatus, $oldStatus, $request) {
+            $order->status = $newStatus;
+
+            // Get order details
+            $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+
+            // Reverse stock if changing from Completed to another status
+            if ($oldStatus === 'Completed' && $newStatus !== 'Completed') {
+                foreach ($orderDetails as $detail) {
+                    $quantity = $detail->quantity;
+
+                    if (!is_null($detail->variant_id) && $detail->variant_id != 0) {
+                        DB::table('variants')
+                            ->where('variant_id', $detail->variant_id)
+                            ->increment('stocks_quantity', $quantity);
+                    } else {
+                        DB::table('products')
+                            ->where('model_id', $detail->model_id)
+                            ->increment('stocks_quantity', $quantity);
+                    }
+                }
+
+                // Also revert product_status
+                OrderDetail::where('order_id', $order_id)->update(['product_status' => 'Pending']);
+                $order->scan_status = 'Pending';
+            }
+
+            // Update product_status to Completed if applicable, skip refunded items
+            if ($newStatus === 'Completed' && $oldStatus !== 'Completed') {
+                OrderDetail::where('order_id', $order_id)
+                    ->whereNotIn('product_status', ['refunded', 'Refunded', 'to be refunded'])
+                    ->update(['product_status' => 'Completed']);
+
+                $order->scan_status = 'Completed';
+            }
+
+            // Handle reference if status is In Process
+            if ($newStatus === 'In Process') {
+                $referenceId = $request->input('reference_id');
+                if ($referenceId) {
+                    OrderReference::create([
+                        'order_id' => $order_id,
+                        'reference_id' => $referenceId
+                    ]);
+                }
+            }
+
+            $order->updated_at = now();
+
+            $order->save();
+        });
+
+        $user = Auth::user();
+        $role = $user->role;
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => $role,
+            'activity' => "Updated order #$order_id status from {$oldStatus} to {$newStatus}",
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Order status updated successfully.',
+        ]);
+    }
+
+    public function AdminindexdDashboard()
+    {
+        $products = Models::with(['brand.category'])->paginate(8); 
+        $brands = Brand::pluck('brand_name');
+        $statuses = Products::distinct()->pluck('status');
+        
+        return view('admin.dashboard.adminDashboard', compact('products', 'brands', 'statuses'));
+    }
+
+
+    public function AdminindexView(Request $request)
+    {
+        $brands = Brand::where('status', 'active')->get();
+        $selectedBrandId = $request->query('brand_id');
+        $models = [];
+        $customers = Customer::where('status', 'active')->get(); // Fetch active customers
+    
+        if ($selectedBrandId) {
+            $models = Models::where('brand_id', $selectedBrandId)
+                ->where('status', 'active')
+                ->select('model_name', 'model_img', 'price', 'model_id', 'w_variant')
+                ->with(['products' => function ($query) {
+                    $query->select('model_id', 'stocks_quantity', 'm_part_id');
+                }])
+                ->get();
+    
+            foreach ($models as $model) {
+                if ($model->w_variant === 'YES') {
+                    $model->variants = Variant::where('model_id', $model->model_id)
+                        ->where('status', 'active')
+                        ->select('product_name', 'variant_image', 'price', 'variant_id', 'stocks_quantity', 'model_id', 'part_id')
+                        ->get();
+                }
+            }
+        }
+    
+        return view('admin.content.AdminPOSView', compact('brands', 'models', 'selectedBrandId', 'customers'));
+    }
+
+    public function AdminCustomerStore(Request $request)
+    {
+        // Validate the incoming request
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email',
+        ]);
+    
+        // Always assign the default password
+        $validated['password'] = bcrypt('customer123');
+        $validated['status'] = 'active';
+    
+        // Create the new customer
+        $customer = Customer::create($validated);
+    
+        // Log the creation for debugging
+        Log::info('New customer created', [
+            'id' => $customer->id,
+            'full_name' => $customer->full_name,
+            'email' => $customer->email
+        ]);
+    
+        // Redirect back with success message
+        return Redirect::back()->with('success', 'Customer added successfully!');
+    }
+
+    public function AdmingetBrandModels($brand_id)
+    {
+        $models = Models::where('brand_id', $brand_id)
+            ->where('status', 'active')
+            ->select('model_name', 'model_img', 'price', 'model_id', 'w_variant')
+            ->with(['products' => function ($query) {
+                $query->select('model_id', 'stocks_quantity', 'm_part_id');
+            }])
+            ->get();
+    
+        foreach ($models as $model) {
+            if ($model->w_variant === 'YES') {
+                $model->variants = Variant::where('model_id', $model->model_id)
+                    ->where('status', 'active')
+                    ->select('product_name', 'variant_image', 'price', 'variant_id', 'stocks_quantity', 'model_id', 'part_id') // <- added
+                    ->get();
+            }
+        }
+    
+        return response()->json($models);
+    }
+
+    public function AdminsaveGCashImage(Request $request)
+    {
+        try {
+            $imageData = $request->input('image'); // Get the base64 encoded image data
+            $filename = $request->input('filename'); // Get the file name
+    
+            // Check if the file already exists
+            $filePath = public_path('onlinereceipts/' . $filename);
+            if (file_exists($filePath)) {
+                return response()->json(['success' => false, 'message' => 'This image has already been saved.']);
+            }
+    
+            // Decode the image and save it to the specified location
+            $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $imageData));
+    
+            file_put_contents($filePath, $image);
+    
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function AdminsavePNBImage(Request $request)
+    {
+        try {
+            $imageData = $request->input('image'); // Get the base64 encoded image data
+            $filename = $request->input('filename'); // Get the file name
+    
+            // Check if the file already exists
+            $filePath = public_path('onlinereceipts/' . $filename);
+            if (file_exists($filePath)) {
+                return response()->json(['success' => false, 'message' => 'This image has already been saved.']);
+            }
+    
+            // Decode the image and save it to the specified location
+            $image = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $imageData));
+    
+            file_put_contents($filePath, $image);
+    
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function AdminsaveOrderPOS(Request $request)
+    {
+        DB::beginTransaction();
+    
+        try {
+            $order = Order::create([
+                'user_id' => $request->customerId,
+                'reference_id' => $request->referenceId,
+                'total_items' => $request->totalItems,
+                'total_price' => $request->totalPrice,
+                'original_total_amount' => $request->totalPrice,
+                'payment_method' => ucfirst(strtolower($request->paymentMethod ?? 'Cash')),
+                'status' => 'Completed',
+                'overall_status' => 'Completed',
+                'customers_change' => (string) $request->changeAmount,
+                'cash_received' => $request->cashReceived,
+            ]);
+    
+            foreach ($request->orderItems as $item) {
+                $partId = $item['part_id'] ?? null;
+                $mPartId = $item['m_part_id'] ?? $partId;
+                $variantId = $item['variant_id'] ?? null;
+                $productId = $item['model_id'];
+                $quantity = $item['quantity'];
+                $brandName = 'Unknown';  // Default brand name if no match is found.
+            
+                // If variant_id is not null or 0
+                if (!empty($variantId) && $variantId != 0) {
+                    $variant = Variant::find($variantId);
+            
+                    if (!$variant) {
+                        throw new \Exception("Variant with variant_id $variantId not found.");
+                    }
+            
+                    $variant->stocks_quantity = max(0, $variant->stocks_quantity - $quantity);
+                    $variant->save();
+            
+                    // Use model_id from the variant to fetch brand_name
+                    $model = Models::where('model_id', $productId)->first();
+                    if ($model) {
+                        $brand = Brand::where('brand_id', $model->brand_id)->first();
+                        if ($brand) {
+                            $brandName = $brand->brand_name;  // Use the brand name from the brands table.
+                        }
+                    }
+            
+                } else {  // If variant_id is 0 or null
+                    // Use model_id from the products table to get the brand_name
+                    $product = Products::where('model_id', $productId)->first();
+            
+                    if (!$product) {
+                        throw new \Exception("Product with model_id $productId not found.");
+                    }
+            
+                    $product->stocks_quantity = max(0, $product->stocks_quantity - $quantity);
+                    $product->save();
+            
+                    // Fetch brand_name from the products table
+                    $brandName = $product->brand_name;
+                }
+            
+                // Create order detail with the correct brand_name
+                OrderDetail::create([
+                    'order_id' => $order->order_id,
+                    'model_id' => $productId,
+                    'variant_id' => $variantId,
+                    'product_name' => $item['product_name'],
+                    'brand_name' => $brandName,  // Insert the fetched brand_name here
+                    'quantity' => $quantity,
+                    'price' => $item['price'],
+                    'total_price' => $item['total_price'],
+                    'product_status' => 'Completed',
+                    'part_id' => $partId ?? '0000',
+                    'm_part_id' => $mPartId ?? '000',
+                ]);
+            }            
+    
+            if (!empty($request->image)) {
+                GcashPayment::create([
+                    'order_id' => $order->order_id,
+                    'image' => $request->image,
+                    'status' => 'Completed',
+                ]);
+            }
+    
+            DB::commit();
+    
+            $latestOrder = Order::with('orderDetails')->find($order->order_id);
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Order saved successfully!',
+                'order' => $latestOrder
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save order: ' . $e->getMessage()
+            ]);
+        }
+    }
 
 
 
