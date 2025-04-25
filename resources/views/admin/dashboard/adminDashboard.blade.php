@@ -55,17 +55,9 @@
                    
                 </a>
 
-                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
-                    <span>
-                        <i class="fa-solid fa-box  mr-3"></i>
-                    </span>
-                    <span class="text-sm"> Order Overview
-                   
-                </a>
-
                 <p class="text-white text-sm font-bold">Products Management</p>
 
-                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                <a href="{{ route('adminproductsView') }}" class="flex items-center text-white hover:text-white ml-2"  >
                     <span>
                         <i class="fa-solid fa-box  mr-3"></i>
                     </span>

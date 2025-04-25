@@ -682,7 +682,180 @@ class AdminController extends Controller
         }
     }
 
+    public function AdminProductsView()
+    {
+        $products = Models::with(['brand.category'])
+                          ->orderBy('created_at', 'desc') // or 'id' if you prefer
+                          ->paginate(10); 
+                          
+        $brands = Brand::pluck('brand_name');
+        $statuses = Products::distinct()->pluck('status');
+        
+        return view('admin.content.adminProductsView', compact('products', 'brands', 'statuses'));
+    }  
 
+    public function AdminindexVariant($model_id)
+    {
+        // Fetch the variants related to the model_id
+        $variants = Variant::where('model_id', $model_id)->get();
+
+        $model = Models::where('model_id', $model_id)->first();
+
+        if (!$model) {
+            return redirect()->back()->with('error', 'Model not found.');
+        }
+
+        return view('admin.content.AdminviewVariants', compact('variants', 'model_id', 'model'));
+    }
+
+    
+    public function AdminIndexAddVariant($model_id)
+    {
+        $model = Models::where('model_id', $model_id)->first();
+
+        if (!$model) {
+            return redirect()->back()->with('error', 'Model not found.');
+        }
+
+        return view('admin.content.AdminaddVariant', compact('model', 'model_id'));
+    }
+
+    public function AdminStoreVariant(Request $request, $model_id)
+    {
+        // Validate form inputs
+        $request->validate([
+            'product_name' => 'required|string|max:255',
+            'variant_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'part_id' => 'required|string|max:100',
+            'price' => 'required|numeric|min:0',
+            'specification' => 'nullable|string',
+            'description' => 'nullable|string',
+            'stocks_quantity' => 'required|integer|min:0',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        // Handle Image Upload
+        if ($request->hasFile('variant_image')) {
+            $originalName = $request->file('variant_image')->getClientOriginalName(); // Get original filename
+            $request->file('variant_image')->move(public_path('product-images/'), $originalName);
+            $variantImagePath = $originalName; // Store only the filename
+        } else {
+            return redirect()->back()->with('error', 'Image upload failed.');
+        }
+
+
+        // Create the variant record
+        Variant::create([
+            'model_id' => $model_id,
+            'product_name' => $request->product_name,
+            'variant_image' => $variantImagePath,
+            'part_id' => $request->part_id,
+            'price' => $request->price,
+            'specification' => $request->specification,
+            'description' => $request->description,
+            'stocks_quantity' => $request->stocks_quantity,
+            'status' => $request->status,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Added new variant '{$request->product_name}' for model #$model_id",
+        ]);
+
+
+        return redirect()->route('admin.add.variant', ['model_id' => $model_id])->with('success', 'Variant added successfully.');
+    }
+
+    public function AdmineditVariant($model_id, $variant_id, Request $request)
+    {
+        $variant = Variant::where('model_id', $model_id)->where('variant_id', $variant_id)->first();
+    
+        if (!$variant) {
+            return redirect()->back()->with('error', 'Variant not found.');
+        }
+    
+        // Store the previous URL in session
+        session(['previous_url' => url()->previous()]);
+
+        // ✅ Log activity when a user accesses the edit variant page
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Accessed edit page for variant #$variant_id of model #$model_id",
+        ]);
+
+    
+        return view('admin.content.AdminEditVariant', compact('variant', 'model_id', 'variant_id'));
+    }
+
+    public function AdminupdateVariant(Request $request, $model_id, $variant_id)
+    {
+        $request->validate([
+            'product_name' => 'required|string|max:255',
+            'part_id' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'specification' => 'required|string|max:500',
+            'description' => 'required|string',
+            'stocks_quantity' => 'required|integer',
+            'status' => 'required|in:active,inactive',
+        ]);
+    
+        $variant = Variant::where('model_id', $model_id)
+                          ->where('variant_id', $variant_id)
+                          ->first();
+    
+        if (!$variant) {
+            return redirect()->back()->with('error', 'Variant not found.');
+        }
+    
+        // Handle Image Upload
+        if ($request->hasFile('variant_image')) {
+            $imageName = $request->file('variant_image')->getClientOriginalName(); // Get original file name only
+            $request->file('variant_image')->move(public_path('product-images/'), $imageName);
+            $variant->variant_image = $imageName;
+        }
+    
+        // Update Variant Details
+        $variant->product_name = $request->product_name;
+        $variant->part_id = $request->part_id;
+        $variant->price = $request->price;
+        $variant->specification = $request->specification;
+        $variant->description = $request->description;
+        $variant->stocks_quantity = $request->stocks_quantity;
+        $variant->status = $request->status;
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Updated variant #$variant_id of model #$model_id",
+        ]);
+
+    
+        if ($variant->save()) {
+            return redirect()->route('admin.variantsView', ['model_id' => $model_id])->with('success', 'Variant updated successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Failed to update variant.');
+        }
+    }
+
+    public function AdmindeleteVariant($id)
+    {
+        $variant = Variant::find($id);
+        if (!$variant) {
+            return redirect()->back()->with('error', 'Variant not found.');
+        }
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Deleted variant #$id",
+        ]);
+
+        $variant->delete();
+        return redirect()->back()->with('success', 'Variant deleted successfully.');
+    
+    }
 
 
 }

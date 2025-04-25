@@ -215,9 +215,22 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/admin/get-brand-models/{brand_id}', [AdminController::class, 'AdmingetBrandModels'])->name('AdminPOS.getModels');
 
+    Route::get('/admin-view', [AdminController::class, 'AdminProductsView'])->name('adminproductsView');
+
+    Route::get('/admin-view-variants/{model_id}', [AdminController::class, 'AdminindexVariant'])->name('admin.variantsView');
+
+    Route::get('/admin-add-variant/{model_id}', [AdminController::class, 'AdminIndexAddVariant'])->name('admin.add.variant');
+
+    Route::get('/admin-edit-variant/{model_id}/{variant_id}', [AdminController::class, 'AdmineditVariant'])->name('admin.edit.variant');
+
 
 });
 
+Route::post('/admin-store-variant/{model_id}', [AdminController::class, 'AdminStoreVariant'])->name('admin.store.variant');
+
+Route::put('/admin-update-variant/{model_id}/{variant_id}', [AdminController::class, 'AdminupdateVariant'])->name('admin.update.variant');
+
+Route::post('/admin-variant/delete/{id}', [AdminController::class, 'AdmindeleteVariant'])->name('admin.delete.variant');
 
 Route::post('/admin-update-order-details', [AdminController::class, 'AdminupdateOrderDetails'])->name('admin.update.order.details.preorder');
 
