@@ -166,25 +166,32 @@
 
                 <h3 class="font-semibold text-1xl mb-2">Payment Method</h3>
 
-                <div class="flex items-center gap-4 mb-4">
-                    <label class="flex items-center gap-2">
-                        <input type="radio" name="paymentMethod" value="cash" checked onchange="togglePaymentInput()" />
-                        Cash
-                    </label>
-                    <label class="flex items-center gap-2">
-                        <input type="radio" name="paymentMethod" value="gcash" onchange="togglePaymentInput()" />
-                        GCash
-                    </label>
-                    <label class="flex items-center gap-2">
-                        <input type="radio" name="paymentMethod" value="pnb" onchange="togglePaymentInput()" />
-                        PNB
-                    </label>
-                </div>
+                <div class="flex items-center gap-6 mb-4">
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="paymentMethod" value="cash" checked onchange="togglePaymentInput()" />
+                    <!-- <span>Cash</span> -->
+                    <img src="{{ asset('product-images/cashlogo.png') }}" alt="Cash Logo" class="w-12 h-12">
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="paymentMethod" value="gcash" onchange="togglePaymentInput()" />
+                    <!-- <span>GCash</span> -->
+                    <img src="{{ asset('product-images/gcashlogo.png') }}" alt="GCash Logo" class="w-12 h-12">
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="paymentMethod" value="pnb" onchange="togglePaymentInput()" />
+                    <!-- <span>PNB</span> -->
+                    <img src="{{ asset('product-images/pnblogo.png') }}" alt="PNB Logo" class="w-16 h-16">
+                </label>
+            </div>
+
 
                 <!-- GCash Payment Modal -->
                 <div id="gcashModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center hidden">
                     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h3 class="text-lg font-semibold mb-4">GCash Payment</h3>
+                        <div class="flex justify-center">
+                            <img src="{{ asset('product-images/gcashlogo.png') }}" alt="GCash Logo" class="w-12 h-12">
+                            <h3 class="text-lg font-semibold mb-4 text-center mt-2 ml-2">GCASH Payment</h3>
+                        </div>
                         
                         <!-- Display the default QR code image -->
                         <img id="gcashQRCode" src="{{ asset('product-images/gcashqrcode.webp') }}" alt="GCash QR Code" class="mb-4 w-full h-auto">
@@ -212,7 +219,10 @@
                 <!-- PNB Payment Modal -->
                 <div id="pnbModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center hidden">
                     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h3 class="text-lg font-semibold mb-4 text-center">PNB Payment</h3>
+                        <div class="flex justify-center pb-4">
+                            <img src="{{ asset('product-images/pnblogo.png') }}" alt="PNB Logo" class="w-16 h-16">
+                            <h3 class="text-lg font-semibold mb-4 text-center mt-4 ml-2">PNB Payment</h3>
+                        </div>
                                                 
                         <h2 class="text-lg font-semibold mb-4">Account Number: 392310196887 </h2>
                         <h2 class="text-lg font-semibold mb-4">Account Name: Antinio Efro Montero</h2>
