@@ -49,4 +49,10 @@ class Order extends Model
     {
         return $this->hasMany(OrderDetail::class, 'order_id');
     }
+
+    public function orderReference()
+    {
+        return $this->hasOne(OrderReference::class, 'order_id');
+    }
+
 }

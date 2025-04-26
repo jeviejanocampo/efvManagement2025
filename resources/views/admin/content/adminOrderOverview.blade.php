@@ -97,8 +97,9 @@
                                 ($order->reference_id ?? 'N/A') . '-ORD000' . $order->order_id }}
                         </td> -->
                         <td class="px-4 py-3">
-                            {{ ($order->reference_id ?? '') . 'ORD00' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT) }}
+                            {{ ($order->custom_reference_id) . str_pad($order->order_id, 4, '0', STR_PAD_LEFT)  }}
                         </td>
+
                         <td class="px-4 py-3">
                             {{ $order->customer ? $order->customer->full_name : 'N/A' }}
                         </td>
@@ -121,8 +122,12 @@
                         </td>
                         <td class="px-4 py-3">
                             <p style="text-align: center;">
-                                <a href="{{ route('AdminoverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $order->reference_id ?? 'N/A']) }}" 
+                            @php
+                                $fullReference = ($order->custom_reference_id ?? '') . str_pad($order->reference_id, 4, '0', STR_PAD_LEFT) . 'ORD00' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT);
+                            @endphp
+                                <a href="{{ route('AdminoverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $fullReference]) }}"
                                 class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-2">
+
                                     <i class="fas fa-eye"></i>
                                 </a>
                             </p>

@@ -244,10 +244,27 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/admin/edit-category/{category_id}', [AdminController::class, 'AdmineditCategory'])
     ->name('admin.edit.category');
+    
+    Route::get('/admin/refund-requests', [AdminController::class, 'AdminrefundRequests'])->name('admin.refundRequests');
+
+    Route::get('/admin-request-replacement-form', [AdminController::class, 'AdmincreateForm'])->name('admin.request.replacement.form');
+
+    Route::get('/admin/refund-request/{order_id}', [AdminController::class, 'AdminshowRefundRequestForm'])
+    ->name('admin.refundRequestForm');
+    
+    
+
 
 
 
 });
+
+Route::post('/admin-refund/store', [AdminController::class, 'AdminstoreForm'])->name('admin.refund.store');
+
+Route::post('/admin/refund-request/update-status/{order_id}', [AdminController::class, 'AdminupdateRefundStatusOverall'])
+    ->name('admin.updateRefundStatus');
+
+Route::post('/admin-order/update-status-refunded', [AdminController::class, 'AdminupdateProductStatusRefunded'])->name('admin.order.updateStatus.refunded');
 
 Route::put('/admin-models/update/{model_id}', [AdminController::class, 'AdminupdateModel'])->name('admin.updateModel');
 

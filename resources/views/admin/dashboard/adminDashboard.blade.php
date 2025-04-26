@@ -91,7 +91,7 @@
 
                 <p class="text-white text-sm font-bold">Replacement/Refund</p>
 
-                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                <a href="{{ route('admin.refundRequests') }}" class="flex items-center text-white hover:text-white ml-2"  >
                     <span>
                         <i class="fa-solid fa-copy  mr-3"></i>
                     </span>

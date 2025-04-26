@@ -59,8 +59,11 @@
 
             @if ($latestOrderDetail)
                 <p style="font-size: 18px; font-weight: 700;">
-                    REFERENCE ID: {{ $formattedRefId }}-ORD000{{ $order->order_id }}
+                    REFERENCE ID: {{ $formattedRefId }}
                 </p>
+                <!-- <p style="font-size: 18px; font-weight: 700;">
+                    REFERENCE ID: {{ $formattedRefId }}-ORD000{{ $order->order_id }}
+                </p> -->
             @else
                 <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
             @endif

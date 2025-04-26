@@ -29,4 +29,17 @@ class OrderReference extends Model
     {
         return $this->belongsTo(Reference::class, 'reference_id');
     }
+
+    public function orderReference()
+    {
+        return $this->hasOne(OrderReference::class, 'order_id');
+    }
+
+    // In OrderReference.php model
+    public function refundOrder()
+    {
+        return $this->belongsTo(RefundOrder::class, 'order_id');
+    }
+
+
 }
