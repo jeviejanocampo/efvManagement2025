@@ -394,7 +394,7 @@ class ProductController extends Controller
         return redirect()->route('stockclerk.add.brand')->with('success', 'Brand added successfully!');
     }    
 
-     public function ManagerstoreBrand(Request $request)
+    public function ManagerstoreBrand(Request $request)
     {
         $request->validate([
             'category_id' => 'required|exists:categories,category_id',

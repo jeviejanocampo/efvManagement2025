@@ -15,7 +15,7 @@
     }
 </style>
 
-<div class="container mx-auto p-4 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+<div class="container mx-auto max-w-full p-4 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
     <div style=" margin-bottom: 20px; font-size: 26px; font-weight: 800; color: #333;">
         Products 
@@ -203,7 +203,6 @@
                             @endif
                         </td>
 
-                         <!--Diri kutob ang edit april 26, 4:00am-->
 
                         <td class="border-b px-2 py-1 text-center rounded-md">
                             <span class="px-2 py-1 text-white text-xs font-semibold rounded-md cursor-pointer update-status 
@@ -217,25 +216,25 @@
                         <td class="border-b px-2 py-1 text-center">
                             @if ($hasDetails)
                                 <!-- View Details Icon -->
-                                <a href="{{ route('manager.viewDetails', ['model_id' => $product->model_id]) }}" title="View Details">
+                                <a href="{{ route('admin.viewDetails', ['model_id' => $product->model_id]) }}" title="View Details">
                                     <i class="fas fa-eye text-blue-600 mx-1 text-sm"></i>
                                 </a>
                             @else
                                 <!-- No Details / Add Details Icon -->
-                                <a href="{{ route('manager.addDetails', ['model_id' => $product->model_id]) }}" title="No Details | Add Details">
+                                <a href="{{ route('admin.addDetails', ['model_id' => $product->model_id]) }}" title="No Details | Add Details">
                                     <i class="fas fa-eye-slash text-gray-400 mx-1 cursor-not-allowed text-sm"></i>
                                 </a>
                             @endif
 
                             <!-- Edit Icon -->
-                            <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}" title="Edit Primary Model Details">
+                            <a href="{{ route('admin.viewModelDetails', ['model_id' => $product->model_id]) }}" title="Edit Primary Model Details">
                                 <i class="fas fa-edit text-yellow-500 mx-1 text-sm"></i>
                             </a>
 
                             <!-- Delete Icon -->
-                            <a href="#" class="delete-product" data-id="{{ $product->model_id }}" title="Delete">
+                            <!-- <a href="#" class="delete-product" data-id="{{ $product->model_id }}" title="Delete">
                                 <i class="fas fa-trash-alt text-red-600 mx-1 text-sm"></i>
-                            </a>
+                            </a> -->
                         </td>
 
                     </tr>

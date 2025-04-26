@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Models;
 use App\Models\Products;
 use App\Models\Variant;
+use App\Models\Category;
 use App\Models\GcashPayment;
 use App\Models\RefundOrder;
 use App\Models\OrderReference;
@@ -856,6 +857,420 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Variant deleted successfully.');
     
     }
+    
+    public function AdminviewDetailsofProduct($model_id)
+    {
+        $product = Products::where('model_id', $model_id)->firstOrFail();
 
+        if (!$product) {
+            return redirect()->back()->with('error', 'Product not found!');
+        }
+
+        return view('admin.content.AdminViewDetails', compact('product', 'model_id'));
+    }
+
+    public function AdminupdateProduct(Request $request, $model_id)
+    {
+        try {
+            // Validate the input
+            $request->validate([
+                'model_name' => 'required|string|max:255',
+                'brand_name' => 'required|string|max:255',
+                'price' => 'required|numeric',
+                'description' => 'nullable|string',
+                'm_part_id' => 'nullable|string',
+                'stocks_quantity' => 'required|integer',
+                'status' => 'required|string',
+                'model_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048' // Image validation
+            ]);
+
+            // Find the product by model_id
+            $product = Products::where('model_id', $model_id)->firstOrFail();
+
+            // Track changes
+            $changes = [];
+            foreach (['model_name', 'brand_name', 'price', 'description', 'm_part_id', 'stocks_quantity', 'status'] as $field) {
+                if ($product->$field != $request->$field) {
+                    $changes[] = ucfirst(str_replace('_', ' ', $field)) . " changed from '{$product->$field}' to '{$request->$field}'";
+                }
+            }
+
+            // Handle image upload
+            if ($request->hasFile('model_img')) {
+                $image = $request->file('model_img');
+                $imageName = $image->getClientOriginalName(); // Keep original filename
+                $image->move(public_path('product-images/'), $imageName);
+                $changes[] = "Model image updated";
+
+                // Update model_img field in database
+                $product->model_img = $imageName;
+            }
+
+            // Update the product details
+            $product->update([
+                'model_name' => $request->model_name,
+                'brand_name' => $request->brand_name,
+                'price' => $request->price,
+                'description' => $request->description,
+                'm_part_id' => $request->m_part_id,
+                'stocks_quantity' => $request->stocks_quantity,
+                'status' => $request->status,
+            ]);
+
+            // Save updated product
+            $product->save();
+
+            // Insert activity log with specific details
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role, // Get user's role
+                'activity' => "Updated product #$model_id details: " . implode(', ', $changes),
+            ]);
+
+            // Return success alert and reload the page
+            return "<script>alert('Product updated successfully!'); window.location.href='" . route('admin.viewDetails', ['model_id' => $model_id]) . "';</script>";
+        } catch (\Exception $e) {
+            return "<script>alert('Error: " . $e->getMessage() . "'); window.history.back();</script>";
+        }
+    }
+
+    public function AdminaddDetails($model_id)
+    {
+        // Fetch the model name based on model_id
+        $model = Models::where('model_id', $model_id)->first();
+
+        // Fetch available brands
+        $brands = Brand::all();
+
+        // Get the role of the authenticated user
+        $user = Auth::user();
+        $role = $user->role; // Get the role of the user
+
+        // Log the activity
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => $role, // Insert the user's role
+            'activity' => "Accessed Add Details page for Model #$model_id ({$model->model_name})",
+        ]);
+
+        return view('admin.content.AdminaddDetails', [
+            'model_id' => $model_id, 
+            'price' => $model ? $model->price : '',
+            'model_name' => $model ? $model->model_name : '', 
+            'brands' => $brands
+        ]);
+    }
+
+    public function AdminaddProductDetails(Request $request)
+    {
+        $request->validate([
+            'model_id' => 'required|integer|exists:models,model_id',
+            'model_img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048', 
+            'price' => 'required|numeric',
+            'brand_id' => 'required|integer|exists:brands,brand_id',
+            'description' => 'required|string',
+            'm_part_id' => 'required|string',
+            'stocks_quantity' => 'required|integer',
+            'status' => 'required|string|in:active,inactive,on_order',
+        ]);
+
+        // Handle image upload
+        $imageName = 'default.png';
+            if ($request->hasFile('model_img')) {
+                $image = $request->file('model_img');
+                $imageName = $image->getClientOriginalName(); // Keep original filename
+                $image->move(public_path('product-images/'), $imageName);
+            }
+
+        // Insert product details into the products table
+        Products::create([
+            'model_id' => $request->model_id,
+            'brand_id' => $request->brand_id,
+            'model_name' => $request->model_name,
+            'brand_name' => \App\Models\Brand::where('brand_id', $request->brand_id)->value('brand_name'),
+            'price' => $request->price,
+            'description' => $request->description,
+            'm_part_id' => $request->m_part_id,
+            'model_img' => $imageName,
+            'stocks_quantity' => $request->stocks_quantity,
+            'status' => $request->status,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'role' => Auth::user()->role, // Get user's role
+            'activity' => "Added a new product: {$request->model_name} (Model ID: {$request->model_id})",
+        ]);
+
+        return "<script>alert('Product details added successfully!'); window.location.href='" . route('adminproductsView') . "';</script>";
+    }
+
+    public function AdminviewModelDetails($model_id)
+    {
+        try {
+            // Find the model by model_id
+            $model = Models::where('model_id', $model_id)->firstOrFail();
+
+            // Return the view with the model details
+            return view('admin.content.AdminviewModelDetails', compact('model'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Model not found!');
+        }
+    }
+
+    public function AdminupdateModel(Request $request, $model_id)
+    {
+        try {
+            // Validate request
+            $request->validate([
+                'model_name' => 'required|string|max:255',
+                'price' => 'required|numeric',
+                'status' => 'required|string',
+                'w_variant' => 'required|in:none,YES', // ✅ Validate new field
+                'model_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Validate image
+            ]);
+    
+            // Find model by ID
+            $model = Models::findOrFail($model_id);
+    
+            // Update fields
+            $model->model_name = $request->model_name;
+            $model->price = $request->price;
+            $model->status = $request->status;
+            $model->w_variant = $request->w_variant; // ✅ Update `w_variant`
+    
+            // Handle image upload if provided
+            if ($request->hasFile('model_img')) {
+                $image = $request->file('model_img');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('product-images/'), $imageName);
+                $model->model_img = $imageName;
+            }
+    
+            $model->save();
+    
+            // ✅ Insert activity log after saving the updated model
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role,
+                'activity' => "Updated model #$model_id details",
+            ]);
+    
+            return redirect()->route('admin.viewModelDetails', ['model_id' => $model_id])
+                ->with('success', 'Model updated successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Update failed: ' . $e->getMessage());
+        }
+    }
+
+    public function Admincreate()
+    {
+        $brands = Brand::all(); // Fetch all brands from the database
+        return view('admin.content.AdminaddProduct', compact('brands'));
+    }
+
+    public function Adminstore(Request $request)
+    {
+        try {
+            $request->validate([
+                'model_name' => 'required|string|max:255',
+                'model_img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048', 
+                'price' => 'required|numeric',
+                'brand_id' => 'required|integer|exists:brands,brand_id',
+                'w_variant' => 'required|string',
+                'status' => 'required|string',
+            ]);
+    
+            // Default image if no file is uploaded
+            $imageName = 'default.png';
+    
+            if ($request->hasFile('model_img')) {
+                $image = $request->file('model_img');
+    
+                // Generate a unique filename to prevent overwriting existing files
+                $imageName = time() . '_' . $image->getClientOriginalName();
+    
+                // Move the image to the public folder
+                $image->move(public_path('product-images//'), $imageName);
+            }
+    
+            // Store the product in the database
+            $product = Models::create([
+                'model_name' => $request->model_name,
+                'model_img' => $imageName,
+                'price' => $request->price,
+                'brand_id' => $request->brand_id,
+                'w_variant' => $request->w_variant,
+                'status' => $request->status,
+            ]);
+
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role, // Get user's role
+                'activity' => "Added a new product: {$request->model_name} (Brand ID: {$request->brand_id})",
+            ]);
+
+    
+            return "<script>alert('Product successfully inserted!'); window.location.href='" . route('adminproductsView') . "';</script>";
+    
+        } catch (\Exception $e) {
+            return "<script>alert('Error: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
+        }
+    }
+
+    public function AdminViewBrandsList()
+    {
+        $brands = Brand::all();
+        $categories = Category::all(); // Fetch all categories
+        return view('admin.content.AdminViewBrands', compact('brands', 'categories'));
+    }
+
+    public function AdminStockcreate()
+    {
+        $brands = Brand::all();
+        $categories = Category::all(); // Fetch all categories
+        return view('admin.content.AdminInsertNewBrand', compact('brands', 'categories'));
+    }
+    
+
+    public function AdminstoreBrand(Request $request)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:categories,category_id',
+            'brand_name' => 'required|string|max:255',
+            'brand_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|in:Active,Inactive',
+        ]);
+    
+        $brand = new Brand();
+        $brand->cat_id = $request->category_id;
+        $brand->brand_name = $request->brand_name;
+    
+        if ($request->hasFile('brand_image')) {
+            $file = $request->file('brand_image');
+            $filename = time() . '.' . $file->getClientOriginalExtension(); // Generate unique filename
+            $file->move(public_path('product-images'), $filename); // Move to assets folder
+            $brand->brand_image = $filename; // Store only the filename
+        }
+    
+        $brand->status = $request->status;
+        $brand->save();
+    
+        return redirect()->route('admin.add.brand')->with('success', 'Brand added successfully!');
+    } 
+
+    public function AdmineditBrand($brand_id)
+    {
+        // Fetch the brand details by ID
+        $brand = Brand::findOrFail($brand_id);
+
+        // Pass brand data to the edit view
+        return view('admin.content.AdminEditBrand', compact('brand'));
+    }
+
+    public function AdminupdateBrand(Request $request, $brand_id)
+    {
+        try {
+            // Validate the input data
+            $request->validate([
+                'brand_name' => 'required|string|max:255',
+                'category_name' => 'required|string|max:255',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            // Find the brand by ID
+            $brand = Brand::findOrFail($brand_id);
+
+            // Update the brand details
+            $brand->brand_name = $request->brand_name;
+            $brand->category->category_name = $request->category_name; // Assuming category exists
+            $brand->status = $request->status;
+            $brand->save();
+
+            return redirect()->back()->with('success', 'Brand updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update brand. Please try again.');
+        }
+    }
+
+    public function AdminStockViewCategory()
+    {
+        $brands = Brand::all();
+        $categories = Category::all(); // Fetch all categories
+        return view('admin.content.AdminStockClerkViewCategory', compact('brands', 'categories'));
+    }
+
+    public function AdminAddCategory (){
+        $brands = Brand::all();
+        $categories= Category::all();
+        return view('admin.content.AdminAddCategory', compact('brands', 'categories'));
+    }
+
+    public function AdminstoreCategory(Request $request)
+    {
+        $request->validate([
+            'category_name' => 'required|string|max:255',
+            'cat_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'status' => 'required|in:active,inactive',
+        ]);
+    
+        try {
+            // Handle image upload
+            $imageName = time() . '.' . $request->cat_image->extension();
+            $request->cat_image->move(public_path('product-images'), $imageName); // Store in public/product-images
+    
+            // Insert into DB
+            Category::create([
+                'category_name' => $request->category_name,
+                'cat_image' => $imageName, // Only store the filename
+                'status' => $request->status,
+            ]);
+    
+            return redirect()->back()->with('success', 'Category added successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to add category.');
+        }
+    }
+
+    public function AdmineditCategory($category_id)
+    {
+        // Fetch the category by ID
+        $category = Category::findOrFail($category_id);
+
+        // Pass the category data to the edit view
+        return view('admin.content.AdminEditCategory', compact('category'));
+    }
+
+    public function AdminupdateCategory(Request $request, $category_id)
+    {
+        try {
+            $category = Category::findOrFail($category_id);
+
+            // Validate request
+            $request->validate([
+                'category_name' => 'required|string|max:255',
+                'cat_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'status' => 'required|in:active,inactive',
+            ]);
+
+            // Update category name and status
+            $category->category_name = $request->category_name;
+            $category->status = $request->status;
+
+            // Handle image upload if a new file is provided
+            if ($request->hasFile('cat_image')) {
+                $image = $request->file('cat_image');
+                $imageName = time() . '.' . $image->extension();
+                $image->move(public_path('product-images'), $imageName);
+                $category->cat_image = $imageName;
+            }
+
+            $category->save();
+
+            return redirect()->back()->with('success', 'Category updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update category. Please try again.');
+        }
+    }
 
 }

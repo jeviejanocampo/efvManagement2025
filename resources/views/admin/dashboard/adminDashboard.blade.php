@@ -65,7 +65,7 @@
                    
                 </a>
                 
-                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                <a href="{{ route('admin.add.product') }}" class="flex items-center text-white hover:text-white ml-2"  >
                     <span>
                         <i class=" fas fa-plus-square  mr-3"></i>
                     </span>
@@ -73,7 +73,7 @@
                    
                 </a>
                 
-                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                <a href="{{ route('admin.view.brands') }}" class="flex items-center text-white hover:text-white ml-2"  >
                     <span>
                         <i class="fa-solid fa-eye  mr-3"></i>
                     </span>
@@ -81,7 +81,7 @@
                    
                 </a>
 
-                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                <a href="{{ route('admin.view.category') }}" class="flex items-center text-white hover:text-white ml-2"  >
                     <span>
                         <i class="fa-solid fa-eye  mr-3"></i>
                     </span>

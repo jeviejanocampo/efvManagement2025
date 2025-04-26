@@ -223,8 +223,49 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/admin-edit-variant/{model_id}/{variant_id}', [AdminController::class, 'AdmineditVariant'])->name('admin.edit.variant');
 
+    Route::get('/admin-view-details/{model_id}', [AdminController::class, 'AdminviewDetailsofProduct'])->name('admin.viewDetails');
+
+    Route::get('/admin-add-details-product/{model_id}', [AdminController::class, 'AdminaddDetails'])->name('admin.addDetails');
+    
+    Route::get('/admin-product/{model_id}/details', [AdminController::class, 'AdminviewModelDetails'])->name('admin.viewModelDetails');
+
+    Route::get('/admin-add-product', [AdminController::class, 'Admincreate'])->name('admin.add.product');
+
+    Route::get('/admin-stock-view-brand', [AdminController::class, 'AdminViewBrandsList'])->name('admin.view.brands');
+
+    Route::get('/admin-add-brand', [AdminController::class, 'AdminStockcreate'])->name('admin.add.brand');
+
+    Route::get('/admin/edit-brand/{brand_id}', [AdminController::class, 'AdmineditBrand'])
+    ->name('admin.edit.brand');
+
+    Route::get('/admin-stock-view-category', [AdminController::class, 'AdminStockViewCategory'])->name('admin.view.category');
+
+    Route::get('/admin-add-category', [AdminController::class, 'AdminAddCategory'])->name('admin.add.category');
+
+    Route::get('/admin/edit-category/{category_id}', [AdminController::class, 'AdmineditCategory'])
+    ->name('admin.edit.category');
+
+
 
 });
+
+Route::put('/admin-models/update/{model_id}', [AdminController::class, 'AdminupdateModel'])->name('admin.updateModel');
+
+Route::post('/admin/products/store', [AdminController::class, 'Adminstore'])->name('admin.products.store');
+
+Route::post('/admin-update-product/{model_id}', [AdminController::class, 'AdminupdateProduct'])->name('admin.updateProduct');
+
+Route::post('/admin-add-details-stocks/store', [AdminController::class, 'AdminaddProductDetails'])->name('admin.add.details.store');
+
+Route::post('/admin-add-brand/store', [AdminController::class, 'AdminstoreBrand'])->name('admin.add.brand.store');
+
+Route::post('/admin/update-brand/{brand_id}', [AdminController::class, 'AdminupdateBrand'])
+->name('admin.update.brand');
+
+Route::post('/admin-store-category', [AdminController::class, 'AdminstoreCategory'])->name('admin.store.category');
+
+Route::post('/admin/update-category/{category_id}', [AdminController::class, 'AdminupdateCategory'])
+->name('admin.update.category');
 
 Route::post('/admin-store-variant/{model_id}', [AdminController::class, 'AdminStoreVariant'])->name('admin.store.variant');
 
