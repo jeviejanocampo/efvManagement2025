@@ -61,18 +61,54 @@
 
     <div class ="bg-white p-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
         <div class="flex justify-between items-center">
-            @php
-                $latestOrderDetail = $orderDetails->last();
-                $referenceId = request()->query('reference_id');
+        @php
+    $latestOrderDetail = $orderDetails->last();
+    $rawReferenceId = request()->query('reference_id');
+    $orderId = $order->order_id ?? null; // <-- Get the order ID
 
-                if ($referenceId && Str::contains($referenceId, '-ORD000')) {
-                    $referenceId = explode( $referenceId)[0];
-                }
+    // Fetch brand_name and get first 3 characters
+    $brandName = $latestOrderDetail->brand_name ?? ''; // Get the brand_name
+    $brandPrefix = substr($brandName, 0, 3); // Get first 3 characters of brand_name
 
-                $formattedRefId = $referenceId ?? 'N/A';
-            @endphp
+    $usedPartId = null;
 
-            @if ($latestOrderDetail)
+    if ($latestOrderDetail) {
+        $hasMpartId = !empty($latestOrderDetail->m_part_id);
+        $hasPartId = !empty($latestOrderDetail->part_id);
+
+        if ($hasMpartId && $hasPartId) {
+            $usedPartId = $latestOrderDetail->m_part_id . '-' . $latestOrderDetail->part_id;
+        } elseif ($hasMpartId) {
+            $usedPartId = $latestOrderDetail->m_part_id;
+        } elseif ($hasPartId) {
+            $usedPartId = $latestOrderDetail->part_id;
+        }
+    }
+
+    // Now decide final Reference ID
+    $referenceId = null;
+
+    if (!empty($rawReferenceId) && !Str::contains($rawReferenceId, 'null')) {
+        // If reference_id exists and doesn't contain "null", use it
+        $referenceId = $rawReferenceId;
+
+        if (Str::contains($referenceId, '-ORD000')) {
+            $referenceId = explode('-ORD000', $referenceId)[0];
+        }
+    } else {
+        // Else fallback to Part ID
+        $referenceId = $usedPartId;
+    }
+
+    // Add brand prefix and always append "-ORD000{order_id}"
+    if (!empty($referenceId) && !empty($orderId)) {
+        $formattedRefId = strtoupper($brandPrefix) . '-' . $referenceId . '-ORD000' . $orderId;
+    } else {
+        $formattedRefId = 'N/A';
+    }
+@endphp
+
+             @if ($latestOrderDetail)
                 <p style="font-size: 18px; font-weight: 700;">
                     REFERENCE ID: {{ $formattedRefId }}
                 </p>
