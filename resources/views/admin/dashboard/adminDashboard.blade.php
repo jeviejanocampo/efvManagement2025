@@ -100,7 +100,7 @@
                 </a>
 
 
-                <a href="#" class="flex items-center text-white hover:text-white ml-2"  >
+                <a href="{{ route('admin.refund.report.view') }}" class="flex items-center text-white hover:text-white ml-2"  >
                     <span>
                         <i class="fa-solid fa-copy  mr-3"></i>
                     </span>
@@ -127,6 +127,11 @@
                 <a href="{{ route('admin.Stocklogs') }}" class="flex items-center text-white hover:text-white ml-2">
                     <i class="fas fa-clipboard-list mr-3"></i>
                     <span class="text-sm"> Activity Log </span>
+                </a>
+
+                <a href="{{ route('admin.refund.log') }}" class="flex items-center text-white hover:text-white ml-2">
+                    <i class="fas fa-clipboard-list mr-3"></i>
+                    <span class="text-sm"> Replacement Activity Log </span>
                 </a>
             </nav>
         </div>

@@ -1591,4 +1591,35 @@ class AdminController extends Controller
         }
     } 
 
+    public function AdminRefundViewList()
+    {
+        $refunds = RefundOrder::with('orderReference') // eager load orderReference
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
+    
+        return view('admin.content.AdminRefundView', compact('refunds'));
+    }
+    
+
+    public function AdminRefundDetailsView($order_id, $reference_id = null)
+    {
+
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+
+        $refund = RefundOrder::where('order_id', $order_id)->first();
+        $orderReference = OrderReference::where('order_id', $order_id)->first();
+        
+        // Fetch order details from the 'orders' table
+        $order = Order::where('order_id', $order_id)->first();
+
+        // Pass refund, orderReference, reference_id, and order details to the view
+        return view('admin.content.AdminRefundDetails', compact('refund', 'orderReference', 'reference_id', 'order', 'orderDetails'));
+    }
+
+    public function AdminviewRefundLog()
+    {
+        $logs = RefundLog::with('user')->orderBy('refunded_at', 'desc')->paginate(16); // 10 items per page
+        return view('admin.content.AdminRefundLog', compact('logs'));
+    }
+
 }

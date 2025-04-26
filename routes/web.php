@@ -251,9 +251,14 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/admin/refund-request/{order_id}', [AdminController::class, 'AdminshowRefundRequestForm'])
     ->name('admin.refundRequestForm');
-    
-    
 
+    Route::get('/admin-refund-report-view', [AdminController::class, 'AdminRefundViewList'])->name('admin.refund.report.view');
+
+    Route::get('/admin-refund-report-details-view/{order_id}/{reference_id?}', 
+    [AdminController::class, 'AdminRefundDetailsView'])->name('admin.refund.view.details');
+
+    Route::get('/admin/refund-log', [AdminController::class, 'AdminviewRefundLog'])->name('admin.refund.log');
+    
 
 
 

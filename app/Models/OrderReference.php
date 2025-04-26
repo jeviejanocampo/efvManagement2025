@@ -32,7 +32,7 @@ class OrderReference extends Model
 
     public function orderReference()
     {
-        return $this->hasOne(OrderReference::class, 'order_id');
+        return $this->hasOne(OrderReference::class, 'order_id', 'order_id');
     }
 
     // In OrderReference.php model
