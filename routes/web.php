@@ -266,6 +266,8 @@ Route::middleware(['admin'])->group(function () {
 
 Route::post('/admin-refund/store', [AdminController::class, 'AdminstoreForm'])->name('admin.refund.store');
 
+Route::post('/admin/update-refund-method', [AdminController::class, 'updateRefundMethod'])->name('admin.updateRefundMethod');
+
 Route::post('/admin/refund-request/update-status/{order_id}', [AdminController::class, 'AdminupdateRefundStatusOverall'])
     ->name('admin.updateRefundStatus');
 

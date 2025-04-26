@@ -16,6 +16,6 @@ class AdminMiddleware
         }
 
         // If not authorized, redirect to login with error message
-        return redirect()->route('admin.adminLogin')->with('error', 'Unauthorized access!');
+        return redirect()->route('admin.login.view')->with('error', 'Unauthorized access!');
     }
 }

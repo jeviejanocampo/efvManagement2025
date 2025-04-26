@@ -1315,17 +1315,19 @@ class AdminController extends Controller
     public function AdminshowRefundRequestForm($order_id)
     {
         $reference_id = request('reference_id');  // Retrieve the reference_id from the request
-    
+
+        // Fetch refund details along with the customer data
         $refund = RefundOrder::where('order_id', $order_id)
             ->with('customer')
             ->first();
-    
+
+        // Fetch order details
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
-    
+
         if (!$refund) {
             return redirect()->route('staff.refundRequests')->with('error', 'Refund request not found.');
         }
-    
+
         // Fetch all models where w_variant is NOT "YES" and include stock count
         $models = Models::where('status', 'active')
             ->where('w_variant', '!=', 'YES')
@@ -1338,15 +1340,22 @@ class AdminController extends Controller
                 $model->total_stock_quantity = $model->products->sum('stocks_quantity');
                 return $model;
             });
-    
+
         // Fetch all variants where the related model has w_variant = "YES"
         $variants = Variant::whereHas('model', function ($query) {
             $query->where('w_variant', 'YES')->where('status', 'active');
         })->get(); // Removed pagination
-    
-        // Pass reference_id to the view along with other data
-        return view('admin.content.adminRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants', 'reference_id'));
+
+        // Fetch GCash payment status from the 'gcash_payment' table based on order_id
+        $gcashPaymentStatus = GcashPayment::where('order_id', $order_id)->value('status');
+
+        // If no GCash payment record is found, set status to 'Pending'
+        $gcashPaymentStatus = $gcashPaymentStatus ?? 'Pending';
+
+        // Pass reference_id, refund, orderDetails, models, variants, and gcashPaymentStatus to the view
+        return view('admin.content.adminRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants', 'reference_id', 'gcashPaymentStatus'));
     }
+
 
     public function AdminupdateRefundStatusOverall(Request $request, $order_id)
     {
@@ -1621,5 +1630,62 @@ class AdminController extends Controller
         $logs = RefundLog::with('user')->orderBy('refunded_at', 'desc')->paginate(16); // 10 items per page
         return view('admin.content.AdminRefundLog', compact('logs'));
     }
+
+    public function updateRefundMethod(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:refund_order,order_id',
+            'refund_method' => 'required|in:Cash,GCash',
+            'receipt_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $orderId = $request->order_id;
+        $newMethod = $request->refund_method;
+
+        // If switching to GCash and receipt is uploaded
+        if ($newMethod === 'GCash' && $request->hasFile('receipt_image')) {
+            $image = $request->file('receipt_image');
+            $imageName = $image->getClientOriginalName();  // Get original filename
+            $imageHash = md5(file_get_contents($image));  // Hash the file content to ensure uniqueness
+            $hashedImageName = $imageHash . '.' . $image->getClientOriginalExtension(); // Use hash in filename
+
+            $imagePath = public_path('onlinereceipts/' . $hashedImageName);
+
+            // Check if the same image (hashed) already exists in the gcash_payment table for this order_id
+            $existingReceipt = \DB::table('gcash_payment')
+                ->where('order_id', $orderId)
+                ->where('image', $hashedImageName)
+                ->first();
+
+            if ($existingReceipt) {
+                // If receipt already exists, return a message to prevent duplication
+                return redirect()->back()->with('error', 'GCash receipt already saved.');
+            }
+
+            // Save the new receipt image to the 'onlinereceipts' folder
+            $image->move(public_path('onlinereceipts'), $hashedImageName);
+
+            // Insert new record into the gcash_payment table
+            \DB::table('gcash_payment')->insert([
+                'order_id' => $orderId,
+                'image' => $hashedImageName,
+                'status' => 'Completed', // Assuming status is set to Completed initially
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Update the refund_order refund_method to the new method (either Cash or GCash)
+        \DB::table('refund_order')
+            ->where('order_id', $orderId)
+            ->update([
+                'refund_method' => $newMethod,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->back()->with('success', 'Refund method updated successfully!');
+    }
+
+
 
 }
