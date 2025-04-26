@@ -100,9 +100,8 @@
                     <li><span class="text-blue-600 font-bold">Total Sales:</span> ₱{{ number_format($totalSales, 2) }}</li>
                     
                     <!-- Weekly Breakdown Header -->
-                    <li><span class="text-purple-600 font-bold">Weekly Breakdown:</span></li>
+                    <!-- <li><span class="text-purple-600 font-bold">Weekly Breakdown:</span></li>
                     
-                    <!-- Weekly Breakdown: Totals and Percentages -->
                     <ul class="ml-4 space-y-1">
                         @foreach ($percentagePerWeek as $week => $percentage)
                             <li>
@@ -111,7 +110,7 @@
                                 ({{ number_format($percentage, 2) }}%)
                             </li>
                         @endforeach
-                    </ul>
+                    </ul> -->
                 </ul>
                 </div>
             </div>

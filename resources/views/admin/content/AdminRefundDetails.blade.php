@@ -74,8 +74,13 @@
              
                 <div>
                     <strong class="text-sm">Payment via</strong>
-                    <p>{{ $refund-> refund_method ?? 'NULL' }}</p>
+                    <p>{{ $refund->refund_method ?? 'NULL' }}</p>
+
+                    @if(strtolower($refund->refund_method) === 'pnb')
+                        <p class="text-xs text-black mt-1">Philippine National Bank via Instapay</p>
+                    @endif
                 </div>
+
 
                 <div>
                     <strong>Processed By:</strong>

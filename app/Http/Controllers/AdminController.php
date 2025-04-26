@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log; 
 use App\Models\Order;
 use App\Models\Models;
+use App\Models\PnbPayment;
 use App\Models\Products;
 use App\Models\Variant;
 use App\Models\Category;
@@ -1348,13 +1349,16 @@ class AdminController extends Controller
 
         // Fetch GCash payment status from the 'gcash_payment' table based on order_id
         $gcashPaymentStatus = GcashPayment::where('order_id', $order_id)->value('status');
-
-        // If no GCash payment record is found, set status to 'Pending'
         $gcashPaymentStatus = $gcashPaymentStatus ?? 'Pending';
 
-        // Pass reference_id, refund, orderDetails, models, variants, and gcashPaymentStatus to the view
-        return view('admin.content.adminRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants', 'reference_id', 'gcashPaymentStatus'));
+        // Fetch PNB payment status from the 'pnb_payment' table based on order_id
+        $pnbPaymentStatus = PnbPayment::where('order_id', $order_id)->value('status');
+        $pnbPaymentStatus = $pnbPaymentStatus ?? 'Pending';  // Default to 'Pending' if not found
+
+        // Pass reference_id, refund, orderDetails, models, variants, gcashPaymentStatus, and pnbPaymentStatus to the view
+        return view('admin.content.adminRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants', 'reference_id', 'gcashPaymentStatus', 'pnbPaymentStatus'));
     }
+
 
 
     public function AdminupdateRefundStatusOverall(Request $request, $order_id)
@@ -1635,36 +1639,36 @@ class AdminController extends Controller
     {
         $request->validate([
             'order_id' => 'required|exists:refund_order,order_id',
-            'refund_method' => 'required|in:Cash,GCash',
+            'refund_method' => 'required|in:Cash,GCash,PNB', // Added PNB to the allowed refund methods
             'receipt_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-
+    
         $orderId = $request->order_id;
         $newMethod = $request->refund_method;
-
+    
         // If switching to GCash and receipt is uploaded
         if ($newMethod === 'GCash' && $request->hasFile('receipt_image')) {
             $image = $request->file('receipt_image');
             $imageName = $image->getClientOriginalName();  // Get original filename
             $imageHash = md5(file_get_contents($image));  // Hash the file content to ensure uniqueness
             $hashedImageName = $imageHash . '.' . $image->getClientOriginalExtension(); // Use hash in filename
-
+    
             $imagePath = public_path('onlinereceipts/' . $hashedImageName);
-
+    
             // Check if the same image (hashed) already exists in the gcash_payment table for this order_id
             $existingReceipt = \DB::table('gcash_payment')
                 ->where('order_id', $orderId)
                 ->where('image', $hashedImageName)
                 ->first();
-
+    
             if ($existingReceipt) {
                 // If receipt already exists, return a message to prevent duplication
                 return redirect()->back()->with('error', 'GCash receipt already saved.');
             }
-
+    
             // Save the new receipt image to the 'onlinereceipts' folder
             $image->move(public_path('onlinereceipts'), $hashedImageName);
-
+    
             // Insert new record into the gcash_payment table
             \DB::table('gcash_payment')->insert([
                 'order_id' => $orderId,
@@ -1674,17 +1678,51 @@ class AdminController extends Controller
                 'updated_at' => now(),
             ]);
         }
-
-        // Update the refund_order refund_method to the new method (either Cash or GCash)
+    
+        // If switching to PNB and receipt is uploaded
+        if ($newMethod === 'PNB' && $request->hasFile('receipt_image')) {
+            $image = $request->file('receipt_image');
+            $imageName = $image->getClientOriginalName();  // Get original filename
+            $imageHash = md5(file_get_contents($image));  // Hash the file content to ensure uniqueness
+            $hashedImageName = $imageHash . '.' . $image->getClientOriginalExtension(); // Use hash in filename
+    
+            $imagePath = public_path('onlinereceipts/' . $hashedImageName);
+    
+            // Check if the same image (hashed) already exists in the pnb_payment table for this order_id
+            $existingReceipt = \DB::table('pnb_payment')
+                ->where('order_id', $orderId)
+                ->where('image', $hashedImageName)
+                ->first();
+    
+            if ($existingReceipt) {
+                // If receipt already exists, return a message to prevent duplication
+                return redirect()->back()->with('error', 'PNB receipt already saved.');
+            }
+    
+            // Save the new receipt image to the 'onlinereceipts' folder
+            $image->move(public_path('onlinereceipts'), $hashedImageName);
+    
+            // Insert new record into the pnb_payment table
+            \DB::table('pnb_payment')->insert([
+                'order_id' => $orderId,
+                'image' => $hashedImageName,
+                'status' => 'Completed', // Assuming status is set to Completed initially
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    
+        // Update the refund_order refund_method to the new method (either Cash, GCash, or PNB)
         \DB::table('refund_order')
             ->where('order_id', $orderId)
             ->update([
                 'refund_method' => $newMethod,
                 'updated_at' => now(),
             ]);
-
+    
         return redirect()->back()->with('success', 'Refund method updated successfully!');
     }
+    
 
 
 
