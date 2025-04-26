@@ -195,6 +195,9 @@
                         
                         <!-- Display the default QR code image -->
                         <img id="gcashQRCode" src="{{ asset('product-images/gcashqrcode.webp') }}" alt="GCash QR Code" class="mb-4 w-full h-auto">
+
+                        <h2 class="text-lg font-semibold mb-4">Account Number: 094532445021 </h2>
+                        <h2 class="text-lg font-semibold mb-4">Account Name: Antinio Efro Montero</h2>
                         
                         <!-- Image Upload Section -->
                         <div class="mb-4">
@@ -223,6 +226,8 @@
                             <img src="{{ asset('product-images/pnblogo.png') }}" alt="PNB Logo" class="w-16 h-16">
                             <h3 class="text-lg font-semibold mb-4 text-center mt-4 ml-2">PNB Payment</h3>
                         </div>
+
+                        <img id="gcashQRCode" src="{{ asset('product-images/pnbqrcode.png') }}" alt="PNB QR Code" class="mb-4 w-full h-auto">
                                                 
                         <h2 class="text-lg font-semibold mb-4">Account Number: 392310196887 </h2>
                         <h2 class="text-lg font-semibold mb-4">Account Name: Antinio Efro Montero</h2>

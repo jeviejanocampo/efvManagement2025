@@ -601,6 +601,7 @@ function saveOrder() {
         let variantId = null;
         let partId = null;
         let mPartId = null;
+        let brandName = "0"; // Default if not found
 
         item.querySelectorAll('.text-gray-500').forEach(p => {
             const text = p.textContent;
@@ -608,21 +609,18 @@ function saveOrder() {
             if (text.includes('Variant ID')) variantId = text.split(': ')[1];
             if (text.includes('Part ID')) partId = text.split(': ')[1];
             if (text.includes('M Part ID')) mPartId = text.split(': ')[1];
+            if (text.includes('Brand Name')) brandName = text.split(': ')[1];
         });
 
         if (!mPartId) {
             mPartId = partId;
         }
 
-        let referenceSuffix = "";
-        if (variantId) {
-            referenceSuffix = partId ? partId.slice(-6) : "0000";
-        } else {
-            referenceSuffix = mPartId ? mPartId.slice(-6) : "0000";
-        }
+        let brandPart = brandName.substring(0, 3).toUpperCase();
+        let partSuffix = (partId || mPartId || "000000").slice(-6);
 
-        referenceSuffix = referenceSuffix.padStart(6, "0");
-        referenceId = referenceSuffix ;
+        referenceId = brandPart + partSuffix;
+
 
         orderData.push({
             model_id: modelId,

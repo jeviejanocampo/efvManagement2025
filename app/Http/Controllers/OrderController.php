@@ -16,6 +16,13 @@ use Carbon\Carbon;
 use App\Models\RefundOrder;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderReference;
+use App\Http\Controllers\Controller;
+use App\Models\PnbPayment;
+use App\Models\GcashPayment;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
+
 
 
 
@@ -573,7 +580,7 @@ class OrderController extends Controller
         }
     
         // Generate new reference ID
-        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}-ORD" . str_pad($order_id, 5, '0', STR_PAD_LEFT);
+        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}" .'OR00'. str_pad($order_id, 5, '0', STR_PAD_LEFT);
     
         // Handle "Completed - with changes"
         if ($request->overall_status === 'Completed - with changes') {
@@ -582,8 +589,11 @@ class OrderController extends Controller
     
             // Update reference_id in order_reference table
             \DB::table('order_reference')
-                ->where('order_id', $order_id)
-                ->update(['reference_id' => $newReferenceId]);
+            ->updateOrInsert(
+                ['order_id' => $order_id], // match by order_id
+                ['reference_id' => $newReferenceId] // insert the new reference_id
+            );
+
     
             // Log the update
             \Log::info("Updated order_reference: Order ID: $order_id, New Reference ID: $newReferenceId");
@@ -661,55 +671,26 @@ class OrderController extends Controller
         $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status', 'reference_id')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-    
+
         foreach ($orders as $order) {
-            // Check if reference exists in order_reference table
-            $existingReference = \App\Models\OrderReference::where('order_id', $order->order_id)->value('reference_id');
-    
-            if ($existingReference) {
-                $order->custom_reference_id = $existingReference; // Keep original reference_id, add custom_reference_id
-                continue; // Skip the rest of the loop and use the existing reference
-            }
-    
-            $orderDetails = OrderDetail::where('order_id', $order->order_id)
-                ->latest('order_detail_id')
-                ->take(2)
-                ->get(['part_id', 'variant_id', 'brand_name']);
-    
-            $cleanParts = collect();
-            $brandNames = collect();
-    
-            foreach ($orderDetails as $detail) {
-                if (!empty($detail->variant_id) && $detail->variant_id != 0) {
-                    $variantPartId = \App\Models\Variant::where('variant_id', $detail->variant_id)->value('part_id');
-                    $cleanPart = $variantPartId ? substr(preg_replace('/[^A-Za-z0-9]/', '', $variantPartId), 0, 3) : '';
-                    $brandName = $detail->brand_name ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->brand_name), 0, 3)) : '';
-                    $brandNames->push($brandName);
-                } else {
-                    $cleanPart = substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->part_id), 0, 4);
-                }
-    
-                $cleanParts->push($cleanPart);
-            }
-    
-            $productBrandName = \App\Models\Products::whereIn('m_part_id', $orderDetails->pluck('part_id'))->value('brand_name');
-            $shortProductBrand = $productBrandName ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '-', $productBrandName), 0, 3)) : '';
-            $finalBrand = $brandNames->isNotEmpty() ? $brandNames->first() : $shortProductBrand;
-    
-            if ($cleanParts->count() === 2) {
-                $order->custom_reference_id = $finalBrand;
-            } elseif ($cleanParts->count() === 1) {
-                $order->reference_id = $finalBrand . $cleanParts[0];
+            // Fetch the reference_id from OrderReference table based on order_id
+            $reference = \App\Models\OrderReference::where('order_id', $order->order_id)->first();
+
+            // If found, attach it to the order object
+            if ($reference) {
+                $order->custom_reference_id = $reference->reference_id;
             } else {
-                $order->reference_id = $finalBrand;
+                $order->custom_reference_id = null; // optional: set null if no reference found
             }
         }
-    
+
         session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
         session(['pendingRefundCount' => \App\Models\RefundOrder::where('status', 'Pending')->count()]);
-    
+
         return view('staff.content.staffOrderOverview', compact('orders'));
     }
+
+
     
 
 
@@ -826,24 +807,23 @@ class OrderController extends Controller
 
     public function details($order_id, Request $request)
     {
-
         $reference_id = $request->query('reference_id');
 
-        $order = Order::find($order_id); // Fetch the order by ID
+        $order = Order::find($order_id);
         if (!$order) {
-            abort(404, 'Order not found'); // Handle invalid order ID
+            abort(404, 'Order not found');
         }
-    
-        // Fetch the order details based on the order_id
+
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
-    
-        // Fetch images for each order detail's model_id
+
         foreach ($orderDetails as $detail) {
             $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
         }
     
-        return view('staff.content.staffOverviewDetails', compact('order', 'orderDetails'));
+
+        return view('staff.content.staffOverviewDetails', compact('order', 'orderDetails', 'reference_id'));
     }
+
 
     public function stockDetails($order_id, Request $request)
     {
@@ -1075,6 +1055,24 @@ class OrderController extends Controller
             'total_sales_today' => $totalSalesToday,
             'recent_pending_orders' => $recentPendingOrders,
         ]);
+    }
+
+    public function StaffgetPaymentImage($order_id, $payment_method)
+    {
+        if ($payment_method == 'gcash') {
+            $payments = \App\Models\GcashPayment::where('order_id', $order_id)->get();
+        } elseif ($payment_method == 'pnb') {
+            $payments = \App\Models\PnbPayment::where('order_id', $order_id)->get();
+        } else {
+            return response()->json(['success' => false]);
+        }
+
+        if ($payments->isNotEmpty()) {
+            $images = $payments->pluck('image'); // Collect only image names
+            return response()->json(['success' => true, 'images' => $images]);
+        }
+
+        return response()->json(['success' => false]);
     }
 
 

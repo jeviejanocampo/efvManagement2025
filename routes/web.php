@@ -79,6 +79,8 @@ Route::middleware(['staff'])->group(function () {
 
     Route::get('/refund-report-details-view/{order_id}/{reference_id?}', [RefundOrderController::class, 'RefundDetailsView'])->name('refund.view.details');
 
+    Route::get('/staff/payment-image/{order_id}/{payment_method}', [OrderController::class, 'StaffgetPaymentImage']);
+
 });
 
 Route::post('/save-order-pos', [StaffPOSController::class, 'saveOrderPOS'])->name('staff.saveOrderPOS');
@@ -259,10 +261,15 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/admin/refund-log', [AdminController::class, 'AdminviewRefundLog'])->name('admin.refund.log');
     
+    Route::get('/admin/payment-image/{order_id}/{payment_method}', [AdminController::class, 'getPaymentImage']);
 
 
 
 });
+
+Route::post('/admin/save-gcash-payment', [AdminController::class, 'saveGcashPayment'])->name('admin.saveGcashPayment');
+
+Route::post('/admin/save-pnb-payment', [AdminController::class, 'savePnbPayment'])->name('admin.savePnbPayment');
 
 Route::post('/admin-refund/store', [AdminController::class, 'AdminstoreForm'])->name('admin.refund.store');
 

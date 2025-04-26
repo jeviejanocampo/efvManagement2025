@@ -73,7 +73,7 @@
         <div class="space-y-6">
              
                 <div>
-                    <strong class="text-sm">Payment via</strong>
+                    <strong class="text-sm">Via</strong>
                     <p>{{ $refund->refund_method ?? 'NULL' }}</p>
 
                     @if(strtolower($refund->refund_method) === 'pnb')
@@ -94,12 +94,12 @@
                     });
                 @endphp
 
-                <div>
-                  <strong>Refunded Amount:</strong>
+                <!-- <div>
+                  <strong>Returned Amount:</strong>
                     <p>
                     ₱ {{ number_format($refundedAmount, 2) }}
                     </p>
-                </div>
+                </div> -->
 
 
             </div>
@@ -249,8 +249,15 @@
                     <span class="text-gray-700">₱ {{ number_format($order->original_total_amount, 2) }}</span>
                 </div>
 
-                <!-- Change Given -->
                 <div class="flex justify-between">
+                    <span class="text-gray-400"> Returned Amount:</span>
+                        <span class="text-gray-700">
+                        ₱ {{ number_format($refundedAmount, 2) }}
+                    </span>
+                </div>
+
+                <!-- Change Given -->
+                <div class="flex justify-between border-b border-gray pb-4">
                     <span class="text-gray-400">Change Given:</span>
                     <span class="text-gray-700">₱ {{ number_format($refund->change_given, 2) }}</span>
                 </div>

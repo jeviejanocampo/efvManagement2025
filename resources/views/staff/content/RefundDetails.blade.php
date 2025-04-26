@@ -73,7 +73,7 @@
         <div class="space-y-6">
              
                 <div>
-                    <strong class="text-sm">Payment Method</strong>
+                    <strong class="text-sm">Via</strong>
                     <p>{{ $order->payment_method }}</p>
                 </div>
 
@@ -86,6 +86,12 @@
                     <strong>Processed By:</strong>
                     <p>{{ $refund->processedByUser->name ?? 'Unknown' }} (Staff)</p>
                 </div>
+
+                @php
+                    $refundedAmount = $orderDetails->where('product_status', 'refunded')->sum(function ($detail) {
+                        return $detail->quantity * $detail->price;
+                    });
+                @endphp
                 
             </div>
         </div>
@@ -232,6 +238,13 @@
                 <div class="flex justify-between">
                     <span class="text-gray-400 mr-24">Original Total Amount:</span>
                     <span class="text-gray-700">₱ {{ number_format($order->original_total_amount, 2) }}</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-gray-400"> Returned Amount:</span>
+                        <span class="text-gray-700">
+                        ₱ {{ number_format($refundedAmount, 2) }}
+                    </span>
                 </div>
 
                 <!-- Change Given -->

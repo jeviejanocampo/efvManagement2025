@@ -107,8 +107,8 @@
             $partCode2 = substr(end($partIdParts), -4);
         }
 
-        // Generate the reference ID
-        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}-ORD" . str_pad($refund->order_id, 5, '0', STR_PAD_LEFT);
+        // Generate the reference ID, including "OR00" and order_id
+        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}-OR00" . str_pad($refund->order_id, 5, '0', STR_PAD_LEFT);
 
         Log::info("Generated Reference ID: " . $newReferenceId);
 
@@ -124,7 +124,7 @@
                 <p class="text-2xl" style="display: none;"><strong>Order ID:</strong> {{ $refund->order_id }}</p>
 
                 <p class="text-3xl font-semibold">
-                    Reference ID: {{ $newReferenceId ?? $reference_id }}
+                    Reference ID: {{ $newReferenceId }}
                 </p>
 
                 <div class="flex items-center space-x-4">

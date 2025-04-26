@@ -56,7 +56,7 @@
                 @foreach ($refunds as $refund)
                     <tr class="border-b hover:bg-gray-100 refundRow">
                         <td class="py-3 px-4">
-                            {{ $refund->orderReference?->reference_id ?? 'ORD000' . $refund->refund_id }}
+                            {{  $refund->orderReference?->reference_id ?? 'ORD000' . $refund->refund_id }}
                         </td>
                         <td class="py-3 px-4">
                             <span class="text-gray-700">{{ $refund->user->name ?? 'Unknown' }}</span>

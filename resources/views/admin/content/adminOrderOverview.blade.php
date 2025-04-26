@@ -96,9 +96,38 @@
                             {{ Str::contains($order->reference_id, 'ORD000') ? $order->reference_id : 
                                 ($order->reference_id ?? 'N/A') . '-ORD000' . $order->order_id }}
                         </td> -->
-                        <td class="px-4 py-3">
-                            {{ ($order->custom_reference_id) . str_pad($order->order_id, 4, '0', STR_PAD_LEFT)  }}
+                        <td id="ref-id-{{ $order->order_id }}" class="px-4 py-3">
+                            {{ ($order->custom_reference_id) . 'ORD000' . str_pad($order->order_id, 5, '0', STR_PAD_LEFT) }}
                         </td>
+
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Loop through all td elements that start with id "ref-id-"
+                                document.querySelectorAll('[id^="ref-id-"]').forEach(function(td) {
+                                    let originalText = td.innerText;
+
+                                    // 1. Remove any duplicated 'ORD000'
+                                    let cleanedText = originalText.replace(/(ORD000)+/g, ''); // Remove all instances first
+
+                                    // 2. Match ending numbers
+                                    let match = cleanedText.match(/(\d+)$/);
+
+                                    if (match) {
+                                        let numbersOnly = match[1];
+                                        let prefix = cleanedText.substring(0, cleanedText.length - numbersOnly.length);
+
+                                        // 3. Pad the numbers to 5 digits
+                                        let paddedNumber = numbersOnly.padStart(7, '0');
+
+                                        // 4. Build final result
+                                        let finalText = prefix + 'ORD000' + paddedNumber;
+                                        td.innerText = finalText;
+                                    }
+                                });
+                            });
+                        </script>
+
+
 
                         <td class="px-4 py-3">
                             {{ $order->customer ? $order->customer->full_name : 'N/A' }}

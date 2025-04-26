@@ -38,7 +38,7 @@ class OrderReference extends Model
     // In OrderReference.php model
     public function refundOrder()
     {
-        return $this->belongsTo(RefundOrder::class, 'order_id');
+        return $this->belongsTo(RefundOrder::class, 'order_id', 'order_id');
     }
 
 

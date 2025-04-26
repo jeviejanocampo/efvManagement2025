@@ -25,6 +25,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 
 
 class AdminController extends Controller
@@ -142,6 +143,93 @@ class AdminController extends Controller
             'salesData'
         ));
     }  
+
+    public function saveGcashPayment(Request $request)
+    {
+        // Validate payment method selection
+        $request->validate([
+            'order_id' => 'required|exists:orders,order_id',
+            'paymentMethod' => 'required|in:gcash',
+        ]);
+    
+        // Validate GCash image only
+        $request->validate([
+            'gcash_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+    
+        $paymentMethod = $request->paymentMethod;
+    
+        if ($paymentMethod == 'gcash' && $request->hasFile('gcash_image')) {
+            $gcashImage = $request->file('gcash_image');
+            $gcashImageName = time() . '-' . $gcashImage->getClientOriginalName();
+    
+            if (file_exists(public_path('onlinereceipts/' . $gcashImageName))) {
+                return back()->withErrors(['gcash_image' => 'This file already exists. Please upload a different file.']);
+            }
+    
+            $gcashImage->move(public_path('onlinereceipts'), $gcashImageName);
+    
+            // Save to gcash_payment table
+            GcashPayment::create([
+                'order_id' => $request->order_id,
+                'image' => $gcashImageName,
+                'status' => 'Pending',
+            ]);
+    
+            // Update orders table's payment_method
+            \DB::table('orders')
+                ->where('order_id', $request->order_id)
+                ->update(['payment_method' => 'GCASH']);
+        }
+    
+        return back()->with('success', 'GCash payment saved successfully.');
+    }
+    
+    
+    
+    public function savePnbPayment(Request $request)
+    {
+        // Validate payment method selection
+        $request->validate([
+            'order_id' => 'required|exists:orders,order_id',
+            'paymentMethod' => 'required|in:pnb',
+        ]);
+
+        // Validate uploaded image
+        $request->validate([
+            'pnb_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($request->hasFile('pnb_image')) {
+            $pnbImage = $request->file('pnb_image');
+            $pnbImageName = time() . '-' . $pnbImage->getClientOriginalName();
+
+            // Check if file already exists
+            if (file_exists(public_path('onlinereceipts/' . $pnbImageName))) {
+                return back()->withErrors(['pnb_image' => 'This file already exists. Please upload a different file.']);
+            }
+
+            // Move file to public/onlinereceipts
+            $pnbImage->move(public_path('onlinereceipts'), $pnbImageName);
+
+            // Insert into pnb_payment table
+            \App\Models\PnbPayment::create([
+                'order_id' => $request->order_id,
+                'image' => $pnbImageName,
+                'status' => 'Completed',
+            ]);
+
+            // Update orders table's payment_method to PNB
+            \DB::table('orders')
+                ->where('order_id', $request->order_id)
+                ->update(['payment_method' => 'PNB']);
+        }
+
+        return back()->with('success', 'PNB payment saved successfully.');
+    }
+
+
+    
 
     public function adminUsers()
     {
@@ -266,9 +354,8 @@ class AdminController extends Controller
 
     public function Admindetails($order_id, Request $request)
     {
-
         $reference_id = $request->query('reference_id');
-
+    
         $order = Order::find($order_id); // Fetch the order by ID
         if (!$order) {
             abort(404, 'Order not found'); // Handle invalid order ID
@@ -284,6 +371,26 @@ class AdminController extends Controller
     
         return view('admin.content.AdminOverviewDetails', compact('order', 'orderDetails'));
     }
+    
+    public function getPaymentImage($order_id, $payment_method)
+    {
+        if ($payment_method == 'gcash') {
+            $payments = \App\Models\GcashPayment::where('order_id', $order_id)->get();
+        } elseif ($payment_method == 'pnb') {
+            $payments = \App\Models\PnbPayment::where('order_id', $order_id)->get();
+        } else {
+            return response()->json(['success' => false]);
+        }
+
+        if ($payments->isNotEmpty()) {
+            $images = $payments->pluck('image'); // Collect only image names
+            return response()->json(['success' => true, 'images' => $images]);
+        }
+
+        return response()->json(['success' => false]);
+    }
+
+        
 
     public function AdmineditDetails($order_id)
     {
@@ -602,50 +709,38 @@ class AdminController extends Controller
                 $variantId = $item['variant_id'] ?? null;
                 $productId = $item['model_id'];
                 $quantity = $item['quantity'];
-                $brandName = 'Unknown';  // Default brand name if no match is found.
+                $brandName = 'Unknown';
             
-                // If variant_id is not null or 0
                 if (!empty($variantId) && $variantId != 0) {
                     $variant = Variant::find($variantId);
-            
                     if (!$variant) {
                         throw new \Exception("Variant with variant_id $variantId not found.");
                     }
-            
                     $variant->stocks_quantity = max(0, $variant->stocks_quantity - $quantity);
                     $variant->save();
-            
-                    // Use model_id from the variant to fetch brand_name
                     $model = Models::where('model_id', $productId)->first();
                     if ($model) {
                         $brand = Brand::where('brand_id', $model->brand_id)->first();
                         if ($brand) {
-                            $brandName = $brand->brand_name;  // Use the brand name from the brands table.
+                            $brandName = $brand->brand_name;
                         }
                     }
-            
-                } else {  // If variant_id is 0 or null
-                    // Use model_id from the products table to get the brand_name
+                } else {
                     $product = Products::where('model_id', $productId)->first();
-            
                     if (!$product) {
                         throw new \Exception("Product with model_id $productId not found.");
                     }
-            
                     $product->stocks_quantity = max(0, $product->stocks_quantity - $quantity);
                     $product->save();
-            
-                    // Fetch brand_name from the products table
                     $brandName = $product->brand_name;
                 }
             
-                // Create order detail with the correct brand_name
                 OrderDetail::create([
                     'order_id' => $order->order_id,
                     'model_id' => $productId,
                     'variant_id' => $variantId,
                     'product_name' => $item['product_name'],
-                    'brand_name' => $brandName,  // Insert the fetched brand_name here
+                    'brand_name' => $brandName,
                     'quantity' => $quantity,
                     'price' => $item['price'],
                     'total_price' => $item['total_price'],
@@ -653,7 +748,7 @@ class AdminController extends Controller
                     'part_id' => $partId ?? '0000',
                     'm_part_id' => $mPartId ?? '000',
                 ]);
-            }            
+            }
     
             if (!empty($request->image)) {
                 GcashPayment::create([
@@ -662,6 +757,11 @@ class AdminController extends Controller
                     'status' => 'Completed',
                 ]);
             }
+    
+            OrderReference::create([
+                'order_id' => $order->order_id,
+                'reference_id' => $request->referenceId,
+            ]);
     
             DB::commit();
     
@@ -1401,9 +1501,9 @@ class AdminController extends Controller
         }
     
         // Generate new reference ID
-        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}";
+        // $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}";
 
-        // $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}-ORD" . str_pad($order_id, 5, '0', STR_PAD_LEFT);
+        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}-OR00" . str_pad($order_id, 5, '0', STR_PAD_LEFT);
     
         // Handle "Completed - with changes"
         if ($request->overall_status === 'Completed - with changes') {
