@@ -305,6 +305,9 @@
                             <th class="p-4 ">Price</th>
                             <th class="p-4 ">Subtotal</th>
                             <th class="p-4 ">Status</th>
+                            @if (!empty($defectiveProducts))
+                                <th>Defective Status</th> 
+                            @endif
                             <th class="p-4 ">Action</th> <!-- NEW COLUMN -->
                         </tr>
                     </thead>
@@ -347,6 +350,21 @@
                                 ">
                                     {{ strtolower($detail->product_status) == 'pending' ? 'In Process' : ucfirst($detail->product_status) }}
                                 </td>
+                                @if (!empty($defectiveProducts))
+                                    <td class="p-1 text-center">
+                                        @php
+                                            $idToCheck = $detail->variant_id != 0 ? $detail->variant_id : $detail->model_id;
+                                        @endphp
+                                        @if (in_array($idToCheck, $defectiveProducts))
+                                            <input type="checkbox" class="bg-red-500 text-white" checked disabled>
+                                            <span class="ml-2 text-red-500 font-semibold">Recorded</span>
+                                        @else
+                                            <input type="checkbox" class="bg-gray-300" disabled>
+                                            <span class="ml-2 text-gray-400">-</span>
+                                        @endif
+                                    </td>
+                                @endif
+
                                 <td class="p-1 ">
                                     <input type="hidden" name="order_id" value="{{ $refund->order_id }}">
                                     <input type="hidden" name="product_id[]" value="{{ $detail->model_id }}">
@@ -357,6 +375,7 @@
                                         <option value="pending" {{ $detail->product_status == 'pending' ? 'selected' : '' }}>Undo Refunded</option>
                                         <option value="refunded" {{ $detail->product_status == 'refunded' ? 'selected' : '' }}>Refunded</option>
                                         <option value="refunded" {{ $detail->product_status == 'refunded' ? 'selected' : '' }}>Confirm Item Refunded</option>
+                                        <option value="defective-product" {{ $detail->product_status == 'defective-product' ? 'selected' : '' }}>Confirm Defective Product</option>
                                     </select>
 
                                 </td>

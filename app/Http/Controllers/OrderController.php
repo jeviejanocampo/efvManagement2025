@@ -9,6 +9,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\OrderDetail;  
 use App\Models\Models;  
+use App\Models\DefectiveProduct;  
 use App\Models\Products;  
 use App\Models\ActivityLog;  
 use App\Models\Variant;  
@@ -103,52 +104,57 @@ class OrderController extends Controller
     
     public function StaffshowRefundRequestForm($order_id)
     {
-        $reference_id = request('reference_id');  // Retrieve the reference_id from the request
-
-        // Fetch refund details along with the customer data
+        $reference_id = request('reference_id');
+    
         $refund = RefundOrder::where('order_id', $order_id)
             ->with('customer')
             ->first();
-
-        // Fetch order details
-        $orderDetails = OrderDetail::where('order_id', $order_id)
-        ->with(['model', 'variant']) // <-- important
-        ->get();
+    
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
     
         if (!$refund) {
-            return redirect()->route('staff.refundRequests')->with('error', 'Refund request not found.');
+            return redirect()->route('admin.refundRequests')->with('error', 'Refund request not found.');
         }
-
-        // Fetch all models where w_variant is NOT "YES" and include stock count
+    
         $models = Models::where('status', 'active')
             ->where('w_variant', '!=', 'YES')
             ->with(['products' => function ($query) {
-                $query->select('model_id', 'stocks_quantity'); // Fetch stocks_quantity from products
+                $query->select('model_id', 'stocks_quantity');
             }])
             ->get()
             ->map(function ($model) {
-                // Sum up the stocks_quantity for each model
                 $model->total_stock_quantity = $model->products->sum('stocks_quantity');
                 return $model;
             });
-
-        // Fetch all variants where the related model has w_variant = "YES"
+    
         $variants = Variant::whereHas('model', function ($query) {
             $query->where('w_variant', 'YES')->where('status', 'active');
-        })->get(); // Removed pagination
-
-        // Fetch GCash payment status from the 'gcash_payment' table based on order_id
-        $gcashPaymentStatus = GcashPayment::where('order_id', $order_id)->value('status');
-        $gcashPaymentStatus = $gcashPaymentStatus ?? 'Pending';
-
-        // Fetch PNB payment status from the 'pnb_payment' table based on order_id
-        $pnbPaymentStatus = PnbPayment::where('order_id', $order_id)->value('status');
-        $pnbPaymentStatus = $pnbPaymentStatus ?? 'Pending';  // Default to 'Pending' if not found
-
-        // Pass reference_id, refund, orderDetails, models, variants, gcashPaymentStatus, and pnbPaymentStatus to the view
-        return view('staff.content.StaffRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants', 'reference_id', 'gcashPaymentStatus', 'pnbPaymentStatus'));
-    }
+        })->get();
     
+        $gcashPaymentStatus = GcashPayment::where('order_id', $order_id)->value('status') ?? 'Pending';
+        $pnbPaymentStatus = PnbPayment::where('order_id', $order_id)->value('status') ?? 'Pending';
+    
+        // Fetch defective products for this order
+        $defectiveProducts = DefectiveProduct::where('order_id', $order_id)
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->variant_id ?: $item->model_id => true]; // key by variant_id or model_id
+            })
+            ->keys()
+            ->toArray();    
+        // 👆 now $defectiveProducts is an array of model_ids that are defective
+    
+        return view('staff.content.staffRequestRefundForm', compact(
+            'refund',
+            'orderDetails',
+            'models',
+            'variants',
+            'reference_id',
+            'gcashPaymentStatus',
+            'pnbPaymentStatus',
+            'defectiveProducts' // Pass it to view
+        ));
+    }    
 
     public function updateProductStatusRefunded(Request $request)
     {
@@ -169,7 +175,7 @@ class OrderController extends Controller
                 $status = $product_statuses[$index];
                 $price = $product_prices[$index];
                 $variant_id = $variant_ids[$index];
-    
+            
                 if ($variant_id != 0) {
                     $orderDetail = OrderDetail::where('order_id', $order_id)
                         ->where('variant_id', $variant_id)
@@ -179,76 +185,97 @@ class OrderController extends Controller
                         ->where('model_id', $product_id)
                         ->first();
                 }
-    
-                if ($orderDetail) {
-                    if ($orderDetail->product_status !== $status) {
-                        if ($status === 'refunded') {
-                            $total_adjustment -= $price;
-                            $refunded_items[] = "Product ID: $product_id, Variant ID: $variant_id, Price: $price";
-                
-                            if ($variant_id != 0) {
-                                $variant = Variant::find($variant_id);
-                                if ($variant) {
-                                    $variant->stocks_quantity += $orderDetail->quantity;
-                                    $variant->save();
-                                }
-                            } else {
-                                $product = Products::where('model_id', $product_id)->first();
-                                if ($product) {
-                                    $product->stocks_quantity += $orderDetail->quantity;
-                                    $product->save();
-                                }
+            
+                if ($orderDetail && $orderDetail->product_status !== $status) {
+                    if ($status === 'defective-product') {
+                        try {
+                            DefectiveProduct::create([
+                                'order_id' => $order_id,
+                                'model_id' => $product_id,
+                                'variant_id' => $variant_id,
+                                'product_name' => $orderDetail->product_name,
+                                'brand_name' => $orderDetail->brand_name,
+                                'quantity' => $orderDetail->quantity,
+                                'price' => $orderDetail->price,
+                                'total_price' => $price,
+                                'product_status' => 'defective-product',
+                                'part_id' => $orderDetail->part_id,
+                                'm_part_id' => $orderDetail->m_part_id,
+                            ]);
+                            Log::info("Defective product added: Order ID: $order_id, Product ID: $product_id, Variant ID: $variant_id");
+                            continue;
+                        } catch (\Exception $e) {
+                            Log::error("Error inserting defective product for Order ID: $order_id, Product ID: $product_id: " . $e->getMessage());
+                        }
+                    }
+                    
+                    // Handle 'refunded' and 'pending' statuses
+                    if ($status === 'refunded') {
+                        $total_adjustment -= $price;
+                        $refunded_items[] = "Product ID: $product_id, Variant ID: $variant_id, Price: $price";
+            
+                        if ($variant_id != 0) {
+                            $variant = Variant::find($variant_id);
+                            if ($variant) {
+                                $variant->stocks_quantity += $orderDetail->quantity;
+                                $variant->save();
                             }
-                
-                            // Insert into RefundLog when status is updated to 'refunded'
-                            try {
-                                RefundLog::create([
-                                    'user_id' => Auth::id(),
-                                    'activity' => "Product ID: $product_id, Variant ID: $variant_id marked as refunded. Price: $price",
-                                    'role' => Auth::user()->role,
-                                    'refunded_at' => now(),
-                                ]);
-                                Log::info("Refund log created for Product ID: $product_id, Variant ID: $variant_id.");
-                            } catch (\Exception $e) {
-                                Log::error("Error inserting refund log for Product ID: $product_id, Variant ID: $variant_id: " . $e->getMessage());
-                            }
-                
-                        } elseif ($orderDetail->product_status === 'refunded' && $status === 'pending') {
-                            $total_adjustment += $price;
-                
-                            if ($variant_id != 0) {
-                                $variant = Variant::find($variant_id);
-                                if ($variant) {
-                                    $variant->stocks_quantity -= $orderDetail->quantity;
-                                    $variant->save();
-                                }
-                            } else {
-                                $product = Products::where('model_id', $product_id)->first();
-                                if ($product) {
-                                    $product->stocks_quantity -= $orderDetail->quantity;
-                                    $product->save();
-                                }
-                            }
-                
-                            // Insert into RefundLog when status is updated from 'refunded' to 'pending'
-                            try {
-                                RefundLog::create([
-                                    'user_id' => Auth::id(),
-                                    'activity' => "Product ID: $product_id, Variant ID: $variant_id changed from refunded to pending. Price: $price",
-                                    'role' => Auth::user()->role,
-                                    'refunded_at' => now(),
-                                ]);
-                                Log::info("Refund log created for Product ID: $product_id, Variant ID: $variant_id.");
-                            } catch (\Exception $e) {
-                                Log::error("Error inserting refund log for Product ID: $product_id, Variant ID: $variant_id: " . $e->getMessage());
+                        } else {
+                            $product = Products::where('model_id', $product_id)->first();
+                            if ($product) {
+                                $product->stocks_quantity += $orderDetail->quantity;
+                                $product->save();
                             }
                         }
-                
+            
+                        try {
+                            RefundLog::create([
+                                'user_id' => Auth::id(),
+                                'activity' => "Product ID: $product_id, Variant ID: $variant_id marked as refunded. Price: $price",
+                                'role' => Auth::user()->role,
+                                'refunded_at' => now(),
+                            ]);
+                            Log::info("Refund log created for Product ID: $product_id, Variant ID: $variant_id.");
+                        } catch (\Exception $e) {
+                            Log::error("Error inserting refund log for Product ID: $product_id, Variant ID: $variant_id: " . $e->getMessage());
+                        }
+            
+                    } elseif ($orderDetail->product_status === 'refunded' && $status === 'pending') {
+                        $total_adjustment += $price;
+            
+                        if ($variant_id != 0) {
+                            $variant = Variant::find($variant_id);
+                            if ($variant) {
+                                $variant->stocks_quantity -= $orderDetail->quantity;
+                                $variant->save();
+                            }
+                        } else {
+                            $product = Products::where('model_id', $product_id)->first();
+                            if ($product) {
+                                $product->stocks_quantity -= $orderDetail->quantity;
+                                $product->save();
+                            }
+                        }
+            
+                        try {
+                            RefundLog::create([
+                                'user_id' => Auth::id(),
+                                'activity' => "Product ID: $product_id, Variant ID: $variant_id changed from refunded to pending. Price: $price",
+                                'role' => Auth::user()->role,
+                                'refunded_at' => now(),
+                            ]);
+                            Log::info("Refund log created for Product ID: $product_id, Variant ID: $variant_id.");
+                        } catch (\Exception $e) {
+                            Log::error("Error inserting refund log for Product ID: $product_id, Variant ID: $variant_id: " . $e->getMessage());
+                        }
+                    }
+            
+                    if ($status !== 'defective-product') {
                         $orderDetail->product_status = $status;
                         $orderDetail->save();
                     }
-                }                
-            }
+                }
+            }            
     
             $order = Order::find($order_id);
             if ($order) {
@@ -285,7 +312,7 @@ class OrderController extends Controller
             Log::error("Error in updateProductStatusRefunded: " . $e->getMessage());
             return back()->with('error', 'An error occurred. Check logs.');
         }
-    }   
+    }  
 
 
     public function updateRefund(Request $request)
