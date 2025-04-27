@@ -61,7 +61,7 @@
 
     <div class ="bg-white p-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
         <div class="flex justify-between items-center">
-        @php
+        <!-- @php
     $latestOrderDetail = $orderDetails->last();
     $rawReferenceId = request()->query('reference_id');
     $orderId = $order->order_id ?? null; // <-- Get the order ID
@@ -106,11 +106,11 @@
     } else {
         $formattedRefId = 'N/A';
     }
-@endphp
+@endphp -->
 
              @if ($latestOrderDetail)
                 <p style="font-size: 18px; font-weight: 700;">
-                    REFERENCE ID: {{ $formattedRefId }}
+                        REFERENCE ID: {{ $reference_id ? $reference_id : 'Not Available' }}
                 </p>
                 <!-- <p style="font-size: 18px; font-weight: 700;">
                     REFERENCE ID: {{ $formattedRefId }}-ORD000{{ $order->order_id }}

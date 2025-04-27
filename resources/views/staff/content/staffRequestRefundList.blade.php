@@ -103,7 +103,7 @@
             <td class="py-3 px-4 border-b">
                 <a href="{{ route('staff.refundRequestForm', ['order_id' => $refund->order_id, 'reference_id' => $refund->orderReference ? $refund->orderReference->reference_id : null]) }}" 
                 class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-1">
-                        <i class="fas fa-eye"></i>
+                 <i class="fas fa-eye"></i>
                 </a>
                 </td>
             </tr>

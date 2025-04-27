@@ -123,12 +123,22 @@
                 }
             });
 
-            // Show simple success alert after submission
+            // Success message (after redirection)
             @if(session('success'))
                 alert("{{ session('success') }}");
             @endif
+
+            // Error message (if any validation failed and redirected back)
+            @if($errors->any())
+                let errorMessage = "Something went wrong:\n";
+                @foreach ($errors->all() as $error)
+                    errorMessage += "- {{ $error }}\n";
+                @endforeach
+                alert(errorMessage);
+            @endif
         });
         </script>
+
 
     </form>
 

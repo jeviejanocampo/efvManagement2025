@@ -38,7 +38,7 @@
     </div>
 
     <div class="border-b border-gray pb-4">
-        <p class="text-2xl font-medium">Reference ID: {{ $reference_id ?? 'N/A' }}OR00{{ $order->order_id }}</p>
+    <p class="text-2xl font-medium">Reference ID: {{ $reference_id ?? 'N/A' }}</p>
         
         @if ($refund->refund_completed_at)
             <p><span class="font-semibold">Processed Completed:</span> 

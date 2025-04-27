@@ -619,7 +619,7 @@ function saveOrder() {
         let brandPart = brandName.substring(0, 3).toUpperCase();
         let partSuffix = (partId || mPartId || "000000").slice(-6);
 
-        referenceId = brandPart + partSuffix;
+        referenceId = brandPart;
 
 
         orderData.push({

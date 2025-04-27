@@ -323,15 +323,20 @@ class AdminController extends Controller
 
     public function Admindetails($order_id, Request $request)
     {
-        $reference_id = $request->query('reference_id');
-
+        // Fetch the order by ID
         $order = Order::find($order_id);
         if (!$order) {
             abort(404, 'Order not found');
         }
 
+        // Fetch the reference_id from the reference_order table based on the order_id
+        $reference_order = OrderReference::where('order_id', $order_id)->first();
+        $reference_id = $reference_order ? $reference_order->reference_id : null;
+
+        // Fetch order details
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
 
+        // Fetch the model image for each order detail
         foreach ($orderDetails as $detail) {
             $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
         }
@@ -658,9 +663,10 @@ class AdminController extends Controller
         DB::beginTransaction();
     
         try {
+            // Create the order first (without reference_id generation yet)
             $order = Order::create([
                 'user_id' => $request->customerId,
-                'reference_id' => $request->referenceId,
+                'reference_id' => $request->referenceId, // reference_id is still passed here but will be replaced later
                 'total_items' => $request->totalItems,
                 'total_price' => $request->totalPrice,
                 'original_total_amount' => $request->totalPrice,
@@ -671,14 +677,16 @@ class AdminController extends Controller
                 'cash_received' => $request->cashReceived,
             ]);
     
+            // Loop through the order items and process each item
             foreach ($request->orderItems as $item) {
-                $partId = $item['part_id'] ?? null;
-                $mPartId = $item['m_part_id'] ?? $partId;
+                $partId = $item['part_id'] ?? '0000'; // Default to '0000' if not provided
+                $mPartId = $item['m_part_id'] ?? $partId; // Default to partId if mPartId is not provided
                 $variantId = $item['variant_id'] ?? null;
                 $productId = $item['model_id'];
                 $quantity = $item['quantity'];
-                $brandName = 'Unknown';
-            
+                $brandName = 'Unknown'; // Default brand name
+    
+                // Process the variant or product
                 if (!empty($variantId) && $variantId != 0) {
                     $variant = Variant::find($variantId);
                     if (!$variant) {
@@ -702,7 +710,8 @@ class AdminController extends Controller
                     $product->save();
                     $brandName = $product->brand_name;
                 }
-            
+    
+                // Save the order details
                 OrderDetail::create([
                     'order_id' => $order->order_id,
                     'model_id' => $productId,
@@ -713,26 +722,29 @@ class AdminController extends Controller
                     'price' => $item['price'],
                     'total_price' => $item['total_price'],
                     'product_status' => 'Completed',
-                    'part_id' => $partId ?? '0000',
-                    'm_part_id' => $mPartId ?? '000',
+                    'part_id' => $partId,
+                    'm_part_id' => $mPartId,
                 ]);
             }
     
-            if (!empty($request->image)) {
-                GcashPayment::create([
-                    'order_id' => $order->order_id,
-                    'image' => $request->image,
-                    'status' => 'Completed',
-                ]);
-            }
+            // Generate the reference_id using the received data
+            $brandShort = substr($brandName, 0, 3); // Get first 3 characters of brand_name
+            $partShort = substr($partId, 0, 3); // Get first 3 characters of part_id
+            $mPartShort = substr($mPartId, 0, 3); // Get first 3 characters of m_part_id
     
+            // Combine to form reference_id
+            $referenceId = $brandShort . $partShort . $mPartShort . '-OR00' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT);
+    
+            // Create OrderReference with the generated reference_id
             OrderReference::create([
                 'order_id' => $order->order_id,
-                'reference_id' => $request->referenceId,
+                'reference_id' => $referenceId, // Use the generated reference_id
             ]);
     
+            // Commit the transaction
             DB::commit();
     
+            // Fetch the latest order with details and return response
             $latestOrder = Order::with('orderDetails')->find($order->order_id);
     
             return response()->json([
@@ -741,6 +753,7 @@ class AdminController extends Controller
                 'order' => $latestOrder
             ]);
         } catch (\Exception $e) {
+            // Rollback the transaction in case of an error
             DB::rollBack();
             return response()->json([
                 'success' => false,
@@ -1369,8 +1382,6 @@ class AdminController extends Controller
             'processed_by' => 'required|integer|exists:users,id',
             'refund_method' => 'required|string',
             'status' => 'required|string',
-            'extra_details' => 'nullable|string',
-            'details_selected' => 'nullable|string',
         ]);
 
         // Create the refund order
@@ -1378,7 +1389,7 @@ class AdminController extends Controller
 
         // Fetch updated orders and return the view
         $orders = Order::with('customer')->get();
-        return view('admin.content.AdminRequestForm', compact('orders'))->with('success', 'Refund request submitted successfully!');
+        return redirect()->back()->with('success', 'Refund request submitted successfully!');
     }
 
     public function AdminshowRefundRequestForm($order_id)

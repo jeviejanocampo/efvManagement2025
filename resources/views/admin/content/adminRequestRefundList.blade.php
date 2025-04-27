@@ -82,10 +82,9 @@
             <td class="py-3 px-4 border-b">
                 <!-- Display Reference ID if available -->
                 @if ($refund->orderReference)
-                    {{ $refund->orderReference->reference_id }}OR00000{{$refund->order_id }}
-
+                    {{ $refund->orderReference->reference_id }}
                 @else
-                    OR0000{{ $refund->order->order_id ?? $refund->order_id }}
+                    OR0000{{ $refund->order_id }}
                 @endif
             </td>
             <td class="py-3 px-4 border-b">{{ $refund->customer->full_name ?? 'Unknown' }}</td>

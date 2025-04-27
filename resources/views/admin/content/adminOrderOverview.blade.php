@@ -21,7 +21,7 @@
 <div class="container mx-auto max-w-full p-4 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
     <div style="margin-bottom: 20px; font-size: 36px; font-weight: 800; color: #333; display: flex; align-items: center;" class=" border-b border-gray-200">
-        <i class="fas fa-box-open mr-3"></i> Reserved and Pre-Orders
+        <i class="fas fa-box-open mr-3"></i> Orders
         
 
         <p class="border-b border-b-[1px] border-gray-300 mt-2">
@@ -129,7 +129,7 @@
                             @php
                                 $fullReference = ($order->custom_reference_id ?? '') . str_pad($order->reference_id, 4, '0', STR_PAD_LEFT) . 'ORD00' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT);
                             @endphp
-                                <a href="{{ route('AdminoverViewDetails', ['order_id' => $order->order_id, 'reference_id' => $fullReference]) }}"
+                                <a href="{{ route('AdminoverViewDetails', ['order_id' => $order->order_id]) }}"
                                 class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-2">
 
                                     <i class="fas fa-eye"></i>

@@ -126,7 +126,7 @@
                                 $fullReference = ($order->custom_reference_id ?? '') . str_pad($order->reference_id, 4, '0', STR_PAD_LEFT) . 'ORD00' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT);
                             @endphp
                             <p style="text-align: center;">
-                                <a href="{{ route('overViewDetails', ['order_id' => $order->order_id, 'reference_id' => $fullReference]) }}"
+                                <a href="{{ route('overViewDetails', ['order_id' => $order->order_id]) }}"
                                 class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600 items-center gap-2">
                                     <i class="fas fa-eye"></i>
                                 </a>
