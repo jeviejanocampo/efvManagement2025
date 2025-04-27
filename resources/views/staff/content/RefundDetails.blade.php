@@ -72,14 +72,18 @@
         <!-- Right Grid: Order Details (Total, Payment Method, Status) -->
         <div class="space-y-6">
              
-                <div>
+                <!-- <div>
                     <strong class="text-sm">Via</strong>
                     <p>{{ $order->payment_method }}</p>
-                </div>
+                </div> -->
 
                 <div>
-                    <strong class="text-sm">Payment via</strong>
-                    <p>{{ $refund-> refund_method ?? 'NULL' }}</p>
+                    <strong class="text-sm">Payment Method</strong>
+                    <p>{{ $refund->refund_method ?? 'NULL' }}</p>
+
+                    @if(strtolower($refund->refund_method) === 'pnb')
+                        <p class="text-xs text-black mt-1">Philippine National Bank via Instapay</p>
+                    @endif
                 </div>
 
                 <div>

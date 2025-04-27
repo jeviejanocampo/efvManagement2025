@@ -85,8 +85,14 @@
 
             <!-- Refund Method -->
             <div>
-                <label for="refund_method" class="block text-gray-700">Refund Method</label>
-                <input type="text" name="refund_method" id="refund_method" class="w-full px-4 py-2 border rounded-md" required>
+                <label for="payment_method" class="block text-gray-700">Payment Method</label>
+                <select name="payment_method" id="payment_method" class="w-full px-4 py-2 border rounded-md" required>
+                    <option value="" disabled selected>Select Payment Method</option>
+                    <option value="Cash">Cash</option>
+                    <option value="GCash">GCash</option>
+                    <option value="PNB">PNB</option>
+                    <option value="To Be Decided">To be decided </option>
+                </select>
             </div>
 
             <!-- Status -->
@@ -123,12 +129,22 @@
                 }
             });
 
-            // Show simple success alert after submission
+            // Success message (after redirection)
             @if(session('success'))
                 alert("{{ session('success') }}");
             @endif
+
+            // Error message (if any validation failed and redirected back)
+            @if($errors->any())
+                let errorMessage = "Something went wrong:\n";
+                @foreach ($errors->all() as $error)
+                    errorMessage += "- {{ $error }}\n";
+                @endforeach
+                alert(errorMessage);
+            @endif
         });
         </script>
+
 
     </form>
 

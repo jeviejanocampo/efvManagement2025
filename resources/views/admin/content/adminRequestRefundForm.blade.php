@@ -149,7 +149,7 @@
                 </div>
             </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray pb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray pb-4">
                     <!-- Refund Details Section -->
                     <div class="space-y-10">
                         <p class="text-1xl"><strong>Customer:</strong> {{ $refund->customer->full_name ?? 'Unknown' }}</p>
@@ -168,7 +168,7 @@
                         <div class="mt-1">
                             <p class="text-1xl"><strong>Refunded Amount:</strong>
                                 <span class="
-                                    @if(strtolower($refund->refund_method) === 'completed')
+                                    @if(strtolower($refund->refund_status) === 'completed')
                                         bg-green-100 text-green-800
                                     @else
                                         bg-red-100 text-red-800
@@ -181,12 +181,8 @@
                         @endif
                     </div>
 
-                    <!-- Refund Method Form Section -->
+                    <!-- Refund Method Section -->
                     <div>
-                    <form action="{{ route('admin.updateRefundMethod') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="order_id" value="{{ $refund->order_id }}">
-
                         <div class="flex items-center space-x-4 mb-4">
                             <p class="text-1xl"><strong>Refund Method:</strong></p>
                             @if(strtolower($refund->refund_method) === 'gcash')
@@ -198,26 +194,12 @@
                             @endif
                         </div>
 
-                        <select name="refund_method" id="refund_method" class="border rounded-lg p-2 w-full" onchange="toggleReceiptUpload()">
-                            <option value="Cash" {{ strtolower($refund->refund_method) === 'cash' ? 'selected' : '' }}>Cash</option>
-                            <option value="GCash" {{ strtolower($refund->refund_method) === 'gcash' ? 'selected' : '' }}>GCash</option>
-                            <option value="PNB" {{ strtolower($refund->refund_method) === 'pnb' ? 'selected' : '' }}>PNB</option>
-                        </select>
-
-                        <div id="receipt_upload_gcash" class="mt-4" style="display: none;">
-                            <label class="block mb-2">Upload GCash Receipt:</label>
-                            <input type="file" name="receipt_image" class="border rounded-lg p-2 w-full">
-                        </div>
-
-                        <div id="receipt_upload_pnb" class="mt-4" style="display: none;">
-                            <label class="block mb-2">Upload PNB Receipt:</label>
-                            <input type="file" name="receipt_image" class="border rounded-lg p-2 w-full">
-                        </div>
+                        <button onclick="openModal()" class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-2">Edit Refund Method</button>
 
                         <!-- Display GCash Payment Status -->
                         @if(strtolower($refund->refund_method) === 'gcash')
                             <div class="mt-4">
-                                <p class="text-lg"><strong>GCash Payment Status:</strong>
+                                <p class="text-1xl"><strong>GCash Payment Status:</strong>
                                     <span class="
                                         @if(strtolower($gcashPaymentStatus) === 'completed')
                                             bg-green-200 text-green-800
@@ -246,66 +228,67 @@
                                 </p>
                             </div>
                         @endif
-
-                        <button type="submit" class="mt-6 bg-blue-600 text-white py-2 px-4 rounded-lg">Save</button>
-                        <button type="button" id="cancel_button" class="bg-gray-400 text-white py-2 px-4 rounded-lg hidden" onclick="cancelSelection()">Cancel</button>
-                    </form>
-
-                   
-                        
                     </div>
-                    </div>
-
-                    @if(session('error'))
-                        <div class="bg-red-500 text-white p-4 rounded-lg mb-4">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-
-
-                    <!-- Modal -->
-                    <div id="editRefundMethodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-                        <div class="bg-white p-8 rounded-lg w-full max-w-md">
-                            <h2 class="text-2xl font-semibold mb-4">Edit Refund Method</h2>
-                            <form action="{{ route('admin.updateRefundMethod') }}" method="POST" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" name="order_id" value="{{ $refund->order_id }}">
-
-                                <div class="mb-4">
-                                    <label class="block mb-2 font-semibold">Upload Receipt (Optional)</label>
-                                    <input type="file" name="receipt_image" class="border rounded-lg w-full p-2">
-                                </div>
-
-                                <div class="flex justify-end space-x-4">
-                                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-400 text-white rounded-lg">Cancel</button>
-                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Save</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <script>
-                        function openModal() {
-                            document.getElementById('editRefundMethodModal').classList.remove('hidden');
-                        }
-                        function closeModal() {
-                            document.getElementById('editRefundMethodModal').classList.add('hidden');
-                        }
-
-                        function toggleReceiptUpload() {
-                            var method = document.getElementById('refund_method').value;
-                            var receiptDiv = document.getElementById('receipt_upload');
-
-                            if (method === 'GCash') {
-                                receiptDiv.style.display = 'block';
-                            } else {
-                                receiptDiv.style.display = 'none';
-                            }
-                        }
-                    </script>
-
-
                 </div>
+
+                @if(session('error'))
+                    <div class="bg-red-500 text-white p-4 rounded-lg my-4">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                <!-- Modal -->
+                <div id="editRefundMethodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+                <div class="bg-white p-8 rounded-lg w-full max-w-md">
+                    <h2 class="text-2xl font-semibold mb-4">Edit Refund Method</h2>
+                    <form action="{{ route('admin.updateRefundMethod') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="order_id" value="{{ $refund->order_id }}">
+
+                        <div class="mb-4">
+                            <label class="block mb-2 font-semibold">Select Refund Method</label>
+                            <select name="refund_method" id="refund_method_modal" class="border rounded-lg p-2 w-full" onchange="toggleReceiptUploadModal()">
+                                <option value="Cash" {{ strtolower($refund->refund_method) === 'cash' ? 'selected' : '' }}>Cash</option>
+                                <option value="GCash" {{ strtolower($refund->refund_method) === 'gcash' ? 'selected' : '' }}>GCash</option>
+                                <option value="PNB" {{ strtolower($refund->refund_method) === 'pnb' ? 'selected' : '' }}>PNB</option>
+                            </select>
+                        </div>
+
+                        <div id="receipt_upload_modal" class="mb-4 hidden">
+                            <label class="block mb-2 font-semibold">Upload Receipt</label>
+                            <input type="file" name="receipt_image" class="border rounded-lg p-2 w-full">
+                        </div>
+
+                        <div class="flex justify-end space-x-4">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-400 text-white rounded-lg">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+                function openModal() {
+                    document.getElementById('editRefundMethodModal').classList.remove('hidden');
+                    toggleReceiptUploadModal();
+                }
+                function closeModal() {
+                    document.getElementById('editRefundMethodModal').classList.add('hidden');
+                }
+                function toggleReceiptUploadModal() {
+                    var method = document.getElementById('refund_method_modal').value;
+                    var receiptDiv = document.getElementById('receipt_upload_modal');
+
+                    if (method === 'GCash' || method === 'PNB') {
+                        receiptDiv.classList.remove('hidden');
+                    } else {
+                        receiptDiv.classList.add('hidden');
+                    }
+                }
+                document.addEventListener('DOMContentLoaded', function() {
+                    toggleReceiptUploadModal();
+                });
+            </script>
 
             <h2 class="text-3xl font-semibold mb-4 pt-2">Product Details</h2>
 

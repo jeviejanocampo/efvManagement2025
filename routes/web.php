@@ -52,7 +52,7 @@ Route::middleware(['staff'])->group(function () {
 
     Route::get('/staff/refund-requests', [OrderController::class, 'refundRequests'])->name('staff.refundRequests');
 
-    Route::get('/staff/refund-request/{order_id}', [OrderController::class, 'showRefundRequestForm'])
+    Route::get('/staff/refund-request/{order_id}', [OrderController::class, 'StaffshowRefundRequestForm'])
     ->name('staff.refundRequestForm');
 
     Route::get('/staff/order-details/{order_id}', [OrderController::class, 'show'])->name('orders.show');
@@ -82,6 +82,8 @@ Route::middleware(['staff'])->group(function () {
     Route::get('/staff/payment-image/{order_id}/{payment_method}', [OrderController::class, 'StaffgetPaymentImage']);
 
 });
+
+Route::post('/staff/update-refund-method', [OrderController::class, 'StaffupdateRefundMethod'])->name('staff.updateRefundMethod');
 
 Route::post('/save-order-pos', [StaffPOSController::class, 'saveOrderPOS'])->name('staff.saveOrderPOS');
 

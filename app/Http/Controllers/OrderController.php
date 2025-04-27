@@ -101,20 +101,22 @@ class OrderController extends Controller
         return view('staff.content.staffRequestRefundList', compact('refunds'));
     }
     
-    public function showRefundRequestForm($order_id)
+    public function StaffshowRefundRequestForm($order_id)
     {
         $reference_id = request('reference_id');  // Retrieve the reference_id from the request
-    
+
+        // Fetch refund details along with the customer data
         $refund = RefundOrder::where('order_id', $order_id)
             ->with('customer')
             ->first();
-    
+
+        // Fetch order details
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
-    
+
         if (!$refund) {
             return redirect()->route('staff.refundRequests')->with('error', 'Refund request not found.');
         }
-    
+
         // Fetch all models where w_variant is NOT "YES" and include stock count
         $models = Models::where('status', 'active')
             ->where('w_variant', '!=', 'YES')
@@ -127,14 +129,22 @@ class OrderController extends Controller
                 $model->total_stock_quantity = $model->products->sum('stocks_quantity');
                 return $model;
             });
-    
+
         // Fetch all variants where the related model has w_variant = "YES"
         $variants = Variant::whereHas('model', function ($query) {
             $query->where('w_variant', 'YES')->where('status', 'active');
         })->get(); // Removed pagination
-    
-        // Pass reference_id to the view along with other data
-        return view('staff.content.staffRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants', 'reference_id'));
+
+        // Fetch GCash payment status from the 'gcash_payment' table based on order_id
+        $gcashPaymentStatus = GcashPayment::where('order_id', $order_id)->value('status');
+        $gcashPaymentStatus = $gcashPaymentStatus ?? 'Pending';
+
+        // Fetch PNB payment status from the 'pnb_payment' table based on order_id
+        $pnbPaymentStatus = PnbPayment::where('order_id', $order_id)->value('status');
+        $pnbPaymentStatus = $pnbPaymentStatus ?? 'Pending';  // Default to 'Pending' if not found
+
+        // Pass reference_id, refund, orderDetails, models, variants, gcashPaymentStatus, and pnbPaymentStatus to the view
+        return view('staff.content.StaffRequestRefundForm', compact('refund', 'orderDetails', 'models', 'variants', 'reference_id', 'gcashPaymentStatus', 'pnbPaymentStatus'));
     }
     
 
@@ -1074,6 +1084,141 @@ class OrderController extends Controller
 
         return response()->json(['success' => false]);
     }
+
+    public function StaffupdateRefundMethod(Request $request)
+    {
+        // Log the initial request data
+        Log::info('StaffupdateRefundMethod called', ['request_data' => $request->all()]);
+
+        $request->validate([
+            'order_id' => 'required|exists:refund_order,order_id',
+            'refund_method' => 'required|in:Cash,GCash,PNB',
+            'receipt_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $orderId = $request->order_id;
+        $newMethod = $request->refund_method;
+
+        // Log the validated orderId and newMethod
+        Log::info('Order ID and Refund Method:', [
+            'order_id' => $orderId,
+            'refund_method' => $newMethod
+        ]);
+
+        // If switching to GCash and receipt is uploaded
+        if ($newMethod === 'GCash' && $request->hasFile('receipt_image')) {
+            Log::info('GCash method selected and receipt image found. Processing GCash receipt upload.');
+
+            $image = $request->file('receipt_image');
+            $imageName = $image->getClientOriginalName();  // Get original filename
+            $imageExtension = $image->getClientOriginalExtension(); // Get image extension
+
+            // Log the image details
+            Log::info('Received GCash receipt:', [
+                'image_name' => $imageName,
+                'image_extension' => $imageExtension
+            ]);
+
+            // Create a unique filename to avoid conflict in case of duplicate names
+            $uniqueImageName = time() . '-' . $imageName;
+
+            $imagePath = public_path('onlinereceipts/' . $uniqueImageName);
+
+            // Log the image path
+            Log::info('Generated unique image path:', ['image_path' => $imagePath]);
+
+            // Check if the image already exists in the 'onlinereceipts' folder
+            if (file_exists($imagePath)) {
+                Log::warning('GCash receipt already exists.', ['image_path' => $imagePath]);
+                return redirect()->back()->with('error', 'GCash receipt already exists.');
+            }
+
+            // Save the new receipt image to the 'onlinereceipts' folder
+            $image->move(public_path('onlinereceipts'), $uniqueImageName);
+
+            // Log that the image has been successfully uploaded
+            Log::info('GCash receipt uploaded successfully', ['unique_image_name' => $uniqueImageName]);
+
+            // Insert new record into the gcash_payment table
+            $gcashInsert = \DB::table('gcash_payment')->insert([
+                'order_id' => $orderId,
+                'image' => $uniqueImageName,
+                'status' => 'Completed',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Log the result of the insertion attempt
+            if ($gcashInsert) {
+                Log::info('GCash payment inserted successfully.');
+            } else {
+                Log::error('GCash payment insertion failed.');
+            }
+        }
+
+        // If switching to PNB and receipt is uploaded
+        if ($newMethod === 'PNB' && $request->hasFile('receipt_image')) {
+            Log::info('PNB method selected and receipt image found. Processing PNB receipt upload.');
+
+            $image = $request->file('receipt_image');
+            $imageName = $image->getClientOriginalName();  // Get original filename
+            $imageExtension = $image->getClientOriginalExtension(); // Get image extension
+
+            // Log the image details
+            Log::info('Received PNB receipt:', [
+                'image_name' => $imageName,
+                'image_extension' => $imageExtension
+            ]);
+
+            // Create a unique filename to avoid conflict in case of duplicate names
+            $uniqueImageName = time() . '-' . $imageName;
+
+            $imagePath = public_path('onlinereceipts/' . $uniqueImageName);
+
+            // Log the image path
+            Log::info('Generated unique image path:', ['image_path' => $imagePath]);
+
+            // Check if the image already exists in the 'onlinereceipts' folder
+            if (file_exists($imagePath)) {
+                Log::warning('PNB receipt already exists.', ['image_path' => $imagePath]);
+                return redirect()->back()->with('error', 'PNB receipt already exists.');
+            }
+
+            // Save the new receipt image to the 'onlinereceipts' folder
+            $image->move(public_path('onlinereceipts'), $uniqueImageName);
+
+            // Log that the image has been successfully uploaded
+            Log::info('PNB receipt uploaded successfully', ['unique_image_name' => $uniqueImageName]);
+
+            // Insert new record into the pnb_payment table
+            \DB::table('pnb_payment')->insert([
+                'order_id' => $orderId,
+                'image' => $uniqueImageName,
+                'status' => 'Completed',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Update the refund_order refund_method to the new method (either Cash, GCash, or PNB)
+        Log::info('Updating refund method in refund_order table', [
+            'order_id' => $orderId,
+            'new_refund_method' => $newMethod
+        ]);
+
+        \DB::table('refund_order')
+            ->where('order_id', $orderId)
+            ->update([
+                'refund_method' => $newMethod,
+                'updated_at' => now(),
+            ]);
+
+        Log::info('Refund method updated successfully for order ID:', ['order_id' => $orderId]);
+
+        return redirect()->back()->with('success', 'Refund method updated successfully!');
+    }
+    
+
 
 
 }

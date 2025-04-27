@@ -107,8 +107,8 @@
             $partCode2 = substr(end($partIdParts), -4);
         }
 
-        // Generate the reference ID, including "OR00" and order_id
-        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}-OR00" . str_pad($refund->order_id, 5, '0', STR_PAD_LEFT);
+        // Generate the reference ID
+        $newReferenceId = "{$brandCode}-{$partCode1}{$partCode2}-ORD" . str_pad($refund->order_id, 5, '0', STR_PAD_LEFT);
 
         Log::info("Generated Reference ID: " . $newReferenceId);
 
@@ -124,7 +124,7 @@
                 <p class="text-2xl" style="display: none;"><strong>Order ID:</strong> {{ $refund->order_id }}</p>
 
                 <p class="text-3xl font-semibold">
-                    Reference ID: {{ $newReferenceId }}
+                    Reference ID: {{ $newReferenceId ?? $reference_id }}
                 </p>
 
                 <div class="flex items-center space-x-4">
@@ -148,12 +148,149 @@
                    
                 </div>
             </div>
-                <p class="text-1xl"><strong>Customer:</strong> {{ $refund->customer->full_name ?? 'Unknown' }}</p>
-                <p class="text-1xl"><strong>Refund Reason:</strong> {{ $refund->refund_reason }}</p>
-                <p class="text-1xl"><strong>Created:</strong> {{ $refund->created_at->format('F j, Y g:i A') }}</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray pb-4">
+                    <!-- Refund Details Section -->
+                    <div class="space-y-10">
+                        <p class="text-1xl"><strong>Customer:</strong> {{ $refund->customer->full_name ?? 'Unknown' }}</p>
+                        <p class="text-1xl"><strong>Refund Reason:</strong> {{ $refund->refund_reason }}</p>
+                        <p class="text-1xl"><strong>Created:</strong> {{ $refund->created_at->format('F j, Y g:i A') }}</p>
+
+                        @php
+                            $totalRefundedAmount = 0;
+                            foreach ($orderDetails as $detail) {
+                                if (strtolower($detail->product_status) === 'refunded') {
+                                    $totalRefundedAmount += $detail->price * $detail->quantity;
+                                }
+                            }
+                        @endphp
+                        @if($totalRefundedAmount > 0)
+                        <div class="mt-1">
+                            <p class="text-1xl"><strong>Refunded Amount:</strong>
+                                <span class="
+                                    @if(strtolower($refund->refund_status) === 'completed')
+                                        bg-green-100 text-green-800
+                                    @else
+                                        bg-red-100 text-red-800
+                                    @endif
+                                    p-2 rounded-lg">
+                                    ₱ {{ number_format($totalRefundedAmount, 2) }}
+                                </span>
+                            </p>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Refund Method Section -->
+                    <div>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <p class="text-1xl"><strong>Refund Method:</strong></p>
+                            @if(strtolower($refund->refund_method) === 'gcash')
+                                <img src="{{ asset('product-images/gcashlogo.png') }}" alt="GCash Logo" class="w-12 h-12 object-contain">
+                            @elseif(strtolower($refund->refund_method) === 'cash')
+                                <img src="{{ asset('product-images/cashlogo.png') }}" alt="Cash Logo" class="w-12 h-12 object-contain">
+                            @elseif(strtolower($refund->refund_method) === 'pnb')
+                                <img src="{{ asset('product-images/pnblogo.png') }}" alt="PNB Logo" class="w-12 h-12 object-contain">
+                            @endif
+                        </div>
+
+                        <button onclick="openModal()" class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-2">Edit Refund Method</button>
+
+                        <!-- Display GCash Payment Status -->
+                        @if(strtolower($refund->refund_method) === 'gcash')
+                            <div class="mt-4">
+                                <p class="text-1xl"><strong>GCash Payment Status:</strong>
+                                    <span class="
+                                        @if(strtolower($gcashPaymentStatus) === 'completed')
+                                            bg-green-200 text-green-800
+                                        @else
+                                            bg-red-200 text-red-800
+                                        @endif
+                                        p-2 rounded-lg">
+                                        {{ $gcashPaymentStatus }}
+                                    </span>
+                                </p>
+                            </div>
+                        @endif
+
+                        @if(strtolower($refund->refund_method) === 'pnb')
+                            <div class="mt-4">
+                                <p class="text-1xl"><strong>PNB Payment Status:</strong>
+                                    <span class="
+                                        @if(strtolower($pnbPaymentStatus) === 'completed')
+                                            bg-green-200 text-green-800
+                                        @else
+                                            bg-red-200 text-red-800
+                                        @endif
+                                        p-2 rounded-lg">
+                                        {{ $pnbPaymentStatus }}
+                                    </span>
+                                </p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
-            <h2 class="text-3xl font-semibold mb-4 border-b border-gray pb-4 pt-2">Product Details</h2>
+                @if(session('error'))
+                    <div class="bg-red-500 text-white p-4 rounded-lg my-4">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                <!-- Modal -->
+                <div id="editRefundMethodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+                <div class="bg-white p-8 rounded-lg w-full max-w-md">
+                    <h2 class="text-2xl font-semibold mb-4">Edit Refund Method</h2>
+                    <form action="{{ route('staff.updateRefundMethod') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="order_id" value="{{ $refund->order_id }}">
+
+                        <div class="mb-4">
+                            <label class="block mb-2 font-semibold">Select Refund Method</label>
+                            <select name="refund_method" id="refund_method_modal" class="border rounded-lg p-2 w-full" onchange="toggleReceiptUploadModal()">
+                                <option value="Cash" {{ strtolower($refund->refund_method) === 'cash' ? 'selected' : '' }}>Cash</option>
+                                <option value="GCash" {{ strtolower($refund->refund_method) === 'gcash' ? 'selected' : '' }}>GCash</option>
+                                <option value="PNB" {{ strtolower($refund->refund_method) === 'pnb' ? 'selected' : '' }}>PNB</option>
+                            </select>
+                        </div>
+
+                        <div id="receipt_upload_modal" class="mb-4 hidden">
+                            <label class="block mb-2 font-semibold">Upload Receipt</label>
+                            <input type="file" name="receipt_image" class="border rounded-lg p-2 w-full">
+                        </div>
+
+                        <div class="flex justify-end space-x-4">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-400 text-white rounded-lg">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+                function openModal() {
+                    document.getElementById('editRefundMethodModal').classList.remove('hidden');
+                    toggleReceiptUploadModal();
+                }
+                function closeModal() {
+                    document.getElementById('editRefundMethodModal').classList.add('hidden');
+                }
+                function toggleReceiptUploadModal() {
+                    var method = document.getElementById('refund_method_modal').value;
+                    var receiptDiv = document.getElementById('receipt_upload_modal');
+
+                    if (method === 'GCash' || method === 'PNB') {
+                        receiptDiv.classList.remove('hidden');
+                    } else {
+                        receiptDiv.classList.add('hidden');
+                    }
+                }
+                document.addEventListener('DOMContentLoaded', function() {
+                    toggleReceiptUploadModal();
+                });
+            </script>
+
+            <h2 class="text-3xl font-semibold mb-4 pt-2">Product Details</h2>
 
             <form method="POST" action="{{ route('order.updateStatus.refunded') }}">
                 @csrf
@@ -390,374 +527,408 @@
 
 <script>
     
-document.addEventListener("DOMContentLoaded", function () {
-    const totalPriceElement = document.getElementById("totalPrice");
-    const updatedTotalPriceElement = document.getElementById("updatedTotalPrice");
-    const summaryDetailsElement = document.getElementById("summaryDetails");
+    document.addEventListener("DOMContentLoaded", function () {
+        const totalPriceElement = document.getElementById("totalPrice");
+        const updatedTotalPriceElement = document.getElementById("updatedTotalPrice");
+        const summaryDetailsElement = document.getElementById("summaryDetails");
 
-    const originalOrderPrice = parseFloat(
-        document.getElementById("originalOrderPrice").textContent.replace(/[₱,]/g, '')
-    ) || 0;
+        const originalOrderPrice = parseFloat(
+            document.getElementById("originalOrderPrice").textContent.replace(/[₱,]/g, '')
+        ) || 0;
 
-    const orderData = {};
-    document.querySelectorAll("tbody tr").forEach(row => {
-        const modelId = row.children[1].textContent.trim(); // Model ID
-        const variantId = row.children[0].textContent.trim(); // Variant ID
-        const productName = row.children[2].querySelector("span").textContent.trim();
-        const brand = row.children[3].textContent.trim();
-        const quantity = parseInt(row.children[4].textContent.trim());
-        const price = parseFloat(row.children[5].textContent.replace(/[₱,]/g, ''));
-        const subtotal = parseFloat(row.children[6].textContent.replace(/[₱,]/g, ''));
+        const orderData = {};
+        document.querySelectorAll("tbody tr").forEach(row => {
+            const modelId = row.children[1].textContent.trim(); // Model ID
+            const variantId = row.children[0].textContent.trim(); // Variant ID
+            const productName = row.children[2].querySelector("span").textContent.trim();
+            const brand = row.children[3].textContent.trim();
+            const quantity = parseInt(row.children[4].textContent.trim());
+            const price = parseFloat(row.children[5].textContent.replace(/[₱,]/g, ''));
+            const subtotal = parseFloat(row.children[6].textContent.replace(/[₱,]/g, ''));
 
-        if (modelId || variantId) {
-            let uniqueKey = `${modelId}-${variantId}`; // Ensures unique storage
-            orderData[uniqueKey] = { modelId, variantId, productName, brand, price, quantity, subtotal };
-        }
-
-        console.log("Stored Order Data:", orderData);
-        console.log("Available Model IDs:", Object.values(orderData).map(item => item.modelId));
-        console.log("Available Variant IDs:", Object.values(orderData).map(item => item.variantId));
-
-
-    });
-
-    document.getElementById("cardContainer").addEventListener("click", function (event) {
-        if (event.target.classList.contains("add-to-details")) {
-            const card = event.target.closest(".card");
-            const productType = card.hasAttribute("data-variant-id") ? "variant" : "model";
-            const modelId = card.getAttribute("data-id");
-            const variantId = card.getAttribute("data-variant-id") || null;
-            const productName = card.getAttribute("data-name");
-            const newPrice = parseFloat(card.getAttribute("data-price")) || 0;
-
-            if (!modelId) {
-                alert("Error: Model ID not found.");
-                return;
+            if (modelId || variantId) {
+                let uniqueKey = `${modelId}-${variantId}`; // Ensures unique storage
+                orderData[uniqueKey] = { modelId, variantId, productName, brand, price, quantity, subtotal };
             }
 
-            let label = productType === "variant" ? "Variant Product" : "Model Product";
-            let idLabel = productType === "variant" ? "Variant ID" : "Model ID";
-            let availableIds = productType === "variant"
-                ? Object.values(orderData).filter(item => item.variantId).map(item => item.variantId)
-                : Object.values(orderData).filter(item => item.modelId).map(item => item.modelId);
-
-            let selectedId = availableIds.length ? availableIds[0] : "";
-            let oldSubtotal = orderData[selectedId]?.subtotal || 0;
-            let newTotalPrice = newPrice;
-
-            let detailItem = document.createElement("div");
-            detailItem.classList.add("bg-white", "p-6", "rounded-lg", "mb-3", "border", "relative", "shadow-md");
-            detailItem.setAttribute("data-detail-id", selectedId);
-            detailItem.setAttribute("data-old-subtotal", oldSubtotal);
-            detailItem.setAttribute("data-price", newTotalPrice);
-
-            let dropdownOptions = availableIds.map(id => `<option value="${id}">${id}</option>`).join("");
-
-            detailItem.innerHTML = `
-            <div class="flex justify-between items-center space-y-4">
-                <div>
-                    <h3 class="text-2xl font-semibold">${label}</h3>
-                    <h3 class="text-lg font-semibold">${productName}</h3>
-                    <p class="text-gray-600">${idLabel}: 
-                        <span class="font-bold text-black">${productType === "variant" ? variantId : modelId}</span>
-                    </p>
-                    <p class="text-gray-600 mt-2">Choose ${productType === "variant" ? "Variant ID" : "Model ID"} to replace:  
-                        <input type="text" class="border rounded p-1 id-selector" placeholder="Enter ID" />
-                        <span class="text-red-500 text-sm hidden invalid-id-msg">Invalid ID</span>
-                    </p>
-                    <p class="text-gray-600 mt-2">Quantity: 
-                        <input type="number" class="border rounded p-1 w-20 text-center quantity-input" value="1" min="1">
-                    </p>
-                </div>
-                <h3 class="text-lg font-semibold"></h3>
-                <p class="text-gray-800 text-2xl font-bold price-label">₱ ${newTotalPrice.toLocaleString()}</p>
-            </div>
-            <button class="absolute top-5 right-5 text-red-500 remove-item font-bold">Remove</button>
-        `;
+            console.log("Stored Order Data:", orderData);
+            console.log("Available Model IDs:", Object.values(orderData).map(item => item.modelId));
+            console.log("Available Variant IDs:", Object.values(orderData).map(item => item.variantId));
 
 
-            document.getElementById("detailsContainer").appendChild(detailItem);
-            updateTotalPrice();
+        });
 
-            const modelOrderData = {};   // Store only model products
-            const variantOrderData = {}; // Store only variant products
+        document.getElementById("cardContainer").addEventListener("click", function (event) {
+            if (event.target.classList.contains("add-to-details")) {
+                const card = event.target.closest(".card");
+                const productType = card.hasAttribute("data-variant-id") ? "variant" : "model";
+                const modelId = card.getAttribute("data-id");
+                const variantId = card.getAttribute("data-variant-id") || null;
+                const productName = card.getAttribute("data-name");
+                const newPrice = parseFloat(card.getAttribute("data-price")) || 0;
 
-            // ✅ Event: Validate Input Model/Variant ID (Handles multiple matching IDs)
-            detailItem.querySelector(".id-selector").addEventListener("input", function () {
-                let enteredId = this.value.trim();
-                let invalidMsg = this.nextElementSibling;
-
-                let matchingItems = Object.values(orderData).filter(item => {
-                    // 🔥 FIXED: Now checking the correct type (modelId or variantId)
-                    return productType === "variant" ? item.variantId === enteredId : item.modelId === enteredId;
-                });
-
-                console.log("Matching Items Found:", matchingItems);
-
-
-                if (matchingItems.length > 0) {
-                    this.classList.remove("border-red-500");
-                    this.classList.add("border-green-500");
-                    invalidMsg.classList.add("hidden");
-
-                    // 🔥 FIXED: Get correct subtotal based on the selected type
-                    let newSubtotal = matchingItems.reduce((sum, item) => sum + item.subtotal, 0);
-                    console.log("✅ New Subtotal Found:", newSubtotal);
-                    detailItem.setAttribute("data-old-subtotal", newSubtotal);
-                    updateTotalPrice();
-                } else {
-                    this.classList.remove("border-green-500");
-                    this.classList.add("border-red-500");
-                    invalidMsg.classList.remove("hidden");
+                if (!modelId) {
+                    alert("Error: Model ID not found.");
+                    return;
                 }
 
-                console.log("Available Model IDs:", Object.values(orderData).map(item => item.modelId));
-                console.log("Available Variant IDs:", Object.values(orderData).map(item => item.variantId));
-            });
+                let label = productType === "variant" ? "Variant Product" : "Model Product";
+                let idLabel = productType === "variant" ? "Variant ID" : "Model ID";
+                let availableIds = productType === "variant"
+                    ? Object.values(orderData).filter(item => item.variantId).map(item => item.variantId)
+                    : Object.values(orderData).filter(item => item.modelId).map(item => item.modelId);
+
+                let selectedId = availableIds.length ? availableIds[0] : "";
+                let oldSubtotal = orderData[selectedId]?.subtotal || 0;
+                let newTotalPrice = newPrice;
+
+                let detailItem = document.createElement("div");
+                detailItem.classList.add("bg-white", "p-6", "rounded-lg", "mb-3", "border", "relative", "shadow-md");
+                detailItem.setAttribute("data-detail-id", selectedId);
+                detailItem.setAttribute("data-old-subtotal", oldSubtotal);
+                detailItem.setAttribute("data-price", newTotalPrice);
+
+                let dropdownOptions = availableIds.map(id => `<option value="${id}">${id}</option>`).join("");
+
+                detailItem.innerHTML = `
+                <div class="flex justify-between items-center space-y-4">
+                    <div>
+                        <h3 class="text-2xl font-semibold">${label}</h3>
+                        <h3 class="text-lg font-semibold">${productName}</h3>
+                        <p class="text-gray-600">${idLabel}: 
+                            <span class="font-bold text-black">${productType === "variant" ? variantId : modelId}</span>
+                        </p>
+                        <p class="text-gray-600 mt-2">Choose ${productType === "variant" ? "Variant ID" : "Model ID"} to replace:  
+                            <input type="text" class="border rounded p-1 id-selector" placeholder="Enter ID" />
+                            <span class="text-red-500 text-sm hidden invalid-id-msg">Invalid ID</span>
+                        </p>
+                        <p class="text-gray-600 mt-2">Quantity: 
+                            <input type="number" class="border rounded p-1 w-20 text-center quantity-input" value="1" min="1">
+                        </p>
+                    </div>
+                    <h3 class="text-lg font-semibold"></h3>
+                    <p class="text-gray-800 text-2xl font-bold price-label">₱ ${newTotalPrice.toLocaleString()}</p>
+                </div>
+                <button class="absolute top-5 right-5 text-red-500 remove-item font-bold">Remove</button>
+            `;
 
 
-
-
-
-
-            detailItem.querySelector(".quantity-input").addEventListener("input", function () {
-                let newQuantity = parseInt(this.value) || 1;
-                let updatedPrice = newPrice * newQuantity;
-
-                detailItem.querySelector(".price-label").textContent = `₱ ${updatedPrice.toLocaleString()}`;
-                detailItem.setAttribute("data-price", updatedPrice);
+                document.getElementById("detailsContainer").appendChild(detailItem);
                 updateTotalPrice();
+
+                const modelOrderData = {};   // Store only model products
+                const variantOrderData = {}; // Store only variant products
+
+                // ✅ Event: Validate Input Model/Variant ID (Handles multiple matching IDs)
+                detailItem.querySelector(".id-selector").addEventListener("input", function () {
+                    let enteredId = this.value.trim();
+                    let invalidMsg = this.nextElementSibling;
+
+                    let matchingItems = Object.values(orderData).filter(item => {
+                        // 🔥 FIXED: Now checking the correct type (modelId or variantId)
+                        return productType === "variant" ? item.variantId === enteredId : item.modelId === enteredId;
+                    });
+
+                    console.log("Matching Items Found:", matchingItems);
+
+
+                    if (matchingItems.length > 0) {
+                        this.classList.remove("border-red-500");
+                        this.classList.add("border-green-500");
+                        invalidMsg.classList.add("hidden");
+
+                        // 🔥 FIXED: Get correct subtotal based on the selected type
+                        let newSubtotal = matchingItems.reduce((sum, item) => sum + item.subtotal, 0);
+                        console.log("✅ New Subtotal Found:", newSubtotal);
+                        detailItem.setAttribute("data-old-subtotal", newSubtotal);
+                        updateTotalPrice();
+                    } else {
+                        this.classList.remove("border-green-500");
+                        this.classList.add("border-red-500");
+                        invalidMsg.classList.remove("hidden");
+                    }
+
+                    console.log("Available Model IDs:", Object.values(orderData).map(item => item.modelId));
+                    console.log("Available Variant IDs:", Object.values(orderData).map(item => item.variantId));
+                });
+
+
+
+
+
+
+                detailItem.querySelector(".quantity-input").addEventListener("input", function () {
+                    let newQuantity = parseInt(this.value) || 1;
+                    let updatedPrice = newPrice * newQuantity;
+
+                    detailItem.querySelector(".price-label").textContent = `₱ ${updatedPrice.toLocaleString()}`;
+                    detailItem.setAttribute("data-price", updatedPrice);
+                    updateTotalPrice();
+                });
+            }
+        });
+
+        function updateTotalPrice() {
+            let newSubtotal = 0;
+            let replacedSubtotal = 0; // The subtotal of the item being replaced
+            let remainingSubtotal = 0;
+            let replacedIds = new Set();
+
+            // ✅ Step 1: Get the chosen new subtotal
+            document.querySelectorAll("#detailsContainer [data-detail-id]").forEach(item => {
+                let selectedId = item.querySelector(".id-selector")?.value.trim(); // Selected Model ID
+                let oldSubtotal = parseFloat(item.getAttribute("data-old-subtotal")) || 0;
+                let newTotalPrice = parseFloat(item.getAttribute("data-price")) || 0;
+
+                if (selectedId) {
+                    replacedIds.add(selectedId); // Track replaced IDs
+                    replacedSubtotal += oldSubtotal; // Add the old subtotal of the replaced item
+                }
+
+                newSubtotal += newTotalPrice;
             });
+
+            // ✅ Step 2: Calculate remaining subtotal from non-replaced items
+            document.querySelectorAll("tbody tr").forEach(row => {
+                let variantId = row.children[0].textContent.trim(); // Variant ID
+                let modelId = row.children[1].textContent.trim(); // Model ID
+                let subtotal = parseFloat(row.children[6].textContent.replace(/[₱,]/g, '')) || 0;
+
+                // ✅ Keep only the subtotal of non-replaced items
+                if (!replacedIds.has(variantId) && !replacedIds.has(modelId)) {
+                    remainingSubtotal += subtotal;
+                }
+            });
+
+            // ✅ Step 3: Calculate the correct updated total price
+            let totalWithReplacement = (originalOrderPrice - replacedSubtotal) + newSubtotal;
+            let difference = originalOrderPrice - totalWithReplacement;
+            let amountAdded = difference < 0 ? Math.abs(difference) : 0;
+            let customerChange = difference > 0 ? difference : 0;
+
+            // ✅ Step 4: Update the UI
+            let summaryDetailsHTML = `
+                <div class="flex justify-between">
+                    <p class="text-gray-700">Original Order Total Amount:</p>
+                    <strong class="text-gray-900 text-2xl">₱ ${originalOrderPrice.toLocaleString()}</strong>
+                </div>
+                <div class="flex justify-between">
+                    <p class="text-gray-700">Chosen Model/Variant Subtotal:</p>
+                    <strong class="text-gray-900 text-2xl">₱ ${newSubtotal.toLocaleString()}</strong>
+                </div>
+                <div class="flex justify-between">
+                    <p class="text-gray-700">Remaining Subtotal:</p>
+                    <strong class="text-gray-900 text-2xl">₱ ${remainingSubtotal.toLocaleString()}</strong>
+                </div>
+                <p class="px-2 text-2xl pb-2 border-b border-gray">Changes</p>
+
+                <div class="flex justify-between ${amountAdded > 0 ? 'text-red-600' : ''}">
+                    <p class="text-red px-2">Amount Added:</p>
+                    <strong class="text-gray-900 text-2xl">₱ ${amountAdded.toLocaleString()}</strong>
+                </div>
+
+                <div class="flex justify-between ${customerChange > 0 ? 'text-green-600' : ''}">
+                    <p class=" text-green px-2">Customer's Change:</p>
+                    <strong class="text-green text-2xl">₱ ${customerChange.toLocaleString()}</strong>
+                </div>
+                <div class="flex justify-between mt-4 border-t pt-2">
+                    <p class="text-gray-700 px-2">Updated Total Price:</p>
+                    <strong class="text-gray-900 text-2xl">₱ ${totalWithReplacement.toLocaleString()}</strong>
+                </div>`;
+
+            // ✅ Update the displayed values correctly
+            updatedTotalPriceElement.textContent = `₱${totalWithReplacement.toLocaleString()}`;
+            summaryDetailsElement.innerHTML = summaryDetailsHTML;
+        }
+
+
+
+        document.getElementById("detailsContainer").addEventListener("change", function (event) {
+            if (event.target.classList.contains("id-selector")) {
+                let selectedId = event.target.value.trim(); // Get entered Model/Variant ID
+                let detailItem = event.target.closest("[data-detail-id]");
+                let productType = detailItem.querySelector("h3").textContent.includes("Model") ? "model" : "variant";
+                let chosenSubtotalElement = document.getElementById("chosenSubtotal");
+
+                // Find the correct subtotal based on the type (Model ID or Variant ID)
+                let matchingRow = [...document.querySelectorAll("tbody tr")].find(row => {
+                    let variantIdCell = row.children[0].textContent.trim(); // Variant ID
+                    let modelIdCell = row.children[1].textContent.trim();   // Model ID
+                    return productType === "variant" ? variantIdCell === selectedId : modelIdCell === selectedId;
+                });
+
+                if (matchingRow) {
+                    let subtotalText = matchingRow.children[6].textContent.replace(/[₱,]/g, '').trim(); // Subtotal
+                    let correctSubtotal = parseFloat(subtotalText) || 0;
+                    
+                    // ✅ Update the correct subtotal in the selected detail item
+                    chosenSubtotalElement.textContent = `₱ ${correctSubtotal.toLocaleString()}`;
+                    detailItem.setAttribute("data-old-subtotal", correctSubtotal);
+
+                    updateTotalPrice();
+                } else {
+                    chosenSubtotalElement.textContent = "₱ 0.00"; // Reset if not found
+                }
+            }
+        });
+
+        document.getElementById("detailsContainer").addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-item")) {
+            event.target.closest("div").remove();
+            updateTotalPrice();
         }
     });
 
-    function updateTotalPrice() {
-        let newSubtotal = 0;
-        let replacedSubtotal = 0; // The subtotal of the item being replaced
-        let remainingSubtotal = 0;
-        let replacedIds = new Set();
 
-        // ✅ Step 1: Get the chosen new subtotal
-        document.querySelectorAll("#detailsContainer [data-detail-id]").forEach(item => {
-            let selectedId = item.querySelector(".id-selector")?.value.trim(); // Selected Model ID
-            let oldSubtotal = parseFloat(item.getAttribute("data-old-subtotal")) || 0;
-            let newTotalPrice = parseFloat(item.getAttribute("data-price")) || 0;
+    document.getElementById("confirmButton").addEventListener("click", function () {
 
-            if (selectedId) {
-                replacedIds.add(selectedId); // Track replaced IDs
-                replacedSubtotal += oldSubtotal; // Add the old subtotal of the replaced item
-            }
+        if (!confirm("Are you sure you want to proceed with updating the product?")) {
+            return; 
+        }
 
-            newSubtotal += newTotalPrice;
-        });
+        let insertedData = [];
 
-        // ✅ Step 2: Calculate remaining subtotal from non-replaced items
-        document.querySelectorAll("tbody tr").forEach(row => {
-            let variantId = row.children[0].textContent.trim(); // Variant ID
-            let modelId = row.children[1].textContent.trim(); // Model ID
-            let subtotal = parseFloat(row.children[6].textContent.replace(/[₱,]/g, '')) || 0;
+        let orderIdElement = document.querySelector("p.text-2xl strong");
+        let orderIdText = orderIdElement ? orderIdElement.parentElement.textContent.trim() : null;
+        let orderId = orderIdText ? orderIdText.replace("Order ID:", "").trim().replace(/^0+/, "") : null;
 
-            // ✅ Keep only the subtotal of non-replaced items
-            if (!replacedIds.has(variantId) && !replacedIds.has(modelId)) {
-                remainingSubtotal += subtotal;
-            }
-        });
+        if (!orderId) {
+            alert("Error: Order ID is missing.");
+            return;
+        }
 
-        // ✅ Step 3: Calculate the correct updated total price
-        let totalWithReplacement = (originalOrderPrice - replacedSubtotal) + newSubtotal;
-        let difference = originalOrderPrice - totalWithReplacement;
-        let amountAdded = difference < 0 ? Math.abs(difference) : 0;
-        let customerChange = difference > 0 ? difference : 0;
+        let updatedTotalPriceElement = document.getElementById("updatedTotalPrice");
+        let total = updatedTotalPriceElement ? parseFloat(updatedTotalPriceElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
 
-        // ✅ Step 4: Update the UI
-        let summaryDetailsHTML = `
-            <div class="flex justify-between">
-                <p class="text-gray-700">Original Order Total Amount:</p>
-                <strong class="text-gray-900 text-2xl">₱ ${originalOrderPrice.toLocaleString()}</strong>
-            </div>
-            <div class="flex justify-between">
-                <p class="text-gray-700">Chosen Model/Variant Subtotal:</p>
-                <strong class="text-gray-900 text-2xl">₱ ${newSubtotal.toLocaleString()}</strong>
-            </div>
-            <div class="flex justify-between">
-                <p class="text-gray-700">Remaining Subtotal:</p>
-                <strong class="text-gray-900 text-2xl">₱ ${remainingSubtotal.toLocaleString()}</strong>
-            </div>
-            <p class="px-2 text-2xl pb-2 border-b border-gray">Changes</p>
+        let originalTotalElement = document.getElementById("originalOrderPrice");
+        let originalTotal = originalTotalElement ? parseFloat(originalTotalElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
 
-             <div class="flex justify-between ${amountAdded > 0 ? 'text-red-600' : ''}">
-                <p class="text-red px-2">Amount Added:</p>
-                <strong class="text-gray-900 text-2xl">₱ ${amountAdded.toLocaleString()}</strong>
-            </div>
+        let amountAddedElement = document.querySelector(".text-red-600 strong");
+        let customersChangeElement = document.querySelector(".text-green-600 strong");
 
-            <div class="flex justify-between ${customerChange > 0 ? 'text-green-600' : ''}">
-                <p class=" text-green px-2">Customer's Change:</p>
-                <strong class="text-green text-2xl">₱ ${customerChange.toLocaleString()}</strong>
-            </div>
-            <div class="flex justify-between mt-4 border-t pt-2">
-                <p class="text-gray-700 px-2">Updated Total Price:</p>
-                <strong class="text-gray-900 text-2xl">₱ ${totalWithReplacement.toLocaleString()}</strong>
-            </div>`;
+        let amountAdded = amountAddedElement ? parseFloat(amountAddedElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
+        let changeGiven = customersChangeElement ? parseFloat(customersChangeElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
 
-        // ✅ Update the displayed values correctly
-        updatedTotalPriceElement.textContent = `₱${totalWithReplacement.toLocaleString()}`;
-        summaryDetailsElement.innerHTML = summaryDetailsHTML;
-    }
+        let userIdElement = document.querySelector("meta[name='user-id']");
+        let processedByElement = document.querySelector("meta[name='auth-id']");
 
+        let userId = userIdElement ? userIdElement.getAttribute("content") : null;
+        let processedBy = processedByElement ? processedByElement.getAttribute("content") : null;
 
+        console.log("✅ User ID:", userId);
+        console.log("✅ Processed By:", processedBy);
 
-    document.getElementById("detailsContainer").addEventListener("change", function (event) {
-        if (event.target.classList.contains("id-selector")) {
-            let selectedId = event.target.value.trim(); // Get entered Model/Variant ID
-            let detailItem = event.target.closest("[data-detail-id]");
-            let productType = detailItem.querySelector("h3").textContent.includes("Model") ? "model" : "variant";
-            let chosenSubtotalElement = document.getElementById("chosenSubtotal");
+        document.querySelectorAll("#detailsContainer").forEach(item => {
+            let idElement = item.querySelector("p.text-gray-600 span.font-bold.text-black"); 
+            let selectedId = idElement ? idElement.textContent.trim() : "N/A";
 
-            // Find the correct subtotal based on the type (Model ID or Variant ID)
-            let matchingRow = [...document.querySelectorAll("tbody tr")].find(row => {
-                let variantIdCell = row.children[0].textContent.trim(); // Variant ID
-                let modelIdCell = row.children[1].textContent.trim();   // Model ID
-                return productType === "variant" ? variantIdCell === selectedId : modelIdCell === selectedId;
-            });
+            let selectedIdElement = item.querySelector("input.id-selector");
+            let originalId = selectedIdElement && selectedIdElement.value.trim() !== "" 
+                ? selectedIdElement.value.trim() 
+                : selectedId;
 
-            if (matchingRow) {
-                let subtotalText = matchingRow.children[6].textContent.replace(/[₱,]/g, '').trim(); // Subtotal
-                let correctSubtotal = parseFloat(subtotalText) || 0;
-                
-                // ✅ Update the correct subtotal in the selected detail item
-                chosenSubtotalElement.textContent = `₱ ${correctSubtotal.toLocaleString()}`;
-                detailItem.setAttribute("data-old-subtotal", correctSubtotal);
+            let subtotalText = item.querySelector(".price-label") ? item.querySelector(".price-label").textContent : "₱0";
+            let subtotal = parseFloat(subtotalText.replace(/[₱,]/g, '')) || 0;
+            let productName = item.querySelector("h3:nth-of-type(2)") ? item.querySelector("h3:nth-of-type(2)").textContent.trim() : "Unknown Product";
 
-                updateTotalPrice();
+            let isVariant = item.querySelector("p.text-gray-600").textContent.includes("Variant ID");
+            
+            let dataEntry = {
+                subtotal: subtotal,
+                product_name: productName,
+                type: isVariant ? "variant" : "model"
+            };
+
+            if (isVariant) {
+                dataEntry.variant_original_id = originalId;
+                dataEntry.variant_passed_id = selectedId;
             } else {
-                chosenSubtotalElement.textContent = "₱ 0.00"; // Reset if not found
+                dataEntry.model_original_id = originalId;
+                dataEntry.model_passed_id = selectedId;
             }
-        }
-    });
 
-    document.getElementById("detailsContainer").addEventListener("click", function (event) {
-    if (event.target.classList.contains("remove-item")) {
-        event.target.closest("div").remove();
-        updateTotalPrice();
-    }
-});
+            insertedData.push(dataEntry);
 
+            console.log("🔍 Original ID:", selectedId);
+            console.log("✅ Selected ID:", originalId);
+            console.log("🛒 Product Name:", productName);
+            console.log("💰 Subtotal:", subtotal);
+            console.log("📌 Type:", isVariant ? "Variant" : "Model");
+        });
 
-document.getElementById("confirmButton").addEventListener("click", function () {
-
-    if (!confirm("Are you sure you want to proceed with updating the product?")) {
-        return; 
-    }
-
-    let insertedData = [];
-
-    let orderIdElement = document.querySelector("p.text-2xl strong");
-    let orderIdText = orderIdElement ? orderIdElement.parentElement.textContent.trim() : null;
-    let orderId = orderIdText ? orderIdText.replace("Order ID:", "").trim().replace(/^0+/, "") : null;
-
-    if (!orderId) {
-        alert("Error: Order ID is missing.");
-        return;
-    }
-
-    let updatedTotalPriceElement = document.getElementById("updatedTotalPrice");
-    let total = updatedTotalPriceElement ? parseFloat(updatedTotalPriceElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
-
-    let originalTotalElement = document.getElementById("originalOrderPrice");
-    let originalTotal = originalTotalElement ? parseFloat(originalTotalElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
-
-    let amountAddedElement = document.querySelector(".text-red-600 strong");
-    let customersChangeElement = document.querySelector(".text-green-600 strong");
-
-    let amountAdded = amountAddedElement ? parseFloat(amountAddedElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
-    let changeGiven = customersChangeElement ? parseFloat(customersChangeElement.textContent.replace(/[^\d.]/g, '')) || 0 : 0;
-
-    let userIdElement = document.querySelector("meta[name='user-id']");
-    let processedByElement = document.querySelector("meta[name='auth-id']");
-
-    let userId = userIdElement ? userIdElement.getAttribute("content") : null;
-    let processedBy = processedByElement ? processedByElement.getAttribute("content") : null;
-
-    console.log("✅ User ID:", userId);
-    console.log("✅ Processed By:", processedBy);
-
-    document.querySelectorAll("#detailsContainer").forEach(item => {
-        let idElement = item.querySelector("p.text-gray-600 span.font-bold.text-black"); 
-        let selectedId = idElement ? idElement.textContent.trim() : "N/A";
-
-        let selectedIdElement = item.querySelector("input.id-selector");
-        let originalId = selectedIdElement && selectedIdElement.value.trim() !== "" 
-            ? selectedIdElement.value.trim() 
-            : selectedId;
-
-        let subtotalText = item.querySelector(".price-label") ? item.querySelector(".price-label").textContent : "₱0";
-        let subtotal = parseFloat(subtotalText.replace(/[₱,]/g, '')) || 0;
-        let productName = item.querySelector("h3:nth-of-type(2)") ? item.querySelector("h3:nth-of-type(2)").textContent.trim() : "Unknown Product";
-
-        let isVariant = item.querySelector("p.text-gray-600").textContent.includes("Variant ID");
-        
-        let dataEntry = {
-            subtotal: subtotal,
-            product_name: productName,
-            type: isVariant ? "variant" : "model"
+        let finalData = {
+            order_id: orderId,
+            original_total: originalTotal,
+            updated_total_price: total,
+            change_given: changeGiven,
+            amount_added: amountAdded,
+            processed_by: processedBy,
+            user_id: userId,
+            details_selected: insertedData,
+            status: "Completed"
         };
 
-        if (isVariant) {
-            dataEntry.variant_original_id = originalId;
-            dataEntry.variant_passed_id = selectedId;
-        } else {
-            dataEntry.model_original_id = originalId;
-            dataEntry.model_passed_id = selectedId;
-        }
+        console.log("📝 Final Data Sent:", finalData);
 
-        insertedData.push(dataEntry);
-
-        console.log("🔍 Original ID:", selectedId);
-        console.log("✅ Selected ID:", originalId);
-        console.log("🛒 Product Name:", productName);
-        console.log("💰 Subtotal:", subtotal);
-        console.log("📌 Type:", isVariant ? "Variant" : "Model");
+        fetch('/update-refund', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(finalData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("✅ Server Response:", data);
+            if (data.success) {
+                alert("Refund updated successfully!");
+                location.reload(); 
+            } else {
+                alert("Failed to update refund.");
+            }
+        })
+        .catch(error => console.error("❌ Error:", error));
     });
 
-    let finalData = {
-        order_id: orderId,
-        original_total: originalTotal,
-        updated_total_price: total,
-        change_given: changeGiven,
-        amount_added: amountAdded,
-        processed_by: processedBy,
-        user_id: userId,
-        details_selected: insertedData,
-        status: "Completed"
-    };
 
-    console.log("📝 Final Data Sent:", finalData);
 
-    fetch('/update-refund', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify(finalData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("✅ Server Response:", data);
-        if (data.success) {
-            alert("Refund updated successfully!");
-            location.reload(); 
+    });
+
+</script>
+
+<script>
+    // Save the initial refund method to check against future changes
+    const initialRefundMethod = document.getElementById('refund_method').value;
+
+    // Toggle the visibility of receipt upload sections based on the selected refund method
+    function toggleReceiptUpload() {
+        var method = document.getElementById('refund_method').value;
+        var receiptDivGcash = document.getElementById('receipt_upload_gcash');
+        var receiptDivPnb = document.getElementById('receipt_upload_pnb');
+        var cancelButton = document.getElementById('cancel_button');
+
+        // Toggle receipt uploads and Cancel button visibility based on the selected method
+        if (method === 'GCash') {
+            receiptDivGcash.style.display = 'block';
+            receiptDivPnb.style.display = 'none';
+            cancelButton.style.display = 'inline-block';  // Show Cancel button
+        } else if (method === 'PNB') {
+            receiptDivPnb.style.display = 'block';
+            receiptDivGcash.style.display = 'none';
+            cancelButton.style.display = 'inline-block';  // Show Cancel button
         } else {
-            alert("Failed to update refund.");
+            receiptDivGcash.style.display = 'none';
+            receiptDivPnb.style.display = 'none';
+            cancelButton.style.display = 'none';  // Hide Cancel button
         }
-    })
-    .catch(error => console.error("❌ Error:", error));
-});
+    }
 
-
-
-});
-
+    // Handle the Cancel button action and reload the page
+    function cancelSelection() {
+        // Reload the page
+        window.location.reload();
+    }
 </script>
 
 

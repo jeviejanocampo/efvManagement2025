@@ -3,66 +3,126 @@
 @section('content') 
 <style>
     td {
-        text-align: center;
+     text-align: center;
+     font-size: 12px;
     }
 </style>
-<div class="p-4 ">
+
+@if (session('success'))
+    <script>
+        alert('{{ session('success') }}');
+    </script>
+@endif
+
+@if ($errors->any())
+    <script>
+        alert('Error: {{ $errors->first() }}');
+    </script>
+@endif
+
+@php
+    use Illuminate\Support\Str;
+@endphp
+
+
+<div">
     <a href="{{ url('stockclerk/overview') }}" 
         class="bg-gray-800 text-white px-2 py-1 rounded-full hover:bg-gray-700 mb-5 items-center gap-2">
         <i class="fas fa-arrow-left"></i> 
     </a>
 
+
     <div style="margin-top: 12px">
         @if($order->status === 'Cancelled')
-         <p class="text-white bg-red-500 px-5 py-2 rounded-md text-center font-bold text-lg">CANCELLED </p>
+         <p class="text-white bg-red-500 px-5 py-2  text-center font-bold text-lg">CANCELLED </p>
          @elseif($order->status === 'Completed')
-         <p class="text-white bg-green-500 px-5 py-2 rounded-md text-center font-bold text-lg">ORDER COMPLETED </p>
+         <p class="text-white bg-green-500 px-5 py-2  text-center font-bold text-lg">ORDER COMPLETED </p>
          @else
          <p></p>
         @endif
     </div>
 
 
-    <!-- Order Status Dropdown -->
-    <div class="flex justify-between items-center mt-4 bg-white p-4 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-        <h1 style="font-size: 34px; font-weight: bold">ORDER DETAILS</h1>
+    <div class="flex justify-between items-center mt-4 bg-white p-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
+      <h1 style="font-size: 24px; font-weight: bold">ORDER DETAILS</h1>
 
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
-        <!-- Label and Dropdown for Edit Status for the whole order -->
         <div class="flex items-center">
-            <!-- <label for="order_status" class="mr-3 text-md">Edit Status:</label> -->
-            <select class="bg-gray-100 text-black-200 px-5 py-2 rounded-md" name="order_status" id="order_status" onchange="updateOrderStatus({{ $order->order_id }})">
+            <label for="order_status" class="mr-3 text-md">Edit Status:</label>
+            <select class="bg-gray-100 text-black-200 px-5 py-2 " name="order_status" id="order_status" onchange="updateOrderStatus({{ $order->order_id }})">
                 <option value="pending">Pending</option>
                 <option value="Ready to Pickup">Ready to Pickup</option>
                 <option value="In Process">In Process</option>
-                <!-- <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option> -->
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
             </select>
         </div>
     </div>
 
-    <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+    <div class ="bg-white p-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
         <div class="flex justify-between items-center">
-            @php
-                $latestOrderDetail = $orderDetails->last(); // Get the last row (latest order detail)
-                $referenceId = request()->query('reference_id'); // Retrieve reference_id from URL
+        @php
+    $latestOrderDetail = $orderDetails->last();
+    $rawReferenceId = request()->query('reference_id');
+    $orderId = $order->order_id ?? null; // <-- Get the order ID
 
-                if ($referenceId) {
-                    $formattedRefId = substr($referenceId, 0, 3) . '-' . substr($referenceId, 3, -1) . substr($referenceId, -1);
-                } else {
-                    $formattedRefId = 'N/A';
-                }
-            @endphp
+    // Fetch brand_name and get first 3 characters
+    $brandName = $latestOrderDetail->brand_name ?? ''; // Get the brand_name
+    $brandPrefix = substr($brandName, 0, 3); // Get first 3 characters of brand_name
+
+    $usedPartId = null;
+
+    if ($latestOrderDetail) {
+        $hasMpartId = !empty($latestOrderDetail->m_part_id);
+        $hasPartId = !empty($latestOrderDetail->part_id);
+
+        if ($hasMpartId && $hasPartId) {
+            $usedPartId = $latestOrderDetail->m_part_id . '-' . $latestOrderDetail->part_id;
+        } elseif ($hasMpartId) {
+            $usedPartId = $latestOrderDetail->m_part_id;
+        } elseif ($hasPartId) {
+            $usedPartId = $latestOrderDetail->part_id;
+        }
+    }
+
+    // Now decide final Reference ID
+    $referenceId = null;
+
+    if (!empty($rawReferenceId) && !Str::contains($rawReferenceId, 'null')) {
+        // If reference_id exists and doesn't contain "null", use it
+        $referenceId = $rawReferenceId;
+
+        if (Str::contains($referenceId, '-ORD000')) {
+            $referenceId = explode('-ORD000', $referenceId)[0];
+        }
+    } else {
+        // Else fallback to Part ID
+        $referenceId = $usedPartId;
+    }
+
+    // Add brand prefix and always append "-ORD000{order_id}"
+    if (!empty($referenceId) && !empty($orderId)) {
+        $formattedRefId = strtoupper($brandPrefix) . '-' . $referenceId . '-ORD000' . $orderId;
+    } else {
+        $formattedRefId = 'N/A';
+    }
+@endphp
+
+
+
 
             @if ($latestOrderDetail)
-                <p style="font-size: 28px; font-weight: 700;">
-                    REFERENCE ID: {{ $formattedRefId }}-ORD000{{ $order->order_id }}
+                <p style="font-size: 18px; font-weight: 700;">
+                    REFERENCE ID: {{ $formattedRefId }}
                 </p>
+                <!-- <p style="font-size: 18px; font-weight: 700;">
+                    REFERENCE ID: {{ $formattedRefId }}-ORD000{{ $order->order_id }}
+                </p> -->
             @else
                 <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
             @endif
             <p class="text-md">
-                <strong>Status: </strong>
+                <!-- <strong>Status: </strong> -->
                 <span class="
                     rounded-lg 
                     @if($order->status === 'Pending')
@@ -70,7 +130,7 @@
                         text-white
                         m-1
                     @elseif($order->status === 'In Process')
-                         bg-orange-500
+                        bg-orange-500
                         text-white
                         m-1
                     @elseif($order->status === 'Ready to Pickup')
@@ -94,60 +154,62 @@
                 </span>
             </p>
         </div>
-        <p class="text-sm text-gray-600 border-b border-gray-200 pb-1">
-            Created At: {{ \Carbon\Carbon::parse($order->created_at)->format('F j, Y - h:i A') }}
+        <p style="font-size: 12px">
+            Created At: {{ \Carbon\Carbon::parse($order->created_at)->format('F d, Y h:i A') }}
         </p>
-        <div class="mt-4 space-y-4">
-            <p class="text-base">
-                <a href="#" class="text-white bg-blue-700 px-2 py-1 rounded-md" onclick="openModal({{ $order->user_id }})">
-                    View User Details
+        <div class="mt-4 grid grid-cols-2 gap-6">
+        <!-- Left Grid - User Details and Payment Method -->
+
+        <div class="space-y-6">
+            <p style="font-size: 14px">
+                USER DETAILS:
+                <a href="#" 
+                class="bg-blue-700 text-white font-bold px-2 py-1 hover:bg-blue-700 transition"
+                onclick="openModal({{ $order->user_id }})">
+                    View Details
                 </a>
             </p>
-            <p style="font-size: 15px">TOTAL ITEMS: {{ $order->total_items }}</p> 
-            <p style="font-size: 15px">PAYMENT METHOD: {{ $order->payment_method }}</p> 
+
+           
         </div>
     </div>
 
     <!-- Order Details Table -->
-    <div class ="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-        <h3 class="text-2xl font-semibold border-b border-gray-200">Product Details</h3>
+    <div class ="bg-white p-4 border-b border-gray pb-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
+
+        <div class="flex justify-between items-center">
+            <h3 class="text-l font-semibold">Product Details</h3>
+            
+            <!-- One button for the entire order -->
+            <!-- <a href="{{ route('edit.product', ['order_id' => $orderDetails->first()->order_id]) }}" class="bg-black text-white px-2 py-2 text-sm hover:bg-blue-600 transition">
+                Edit Product Details for Order #{{ $formattedRefId }}
+            </a> -->
+
+        </div>
+
         <div class="text-gray-500 italic text-sm m-4">
             Note: For the pre-orders products, edit status if ready to pick up status
         </div>
+        
         <table class="table-auto w-full border-collapse mt-4">
             <thead>
-                <tr class="bg-white">
                 <thead>
-                    <tr class="bg-gray-100">
-                        <th class="border border-gray-300 px-2 py-1">Status</th>
-                        <th class="border border-gray-300 px-2 py-1"></th>
-                        <th class="border border-gray-300 px-2 py-1">Product Name</th>
-                        <th class="border border-gray-300 px-2 py-1">Brand</th>
-                        <th class="border border-gray-300 px-2 py-1">Quantity</th>
-                        <th class="border border-gray-300 px-2 py-1">Unit Price</th>
-                        <th class="border border-gray-300 px-2 py-1">SubTotal</th>
+                    <tr class="bg-gray-50 text-sm">
+                        <th class="border-b border-gray-300 px-2 py-1"></th>
+                        <th class="border-b border-gray-300 px-2 py-1">Product Name</th>
+                        <th class="border-b border-gray-300 px-2 py-1">Brand</th>
+                        <th class="border-b border-gray-300 px-2 py-1">Quantity</th>
+                        <th class="border-b border-gray-300 px-2 py-1">Unit Price</th>
+                        <th class="border-b border-gray-300 px-2 py-1">SubTotal</th>
+                        <@if($order->status !== 'Cancelled' && $order->status !== 'Completed')
+                            <th class="border-b border-gray-300 px-2 py-1">Status</th>
+                            <th class="border-b border-gray-300 px-2 py-1">Action</th>
+                        @endif
                     </tr>
             </thead>
             <tbody>
                 @foreach ($orderDetails as $detail)
                     <tr class="border border-white  ">
-                    <td class=" px-5 py-1">
-                        <!-- Add badge based on product status -->
-                        @if($order->status !== 'Completed' && $order->status !== 'Cancelled')
-                            @if($detail->product_status === 'pending')
-                                <span class="bg-red-500 text-white px-5 py-1 rounded-full text-sm">Reserved</span>
-                            @elseif($detail->product_status === 'pre-order')
-                                <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Pre Ordered</span>
-                            @elseif($detail->product_status === 'Ready to Pickup')
-                                <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Ready to Pickup (Not yet paid)</span>
-                            @elseif($detail->product_status === 'Cancelled')
-                                <span class="bg-gray-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Cancelled</span>
-                            @else
-                                <span class="bg-black text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Unknown</span>
-                            @endif
-                        @endif
-                        <span style="display: none">{{ $detail->order_detail_id }}</span>
-                    </td>
                     <td class=" px-5 py-1">
                         @if ($detail->model_image)
                             <img src="{{ asset('product-images/' . $detail->model_image) }}" alt="{{ $detail->product_name }}" width="100">
@@ -160,54 +222,116 @@
                     <td class=" px-5 py-1">{{ $detail->brand_name }}</td>
                     <td class=" px-5 py-1">{{ $detail->quantity }}x</td>
                     <td class="px-5 py-1">₱{{ number_format($detail->price, 2) }}</td>
-                    <td class="px-5 py-1">₱{{ number_format($detail->total_price, 2) }}</td>
+                    <td class="px-5 py-1">₱{{ number_format($detail->quantity * $detail->price, 2) }}</td>
+                    <td class="px-5 py-1">
+                        @if($order->status !== 'Cancelled')
+                        @if($detail->product_status === 'pending')
+                                <span class="bg-red-500 text-white px-5 py-1 rounded-full text-sm">Reserved</span>
+                            @elseif($detail->product_status === 'pre-order')
+                                <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Pre Ordered</span>
+                            @elseif($detail->product_status === 'to be refunded')
+                                <span class="bg-violet-800 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">To be removed</span>
+                            @elseif($detail->product_status === 'refunded')
+                                <span class="bg-violet-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Refunded</span>
+                            @elseif($detail->product_status === 'Ready to Pickup')
+                                <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Ready to Pickup (Not yet paid)</span>
+                            @elseif($detail->product_status === 'Completed')
+                                <span class="bg-green-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Purchased</span>
+                            @else
+                                <span class="bg-black text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Unknown</span>
+                            @endif
+                        @endif
+                        <span style="display: none">{{ $detail->order_detail_id }}</span>
+                    </td>
                     <td class=" px-5 py-1">
                         <!-- Conditional for Edit Status Dropdown -->
-                        @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending')
-                            <div class="mt-2">
-                            <!-- <label for="edit_status_{{ $detail->order_detail_id }}" class="text-sm mr-2">Edit Status:</label> -->
-                            <select class="bg-gray-100 text-gray-700 px-5 py-2 rounded-md text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
-                                <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="In Process" {{ $detail->product_status === 'Process' ? 'selected' : '' }}>In Process</option>
-                                <!-- <option value="Ready to Pickup" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
-                                <option value="Cancelled" {{ $detail->product_status === 'Cancelled' ? 'selected' : '' }}>Cancelled</option> -->
-                            </select>
-                        </div>
-                    @else
-                        <span class="text-sm text-gray-500" id="status_span_{{ $detail->order_detail_id }}" style="display:none">Status is Pending</span>
-                    @endif
+                        @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending' && $detail->product_status !== 'refunded')
+                        <div class="mt-2">
+                                <select class="bg-gray-100 text-gray-700 px-5 py-2  text-sm" name="edit_status_{{ $detail->order_detail_id }}" id="edit_status_{{ $detail->order_detail_id }}" onchange="updateProductStatus({{ $detail->order_detail_id }})">
+                                    <option value="pending" {{ $detail->product_status === 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="In Process" {{ $detail->product_status === 'In Process' ? 'selected' : '' }}>In Process</option>
+                                    <option value="pending" {{ $detail->product_status === 'Ready to Pickup' ? 'selected' : '' }}>Ready to Pickup</option>
+                                    <option value="Completed" {{ $detail->product_status === 'Completed' ? 'selected' : '' }}>Completed</option>
+                                    <option value="refunded" {{ $detail->product_status === 'refunded' ? 'selected' : '' }}>Confirmed Removed</option>
+                                </select>
+                            </div>
+                        @else
+                            <span class="text-sm text-gray-500" id="status_span_{{ $detail->order_detail_id }}" style="display:none">Status is Pending</span>
+                        @endif
                     </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+
     </div>
 
-    <div class="bg-white p-4 mt-6 rounded-md" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-        @if($order->status === 'Completed')
-            <p>
-            </p>
-        @elseif($order->status === 'Cancelled')
-            <p>
-            </p>
-        @else
-            <p style="font-size: 28px; font-weight: bold; text-align: right;">
-                Total To Pay: ₱ {{ number_format ( $order->total_price, 2 ) }}
-            </p> 
-        @endif
+    <div class="bg-white p-6 shadow-lg rounded-lg">
+        <div class="flex justify-end">
+
+            <!-- Content inside the parent div -->
+            <div class="space-y-4 gap-10">
+
+                <div class="text-2xl font-bold text-black pb-2">Overview</div>
+
+
+                <div class="flex justify-between">
+                    <p class="text-lg font-semibold">
+                    <span class="text-black mr-28"> TOTAL ITEMS: </span>
+                    <span class="text-gray-700"> {{ $order->total_items }}</span>
+                    </p>
+                </div>
+
+                @if($order->status === 'Completed')
+                    <div class="flex justify-between">
+                        <p class="text-lg font-semibold">
+                        <span class="text-black mr-24"> Total: </span>
+                        <span class="text-gray-700"> ₱ {{ number_format($order->total_price, 2) }}</span>
+                        </p>
+                    </div>
+                @elseif($order->status === 'Cancelled')
+                    <div class="flex justify-between">
+                        <p class="text-lg">
+                            (Cancelled)
+                        </p>
+                    </div>
+                @else
+                    <div class="flex justify-between">
+                        <p class="text-lg font-semibold">
+                        <span class="text-gray-400 mr-24">   Total To Pay: </span>
+                        <span class="text-gray-700"> ₱ {{ number_format($order->total_price, 2) }}</span>
+                        </p>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
+
+</div>
+
+
+
 
     <!-- User Details Modal -->
     <div id="userModal" class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 hidden">
         <div class="bg-white p-6 rounded-lg w-1/3">
             <h2 class="text-xl font-semibold mb-4">User Details</h2>
             <div id="userDetailsContent"></div>
-            <button onclick="closeModal()" class="mt-4 bg-gray-800 text-white px-5 py-2 rounded-md">Close</button>
+            <button onclick="closeModal()" class="mt-4 bg-gray-800 text-white px-5 py-2 ">Close</button>
         </div>
     </div>
 
 
 </div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let referenceIdForOrder = "{{ $formattedRefId }}";
+        console.log("REFERENCE ID:", referenceIdForOrder);
+    });
+</script>
+
 
 <script>
     function openModal(userId) {
@@ -234,6 +358,16 @@
 
     function updateOrderStatus(orderId) {
         const newStatus = document.getElementById('order_status').value;
+        let referenceId = null;
+
+        // Get the referenceId from the Blade template
+        const referenceIdForOrder = "{{ $formattedRefId }}";
+        console.log("REFERENCE ID:", referenceIdForOrder);
+
+        // If the status is "In Process", set the referenceId
+        if (newStatus === "In Process") {
+            referenceId = referenceIdForOrder;  // Use the referenceId generated by Blade
+        }
 
         // Confirm the action
         const confirmUpdate = confirm(`Are you sure you want to update the status to "${newStatus}"?`);
@@ -247,7 +381,8 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF token
                 },
                 body: JSON.stringify({
-                    status: newStatus
+                    status: newStatus,
+                    reference_id: referenceId // Send the reference_id if it's set
                 })
             })
             .then(response => response.json())

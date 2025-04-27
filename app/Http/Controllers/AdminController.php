@@ -1394,7 +1394,7 @@ class AdminController extends Controller
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
 
         if (!$refund) {
-            return redirect()->route('staff.refundRequests')->with('error', 'Refund request not found.');
+            return redirect()->route('admin.refundRequests')->with('error', 'Refund request not found.');
         }
 
         // Fetch all models where w_variant is NOT "YES" and include stock count

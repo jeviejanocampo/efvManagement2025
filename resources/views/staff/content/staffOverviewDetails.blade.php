@@ -25,7 +25,7 @@
 @endphp
 
 
-<div class="p-4 ">
+<div">
     <a href="{{ url('staff/overview') }}" 
     class="bg-gray-800 text-white px-2 py-1 rounded-full hover:bg-gray-700 mb-5 items-center gap-2">
     <i class="fas fa-arrow-left"></i> 
@@ -311,21 +311,37 @@
             <thead>
                 <thead>
                     <tr class="bg-gray-50 text-sm">
-                        <th class="border-b border-gray-300 px-2 py-1">Status</th>
                         <th class="border-b border-gray-300 px-2 py-1"></th>
                         <th class="border-b border-gray-300 px-2 py-1">Product Name</th>
                         <th class="border-b border-gray-300 px-2 py-1">Brand</th>
                         <th class="border-b border-gray-300 px-2 py-1">Quantity</th>
                         <th class="border-b border-gray-300 px-2 py-1">Unit Price</th>
                         <th class="border-b border-gray-300 px-2 py-1">SubTotal</th>
-                        <th class="border-b border-gray-300 px-2 py-1">Action</th>
+                        @if($order->status !== 'Cancelled' && $order->status !== 'Completed')
+                            <th class="border-b border-gray-300 px-2 py-1">Status</th>
+                            <th class="border-b border-gray-300 px-2 py-1">Action</th>
+                        @endif
                     </tr>
             </thead>
             <tbody>
                 @foreach ($orderDetails as $detail)
                     <tr class="border border-white  ">
                     <td class=" px-5 py-1">
-                            @if($detail->product_status === 'pending')
+                        @if ($detail->model_image)
+                            <img src="{{ asset('product-images/' . $detail->model_image) }}" alt="{{ $detail->product_name }}" width="100">
+                        @else
+                            <span>No Image</span>
+                        @endif
+                    </td>
+                    <td class=" px-5 py-1" style="display: none">{{ $detail->model_id }}</td>
+                    <td class=" px-5 py-1">{{ $detail->product_name }}</td>
+                    <td class=" px-5 py-1">{{ $detail->brand_name }}</td>
+                    <td class=" px-5 py-1">{{ $detail->quantity }}x</td>
+                    <td class="px-5 py-1">₱{{ number_format($detail->price, 2) }}</td>
+                    <td class="px-5 py-1">₱{{ number_format($detail->quantity * $detail->price, 2) }}</td>
+                    <td class="px-5 py-1">
+                        @if($order->status !== 'Cancelled')
+                        @if($detail->product_status === 'pending')
                                 <span class="bg-red-500 text-white px-5 py-1 rounded-full text-sm">Reserved</span>
                             @elseif($detail->product_status === 'pre-order')
                                 <span class="bg-blue-500 text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Pre Ordered</span>
@@ -340,21 +356,9 @@
                             @else
                                 <span class="bg-black text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Unknown</span>
                             @endif
+                        @endif
                         <span style="display: none">{{ $detail->order_detail_id }}</span>
                     </td>
-                    <td class=" px-5 py-1">
-                        @if ($detail->model_image)
-                            <img src="{{ asset('product-images/' . $detail->model_image) }}" alt="{{ $detail->product_name }}" width="100">
-                        @else
-                            <span>No Image</span>
-                        @endif
-                    </td>
-                    <td class=" px-5 py-1" style="display: none">{{ $detail->model_id }}</td>
-                    <td class=" px-5 py-1">{{ $detail->product_name }}</td>
-                    <td class=" px-5 py-1">{{ $detail->brand_name }}</td>
-                    <td class=" px-5 py-1">{{ $detail->quantity }}x</td>
-                    <td class="px-5 py-1">₱{{ number_format($detail->price, 2) }}</td>
-                    <td class="px-5 py-1">₱{{ number_format($detail->quantity * $detail->price, 2) }}</td>
                     <td class=" px-5 py-1">
                         <!-- Conditional for Edit Status Dropdown -->
                         @if($detail->product_status !== 'Completed' && $detail->product_status !== 'pending' && $detail->product_status !== 'refunded')

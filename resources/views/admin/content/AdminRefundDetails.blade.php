@@ -73,7 +73,7 @@
         <div class="space-y-6">
              
                 <div>
-                    <strong class="text-sm">Via</strong>
+                    <strong class="text-sm">Payment Method</strong>
                     <p>{{ $refund->refund_method ?? 'NULL' }}</p>
 
                     @if(strtolower($refund->refund_method) === 'pnb')

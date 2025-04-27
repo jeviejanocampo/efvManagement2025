@@ -30,10 +30,7 @@ class RefundOrderController extends Controller
             'user_id' => 'required|integer|exists:customers,id',
             'refund_reason' => 'required|string',
             'processed_by' => 'required|integer|exists:users,id',
-            'refund_method' => 'required|string',
             'status' => 'required|string',
-            'extra_details' => 'nullable|string',
-            'details_selected' => 'nullable|string',
         ]);
 
         // Create the refund order
@@ -41,7 +38,7 @@ class RefundOrderController extends Controller
 
         // Fetch updated orders and return the view
         $orders = Order::with('customer')->get();
-        return view('staff.content.RequestForm', compact('orders'))->with('success', 'Refund request submitted successfully!');
+        return redirect()->back()->with('success', 'Refund request submitted successfully!');
     }
 
     public function editDetails($order_id)
