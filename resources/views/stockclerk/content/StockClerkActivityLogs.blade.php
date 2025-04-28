@@ -57,7 +57,6 @@
             </thead>
             <tbody id="activityLogsTable">
             @foreach($activityLogs as $log)
-                @if($log->role === 'stock clerk')
                     <tr class="border-b log-row" data-id="{{ $log->id }}" data-role="{{ $log->role }}" data-activity="{{ $log->activity }}" data-created="{{ $log->created_at }}">
                         <!-- <td class="px-4 py-2 text-sm">{{ $log->id }}</td> -->
                         <td class="px-4 py-2 text-sm">
@@ -68,7 +67,6 @@
                         <td class="px-4 py-2 text-sm">{{ $log->created_at->format('F d, Y - h:i A') }}</td>
                         <td class="px-4 py-2 text-sm">{{ $log->updated_at->format('F d, Y - h:i A') }}</td>
                     </tr>
-                @endif
             @endforeach
             </tbody>
         </table>

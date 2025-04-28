@@ -207,6 +207,8 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/admin-view-side', [AdminController::class, 'AdminindexdDashboard'])->name('adminproductsView');
 
+    Route::get('/admin-view-defective-products', [AdminController::class, 'AdminDefectiveindexdDashboard'])->name('admindefectiveproductsView');
+
     Route::get('/admin/generate-report', [ActivityLogController::class, 'AdminGenerateIndex'])->name('admin.generateReport');
 
     Route::get('/admin/overview', [AdminController::class, 'AdminOrderOverview'])->name('AdminoverView');

@@ -81,7 +81,6 @@
                     </tr>
                 @endforeach -->
                 @foreach($activityLogs as $log)
-                @if($log->role === 'staff')
                     <tr class="border-b log-row" data-id="{{ $log->id }}" data-role="{{ $log->role }}" data-activity="{{ $log->activity }}" data-created="{{ $log->created_at }}">
                         <!-- <td class="px-4 py-2 text-sm">{{ $log->id }}</td> -->
                         <td class="px-4 py-2 text-sm">
@@ -93,7 +92,6 @@
                             {{ \Carbon\Carbon::parse($log->created_at)->format('F j, Y g:i A') }}
                         </td>
                         </tr>
-                    @endif
                 @endforeach
             </tbody>
         </table>

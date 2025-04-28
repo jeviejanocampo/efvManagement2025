@@ -21,6 +21,8 @@ class Order extends Model
         'user_id',
         'name',
         'reference_id',
+        'online_reference_id',
+        'payed_online_confirmation_message',
         'total_items',
         'total_price',
         'original_total_amount',

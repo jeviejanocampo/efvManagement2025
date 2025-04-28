@@ -29,4 +29,14 @@ class DefectiveProduct extends Model
     ];
 
     public $timestamps = false;
+
+    public function orderReference()
+    {
+        return $this->belongsTo(OrderReference::class, 'order_id', 'order_id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id', 'order_id');
+    }
 }

@@ -64,6 +64,14 @@
                     <span class="text-sm"> Products
                    
                 </a>
+
+                <a href="{{ route('admindefectiveproductsView') }}" class="flex items-center text-white hover:text-white ml-2"  >
+                    <span>
+                        <i class="fa-solid fa-circle-exclamation mr-3"></i>
+                    </span>
+                    <span class="text-sm"> Defective Products
+                   
+                </a>
                 
                 <a href="{{ route('admin.add.product') }}" class="flex items-center text-white hover:text-white ml-2"  >
                     <span>

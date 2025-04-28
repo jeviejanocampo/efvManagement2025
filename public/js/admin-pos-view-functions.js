@@ -688,8 +688,8 @@ function saveOrder() {
                     <h2 class="text-lg font-bold mb-4">Order Summary</h2>
                     <table style="width: 100%; border-collapse: collapse;" class="text-sm">
                         <tr>
-                            <td><strong>Reference ID:</strong></td>
-                            <td>${data.order.reference_id}${data.order.order_id}</td>
+                        <td><strong>Reference ID:</strong></td>
+                            <td>${data.order.order_reference.reference_id}</td>
                         </tr>
                          <tr>
                             <td><strong>Created:</strong></td>

@@ -178,7 +178,7 @@ class StaffPOSController extends Controller
     public function saveOrderPOS(Request $request)
     {
         DB::beginTransaction();
-    
+
         try {
             // Create the order first (without reference_id generation yet)
             $order = Order::create([
@@ -193,7 +193,23 @@ class StaffPOSController extends Controller
                 'customers_change' => (string) $request->changeAmount,
                 'cash_received' => $request->cashReceived,
             ]);
-    
+
+            // ========== NEWLY ADDED PART ==========
+            $paymentMethod = strtolower($order->payment_method);
+            if (in_array($paymentMethod, ['gcash', 'pnb'])) {
+                $today = now()->format('ymd'); // Get YYMMDD format
+                $onlineReferenceId = 'EFV-' . $today . '-OR00' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT);
+
+                $confirmationMessage = 'We have received the money transferred to our account, Thank you for your payment. Total Amount Paid: ' . number_format($order->total_price, 2) . '.';
+
+                // Update the order with the new online_reference_id and confirmation message
+                $order->update([
+                    'online_reference_id' => $onlineReferenceId,
+                    'payed_online_confirmation_message' => $confirmationMessage,
+                ]);
+            }
+            // ========== END OF NEWLY ADDED PART ==========
+
             // Loop through the order items and process each item
             foreach ($request->orderItems as $item) {
                 $partId = $item['part_id'] ?? '0000'; // Default to '0000' if not provided
@@ -202,7 +218,7 @@ class StaffPOSController extends Controller
                 $productId = $item['model_id'];
                 $quantity = $item['quantity'];
                 $brandName = 'Unknown'; // Default brand name
-    
+
                 // Process the variant or product
                 if (!empty($variantId) && $variantId != 0) {
                     $variant = Variant::find($variantId);
@@ -227,7 +243,7 @@ class StaffPOSController extends Controller
                     $product->save();
                     $brandName = $product->brand_name;
                 }
-    
+
                 // Save the order details
                 OrderDetail::create([
                     'order_id' => $order->order_id,
@@ -243,27 +259,27 @@ class StaffPOSController extends Controller
                     'm_part_id' => $mPartId,
                 ]);
             }
-    
+
             // Generate the reference_id using the received data
             $brandShort = substr($brandName, 0, 3); // Get first 3 characters of brand_name
             $partShort = substr($partId, 0, 3); // Get first 3 characters of part_id
             $mPartShort = substr($mPartId, 0, 3); // Get first 3 characters of m_part_id
-    
+
             // Combine to form reference_id
             $referenceId = $brandShort . $partShort . $mPartShort . '-OR00' . str_pad($order->order_id, 4, '0', STR_PAD_LEFT);
-    
+
             // Create OrderReference with the generated reference_id
             OrderReference::create([
                 'order_id' => $order->order_id,
                 'reference_id' => $referenceId, // Use the generated reference_id
             ]);
-    
+
             // Commit the transaction
             DB::commit();
-    
+
             // Fetch the latest order with details and return response
-            $latestOrder = Order::with('orderDetails')->find($order->order_id);
-    
+            $latestOrder = Order::with(['orderDetails', 'orderReference'])->find($order->order_id);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order saved successfully!',
