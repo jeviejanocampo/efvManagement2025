@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'api/save-gcash-payment',  // If you use api prefix
+        'api/save-pnb-payment',
     ];
 }

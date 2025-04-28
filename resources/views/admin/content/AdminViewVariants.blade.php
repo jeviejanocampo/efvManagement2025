@@ -73,14 +73,14 @@
                                 <i class="fas fa-edit"></i> 
                             </a>
                             
-                            <form action="{{ route('admin.delete.variant', ['id' => $variant->variant_id]) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('POST')
-                                <button type="submit" class="text-red-500 hover:underline bg-transparent border-none cursor-pointer"
-                                        onclick="return confirm('Are you sure you want to delete this variant?');">
-                                    <i class="fas fa-trash-alt"></i> 
-                                </button>
-                            </form>
+                                <form action="{{ route('admin.delete.variant', ['id' => $variant->variant_id]) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('POST')
+                                    <button type="submit" class="text-red-500 hover:underline bg-transparent border-none cursor-pointer"
+                                            onclick="return confirm('Are you sure you want to delete this variant?');">
+                                        <i class="fas fa-trash-alt"></i> 
+                                    </button>
+                                </form>
                         </td>
                     </tr>
                 @endforeach

@@ -165,9 +165,9 @@
                             <a href="{{ route('manager.viewModelDetails', ['model_id' => $product->model_id]) }}">
                                 <img src="{{ asset('product-images/edit.png') }}" alt="Edit" class="w-4 h-4 inline mx-1" title="Edit">
                             </a>
-                            <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
+                            <!-- <a href="#" class="delete-product" data-id="{{ $product->model_id }}">
                                 <img src="{{ asset('product-images/trash.png') }}" alt="Delete" class="w-4 h-4 inline mx-1" title="Delete">
-                            </a>
+                            </a> -->
                         </td>
                     </tr>
                 @endif

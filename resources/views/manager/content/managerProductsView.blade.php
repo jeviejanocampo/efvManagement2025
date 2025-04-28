@@ -230,10 +230,10 @@
                                 <i class="fas fa-edit text-yellow-500 mx-1 text-sm"></i>
                             </a>
 
-                            <!-- Delete Icon -->
+                            <!-- Delete Icon
                             <a href="#" class="delete-product" data-id="{{ $product->model_id }}" title="Delete">
                                 <i class="fas fa-trash-alt text-red-600 mx-1 text-sm"></i>
-                            </a>
+                            </a> -->
                         </td>
 
                     </tr>

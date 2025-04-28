@@ -17,6 +17,13 @@ use App\Models\Variant;
 use App\Http\Controllers\StaffPOSController;
 
 
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+});
+
+Route::get('/fetch/payment/{orderId}', [AdminController::class, 'fetchPayment']);
+
+
 
 
 Route::get('/', function () {

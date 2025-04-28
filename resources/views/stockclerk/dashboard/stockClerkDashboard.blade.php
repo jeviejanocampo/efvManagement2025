@@ -86,7 +86,7 @@
                     </button>
 
                     <!-- Submenu -->
-                    <div id="products-submenu" class="ml-6 mt-2 space-y-6 overflow-hidden max-h-0 transition-all duration-300">
+                    <div id="products-submenu" class="ml-2 mt-2 space-y-8 overflow-hidden max-h-0 transition-all duration-300">
                             <a href="{{ route('productsView') }}" class="flex items-center text-sm text-white hover:text-white mt-2 ">
                             <i class="fas fa-box mr-2"></i>
                                  Products

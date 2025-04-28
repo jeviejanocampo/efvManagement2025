@@ -69,13 +69,13 @@
                                 <i class="fas fa-edit"></i>
                             </a>
                             <Delete Button>
-                            <form action="{{ route('stockclerk.delete.brand', ['brand_id' => $brand->brand_id]) }}" method="POST" class="inline delete-brand-form">
+                            <!-- <form action="{{ route('stockclerk.delete.brand', ['brand_id' => $brand->brand_id]) }}" method="POST" class="inline delete-brand-form">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-800 delete-brand-btn">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                            </form>
+                            </form> -->
                         </div>
                     </td>
                 </tr>

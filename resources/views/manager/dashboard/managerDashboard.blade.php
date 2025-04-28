@@ -53,14 +53,14 @@
                 <div class="ml-2">
                     <button onclick="toggleProducts()" class="flex items-center justify-between w-full text-white hover:text-white focus:outline-none">
                         <div class="flex items-center">
-                            <i class="fas fa-box mr-3"></i> 
-                            <span class="text-sm"> View </span>
+                            <i class="fas fa-box mr-3 mb-2"></i> 
+                            <span class="text-sm mb-2"> View </span>
                         </div>
                             <i id="products-arrow" class="fas fa-chevron-down transition-transform duration-300"></i>
                     </button>
 
                     <!-- Submenu -->
-                    <div id="products-submenu" class="ml-6 mt-2 space-y-4 overflow-hidden max-h-0 transition-all duration-300">
+                    <div id="products-submenu" class=" mt-2 space-y-6 overflow-hidden max-h-0 transition-all duration-300">
                             <a href="{{ route('ManagerproductsView') }}" class="flex items-center text-sm text-white hover:text-white mt-2">
                                 <i class="fas fa-box mr-4"></i> 
                                 <span class="text-sm ml-1">  Products </span>

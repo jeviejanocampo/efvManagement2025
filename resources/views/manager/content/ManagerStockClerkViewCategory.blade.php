@@ -47,13 +47,13 @@
                                 class="text-blue-600 hover:text-blue-800">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                            <form action="{{ route('manager.delete.category', $category->category_id) }}" method="POST" class="inline delete-category-form">
+                            <!-- <form action="{{ route('manager.delete.category', $category->category_id) }}" method="POST" class="inline delete-category-form">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-800 delete-category-btn">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                            </form>
+                            </form> -->
                         </div>
                     </td>
                 </tr>

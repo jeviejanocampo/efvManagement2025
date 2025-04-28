@@ -1861,6 +1861,79 @@ class AdminController extends Controller
     }
     
 
+    public function fetchPayment($orderId)
+    {
+        // Fetch the GcashPayment record where order_id matches the passed orderId
+        $payment = GcashPayment::where('order_id', $orderId)->first();
+
+        // Return the payment details as a JSON response
+        if ($payment) {
+            return response()->json([
+                'status' => $payment->status,
+                'image' => $payment->image,
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'No payment record found',
+            ], 404);
+        }
+    }
+
+    public function saveGcashPaymentNOW(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer',
+            'image' => 'required|file|mimes:jpeg,png,jpg,webp|max:5120', // Max 5MB
+        ]);
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $path = public_path('onlinereceipts/');
+
+            // Move file
+            $file->move($path, $filename);
+
+            // Save to database
+            GcashPayment::create([
+                'order_id' => $request->order_id,
+                'image' => $filename,
+                // status will automatically be "Cancelled" by default
+            ]);
+
+            return response()->json(['message' => 'Payment saved successfully'], 200);
+        }
+
+        return response()->json(['message' => 'No image uploaded'], 400);
+    }
+
+    public function savePnbPaymentNOW(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer',
+            'image' => 'required|file|mimes:jpeg,png,jpg,webp|max:5120', // Max 5MB
+        ]);
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $path = public_path('onlinereceipts');
+
+            // Move file
+            $file->move($path, $filename);
+
+            // Save to database for PNB
+            PnbPayment::create([
+                'order_id' => $request->order_id,
+                'image' => $filename,
+                // status will automatically be "Cancelled" by default
+            ]);
+
+            return response()->json(['message' => 'Payment saved successfully'], 200);
+        }
+
+        return response()->json(['message' => 'No image uploaded'], 400);
+    }
 
 
 }
