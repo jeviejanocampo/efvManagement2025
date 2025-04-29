@@ -65,7 +65,7 @@
     <!-- Sales Report Table -->
     <div>
         <div class="flex justify-between items-center mb-4">
-        <form method="GET" action="{{ route('manager.generateReport') }}" class="flex items-center gap-2">
+        <form method="GET" action="{{ route('admin.generateReport') }}" class="flex items-center gap-2">
             <!-- Start Date Filter -->
             <div>
                 <label for="start_date" class="text-xs font-medium text-gray-700">Start</label>

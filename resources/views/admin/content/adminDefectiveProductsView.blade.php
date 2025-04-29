@@ -68,8 +68,8 @@
                     <td class="px-6 py-2 border-b">{{ $product->product_name }}</td>
                     <td class="px-6 py-2 border-b">{{ $product->brand_name }}</td>
                     <td class="px-6 py-2 border-b">{{ $product->quantity }}</td>
-                    <td class="px-6 py-2 border-b">${{ number_format($product->price, 2) }}</td>
-                    <td class="px-6 py-2 border-b">${{ number_format($product->total_price, 2) }}</td>
+                    <td class="px-6 py-2 border-b text-sm">₱ {{ number_format($product->price, 2) }}</td>
+                    <td class="px-6 py-2 border-b text-sm">₱ {{ number_format($product->total_price, 2) }}</td>
                     <td class="px-6 py-2 border-b">
                         {{ $product->order->created_at->format('M d, Y H:i:s') }}
                     </td>

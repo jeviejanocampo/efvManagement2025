@@ -679,7 +679,31 @@ class OrderController extends Controller
     
     
     
-            
+    public function fetchPendingPayment(Request $request)
+    {
+        $orderId = $request->query('order_id');
+        $method = strtolower($request->query('method')); // e.g., gcash or pnb
+
+        if (!$orderId || !$method) {
+            return response()->json(['message' => 'Missing order_id or method'], 400);
+        }
+
+        $payment = null;
+
+        if ($method === 'gcash') {
+            $payment = GcashPayment::where('order_id', $orderId)->first();
+        } elseif ($method === 'pnb') {
+            $payment = PnbPayment::where('order_id', $orderId)->first();
+        } else {
+            return response()->json(['message' => 'Invalid payment method'], 400);
+        }
+
+        if ($payment) {
+            return response()->json($payment);
+        } else {
+            return response()->json(['message' => 'No payment found'], 404);
+        }
+    }
             
 
     

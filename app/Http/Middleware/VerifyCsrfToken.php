@@ -14,5 +14,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'api/save-gcash-payment',  // If you use api prefix
         'api/save-pnb-payment',
+        'api/fetch-pending-payment',
     ];
 }

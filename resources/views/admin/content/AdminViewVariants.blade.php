@@ -2,7 +2,7 @@
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<div class="container mx-auto p-6 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+<div class="container mx-auto max-w-full p-6 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <!-- Back Button -->
     <div class="mb-4">
     <a href="{{ route('adminproductsView') }}" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">

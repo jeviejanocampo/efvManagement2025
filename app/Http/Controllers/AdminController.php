@@ -539,7 +539,7 @@ class AdminController extends Controller
     {
         // Fetch defective products with pagination, ordered by the created_at field of the associated Order in descending order
         $defectiveProducts = DefectiveProduct::with('orderReference', 'order')  // Load order relation too
-            ->paginate(10);
+            ->paginate(7);
         
         return view('admin.content.adminDefectiveProductsView', compact('defectiveProducts'));
     }
