@@ -52,23 +52,30 @@ class StaffPOSController extends Controller
 
     public function getBrandModels($brand_id)
     {
-        $models = \App\Models\Models::where('brand_id', $brand_id)
+        $models = Models::where('brand_id', $brand_id)
             ->where('status', 'active')
-            ->select('model_name', 'model_img', 'price', 'model_id', 'w_variant')
+            ->select('model_name', 'model_img', 'price', 'model_id', 'w_variant', 'brand_id') // ✅ include brand_id
             ->with(['products' => function ($query) {
-                $query->select('model_id', 'stocks_quantity', 'm_part_id');
+                $query->select('model_id', 'stocks_quantity', 'm_part_id', 'brand_name'); // ✅ include brand_name
             }])
             ->get();
-    
+
         foreach ($models as $model) {
             if ($model->w_variant === 'YES') {
-                $model->variants = \App\Models\Variant::where('model_id', $model->model_id)
+                $brand = Brand::select('brand_name')->find($model->brand_id);
+                $brandName = $brand ? $brand->brand_name : 'Unknown Brand';
+
+                $model->variants = Variant::where('model_id', $model->model_id)
                     ->where('status', 'active')
-                    ->select('product_name', 'variant_image', 'price', 'variant_id', 'stocks_quantity', 'model_id', 'part_id') // <- added
-                    ->get();
+                    ->select('product_name', 'variant_image', 'price', 'variant_id', 'stocks_quantity', 'model_id', 'part_id')
+                    ->get()
+                    ->map(function ($variant) use ($brandName) {
+                        $variant->brand_name = $brandName;
+                        return $variant;
+                    });
             }
         }
-    
+
         return response()->json($models);
     }
     
@@ -296,6 +303,31 @@ class StaffPOSController extends Controller
     }
     
     
+    public function StaffCustomerStore(Request $request)
+    {
+        // Validate the incoming request
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email',
+        ]);
+    
+        // Always assign the default password
+        $validated['password'] = bcrypt('customer123');
+        $validated['status'] = 'active';
+    
+        // Create the new customer
+        $customer = Customer::create($validated);
+    
+        // Log the creation for debugging
+        Log::info('New customer created', [
+            'id' => $customer->id,
+            'full_name' => $customer->full_name,
+            'email' => $customer->email
+        ]);
+    
+        // Redirect back with success message
+        return Redirect::back()->with('success', 'Customer added successfully!');
+    }
 
     
     

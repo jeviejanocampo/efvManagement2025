@@ -87,7 +87,7 @@
                     OR0000{{ $refund->order_id }}
                 @endif
             </td>
-            <td class="py-3 px-4 border-b">{{ $refund->customer->full_name ?? 'Unknown' }}</td>
+            <td class="py-3 px-4 border-b">{{ $refund->customer->full_name ?? 'WALK IN CUSTOMER' }}</td>
             <td class="py-3 px-4 border-b created-date" data-date="{{ $refund->created_at }}">{{ $refund->created_at->format('M d, Y - h:i A') }}</td>
             <td class="py-3 px-4 border-b text-center status-cell" data-status="{{ strtolower($refund->status) }}">
                 <span class="px-2 py-1 border-b rounded-full text-white 

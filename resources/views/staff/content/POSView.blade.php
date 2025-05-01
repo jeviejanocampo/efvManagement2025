@@ -1,4 +1,4 @@
-@extends('staff.dashboard.StaffMain')
+@extends('staff.dashboard.staffMain')
 
 @section('content')
 <style>
@@ -142,19 +142,25 @@
             <div class="pt-2 border-b border-gray pb-4">
                 <h3 for="customerSelect" class="font-semibold text-1xl mb-2">Select Customer</h3>
                 <div class="flex items-center gap-2">
-
                     <select id="customerSelect" class="w-full border px-3 py-2">
-                        <option value="" disabled selected>Select a customer</option>
+                        <option value="">Select a customer</option> {{-- No `disabled`, no `selected` --}}
                         @foreach($customers as $customer)
                             <option value="{{ $customer->id }}" data-name="{{ $customer->full_name }}">{{ $customer->full_name }}</option>
                         @endforeach
                     </select>
 
+                    <!-- Add Customer Button -->
                     <button class="bg-black text-white px-3 py-3 flex items-center justify-center" title="Add Customer" onclick="document.getElementById('addCustomerModal').classList.remove('hidden')">
                         <i class="fas fa-plus"></i>
                     </button>
+
+                    <!-- Remove Customer Button -->
+                    <button class="bg-gray-600 text-white px-3 py-3 flex items-center justify-center" title="Remove Customer" onclick="removeCustomerSelection()">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
+
 
             <div id="chosen" class="hidden">
                 <p class="font-medium text-md">Chosen Customer:</p>
@@ -195,6 +201,9 @@
                         
                         <!-- Display the default QR code image -->
                         <img id="gcashQRCode" src="{{ asset('product-images/gcashqrcode.webp') }}" alt="GCash QR Code" class="mb-4 w-full h-auto">
+
+                        <h2 class="text-lg font-semibold mb-4">Account Number: 094532445021 </h2>
+                        <h2 class="text-lg font-semibold mb-4">Account Name: Antinio Efro Montero</h2>
                         
                         <!-- Image Upload Section -->
                         <div class="mb-4">
@@ -305,18 +314,41 @@
                 </div>
             </div>
             <script>
-                function updateSummary(total) {
-                    const totalAmount = parseFloat(total);
+               function updateSummaryFromTotalAmount() {
+                    const totalAmountElement = document.getElementById("totalAmount");
+
+                    if (!totalAmountElement) return;
+
+                    let totalAmountText = totalAmountElement.textContent.replace('₱', '').replace(/,/g, '').trim();
+                    let totalAmount = parseFloat(totalAmountText);
+
+                    if (isNaN(totalAmount)) totalAmount = 0;
 
                     const vatAmount = totalAmount * 0.12;
                     const vatableSales = totalAmount - vatAmount;
 
-                    document.getElementById("subTotal").textContent = `₱${totalAmount.toFixed(2)}`;
-                    document.getElementById("vatAmount").textContent = `₱${vatAmount.toFixed(2)}`;
-                    document.getElementById("vatableSales").textContent = `₱${vatableSales.toFixed(2)}`;
-                    document.getElementById("totalAmount").textContent = `₱${totalAmount.toFixed(2)}`;
+                    // ✅ Use toLocaleString for formatting with commas
+                    document.getElementById("subTotal").textContent = `₱${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    document.getElementById("vatAmount").textContent = `₱${vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    document.getElementById("vatableSales").textContent = `₱${vatableSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 }
+
+
+                // MutationObserver to watch totalAmount changes
+                const totalAmountObserver = new MutationObserver(() => {
+                    updateSummaryFromTotalAmount();
+                });
+
+                const totalAmountTarget = document.getElementById("totalAmount");
+
+                if (totalAmountTarget) {
+                    totalAmountObserver.observe(totalAmountTarget, { childList: true, characterData: true, subtree: true });
+                }
+
+                // Also run once on page load
+                window.onload = updateSummaryFromTotalAmount;
             </script>
+
 
 
             <!-- Customer Select Error -->
@@ -348,7 +380,7 @@
 <div id="addCustomerModal" class="fixed inset-0 bg-black bg-opacity-50 {{ $errors->any() ? 'flex' : 'hidden' }} justify-center items-center z-50 flex">
     <div class="m-auto bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
         <h2 class="text-xl font-semibold mb-4">Add New Customer</h2>
-        <form id="addCustomerForm" method="POST" action="{{ route('customers.store.new') }}">
+        <form id="addCustomerForm" method="POST" action="{{ route('staff.customers.store.new') }}">
             @csrf
             <div class="mb-3">
                 <label class="block font-medium mb-1">Full Name</label>
@@ -378,7 +410,7 @@
 
 
 <script>
-    new TomSelect("#customerSelect", {
+    window.customerSelectInstance = new TomSelect("#customerSelect", {
         placeholder: "Select a customer",
         allowEmptyOption: true,
         maxOptions: 100,
@@ -388,6 +420,34 @@
             direction: "asc"
         }
     });
+</script>
+<script>
+function removeCustomerSelection() {
+    if (window.customerSelectInstance) {
+        customerSelectInstance.clear(); // Reset TomSelect
+    }
+
+    // Clear chosen customer UI
+    document.getElementById('chosen').classList.add('hidden');
+    document.getElementById('chosenCustomerId').textContent = 'ID: N/A';
+    document.getElementById('chosenCustomer').textContent = 'None';
+
+    // ✅ Confirmation prompt
+    if (window.Swal) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Customer Removed',
+            text: 'The selected customer has been successfully removed.',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    } else {
+        alert('Customer successfully removed.');
+    }
+}
+
+</script>
+
 </script>
 <script>
     function confirmSaveOrder() {

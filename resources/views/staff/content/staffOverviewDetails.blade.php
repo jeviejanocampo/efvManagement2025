@@ -6,6 +6,11 @@
      text-align: center;
      font-size: 12px;
     }
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+    }
 </style>
 
 @if (session('success'))
@@ -46,8 +51,8 @@
     <div class="flex justify-between items-center mt-4 bg-white p-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
       <h1 style="font-size: 24px; font-weight: bold">ORDER DETAILS</h1>
 
-        <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
-        <div class="flex items-center">
+        <p style="display: none" class="no-print">Logged in User ID: {{ Auth::id() }}</p>
+        <div class="flex items-center no-print">
             <label for="order_status" class="mr-3 text-md">Edit Status:</label>
             <select class="bg-gray-100 text-black-200 px-5 py-2 " name="order_status" id="order_status" onchange="updateOrderStatus({{ $order->order_id }})">
                 <option value="pending">Pending</option>
@@ -164,7 +169,7 @@
         <div class="mt-4 grid grid-cols-2 gap-6">
         <!-- Left Grid - User Details and Payment Method -->
 
-        <div class="space-y-6">
+        <div class="space-y-6 no-print">
             <p style="font-size: 14px">
                 USER DETAILS:
                 <a href="#" 
@@ -301,7 +306,7 @@
             <h3 class="text-l font-semibold">Product Details</h3>
             
             <!-- One button for the entire order -->
-            <a href="{{ route('edit.product', ['order_id' => $orderDetails->first()->order_id]) }}" class="bg-black text-white px-2 py-2 text-sm hover:bg-blue-600 transition">
+            <a href="{{ route('edit.product', ['order_id' => $orderDetails->first()->order_id]) }}" class="bg-black no-print text-white px-2 py-2 text-sm hover:bg-blue-600 transition">
                 Edit Product Details for Order #{{ $formattedRefId }}
             </a>
 
@@ -425,6 +430,13 @@
                 @endif
             </div>
         </div>
+    </div>
+
+    <div class="flex justify-end mb-4 no-print mt-6">
+        <button onclick="window.print()" 
+            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+            <i class="fas fa-print mr-1"></i> Print Orders
+        </button>
     </div>
 
 </div>

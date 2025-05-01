@@ -38,7 +38,7 @@
     </div>
 
     <div class="border-b border-gray pb-4">
-        <p class="text-2xl font-medium">Reference ID: {{ $reference_id ?? 'N/A' }}</p>
+    <p class="text-2xl font-medium">Reference ID: {{ $reference_id ?? 'N/A' }}</p>
         
         @if ($refund->refund_completed_at)
             <p><span class="font-semibold">Processed Completed:</span> 
@@ -72,11 +72,6 @@
         <!-- Right Grid: Order Details (Total, Payment Method, Status) -->
         <div class="space-y-6">
              
-                <!-- <div>
-                    <strong class="text-sm">Via</strong>
-                    <p>{{ $order->payment_method }}</p>
-                </div> -->
-
                 <div>
                     <strong class="text-sm">Payment Method</strong>
                     <p>{{ $refund->refund_method ?? 'NULL' }}</p>
@@ -86,17 +81,27 @@
                     @endif
                 </div>
 
+
                 <div>
                     <strong>Processed By:</strong>
                     <p>{{ $refund->processedByUser->name ?? 'Unknown' }} (Staff)</p>
                 </div>
-
+                
+              <!-- Refunded Amount Calculation -->
                 @php
                     $refundedAmount = $orderDetails->where('product_status', 'refunded')->sum(function ($detail) {
                         return $detail->quantity * $detail->price;
                     });
                 @endphp
-                
+
+                <!-- <div>
+                  <strong>Returned Amount:</strong>
+                    <p>
+                    ₱ {{ number_format($refundedAmount, 2) }}
+                    </p>
+                </div> -->
+
+
             </div>
         </div>
 
@@ -252,7 +257,7 @@
                 </div>
 
                 <!-- Change Given -->
-                <div class="flex justify-between">
+                <div class="flex justify-between border-b border-gray pb-4">
                     <span class="text-gray-400">Change Given:</span>
                     <span class="text-gray-700">₱ {{ number_format($refund->change_given, 2) }}</span>
                 </div>

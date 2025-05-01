@@ -85,14 +85,8 @@
 
             <!-- Refund Method -->
             <div>
-                <label for="payment_method" class="block text-gray-700">Payment Method</label>
-                <select name="payment_method" id="payment_method" class="w-full px-4 py-2 border rounded-md" required>
-                    <option value="" disabled selected>Select Payment Method</option>
-                    <option value="Cash">Cash</option>
-                    <option value="GCash">GCash</option>
-                    <option value="PNB">PNB</option>
-                    <option value="To Be Decided">To be decided </option>
-                </select>
+                <label for="refund_method" class="block text-gray-700">Refund Method</label>
+                <input type="text" name="refund_method" id="refund_method" class="w-full px-4 py-2 border rounded-md" required>
             </div>
 
             <!-- Status -->

@@ -606,23 +606,31 @@ class AdminController extends Controller
     {
         $models = Models::where('brand_id', $brand_id)
             ->where('status', 'active')
-            ->select('model_name', 'model_img', 'price', 'model_id', 'w_variant')
+            ->select('model_name', 'model_img', 'price', 'model_id', 'w_variant', 'brand_id') // ✅ include brand_id
             ->with(['products' => function ($query) {
-                $query->select('model_id', 'stocks_quantity', 'm_part_id');
+                $query->select('model_id', 'stocks_quantity', 'm_part_id', 'brand_name'); // ✅ include brand_name
             }])
             ->get();
-    
+
         foreach ($models as $model) {
             if ($model->w_variant === 'YES') {
+                $brand = Brand::select('brand_name')->find($model->brand_id);
+                $brandName = $brand ? $brand->brand_name : 'Unknown Brand';
+
                 $model->variants = Variant::where('model_id', $model->model_id)
                     ->where('status', 'active')
-                    ->select('product_name', 'variant_image', 'price', 'variant_id', 'stocks_quantity', 'model_id', 'part_id') // <- added
-                    ->get();
+                    ->select('product_name', 'variant_image', 'price', 'variant_id', 'stocks_quantity', 'model_id', 'part_id')
+                    ->get()
+                    ->map(function ($variant) use ($brandName) {
+                        $variant->brand_name = $brandName;
+                        return $variant;
+                    });
             }
         }
-    
+
         return response()->json($models);
     }
+
 
     public function AdminsaveGCashImage(Request $request)
     {
@@ -1401,25 +1409,28 @@ class AdminController extends Controller
         return view('admin.content.AdminRequestForm', compact('orders'));
     }
 
-    public function AdminstoreForm(Request $request)
-    {
+     public function AdminstoreForm(Request $request)
+     {
+        // Set user_id to 0 if null
+        $request->merge([
+            'user_id' => $request->input('user_id') ?? 0,
+        ]);
+    
         // Validate the input data
         $validated = $request->validate([
             'order_id' => 'required|integer|exists:orders,order_id',
-            'user_id' => 'required|integer|exists:customers,id',
+            'user_id' => 'required|integer|min:0', // allow 0 (means guest)
             'refund_reason' => 'required|string',
             'processed_by' => 'required|integer|exists:users,id',
             'refund_method' => 'required|string',
             'status' => 'required|string',
         ]);
-
+    
         // Create the refund order
         RefundOrder::create($validated);
-
-        // Fetch updated orders and return the view
-        $orders = Order::with('customer')->get();
+    
         return redirect()->back()->with('success', 'Refund request submitted successfully!');
-    }
+    }    
 
     public function AdminshowRefundRequestForm($order_id)
     {

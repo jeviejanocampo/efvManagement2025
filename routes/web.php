@@ -87,8 +87,11 @@ Route::middleware(['staff'])->group(function () {
     Route::get('/refund-report-details-view/{order_id}/{reference_id?}', [RefundOrderController::class, 'RefundDetailsView'])->name('refund.view.details');
 
     Route::get('/staff/payment-image/{order_id}/{payment_method}', [OrderController::class, 'StaffgetPaymentImage']);
+    
 
 });
+
+Route::post('/staff-customers/store', [StaffPOSController::class, 'StaffCustomerStore'])->name('staff.customers.store.new');
 
 Route::post('/staff/update-refund-method', [OrderController::class, 'StaffupdateRefundMethod'])->name('staff.updateRefundMethod');
 

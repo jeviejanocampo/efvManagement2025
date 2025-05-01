@@ -24,22 +24,25 @@ class RefundOrderController extends Controller
 
     public function store(Request $request)
     {
+        // Set user_id to 0 if null
+        $request->merge([
+            'user_id' => $request->input('user_id') ?? 0,
+        ]);
+    
         // Validate the input data
         $validated = $request->validate([
             'order_id' => 'required|integer|exists:orders,order_id',
-            'user_id' => 'required|integer|exists:customers,id',
+            'user_id' => 'required|integer|min:0', // allow 0 (means guest)
             'refund_reason' => 'required|string',
             'processed_by' => 'required|integer|exists:users,id',
             'status' => 'required|string',
         ]);
-
+    
         // Create the refund order
         RefundOrder::create($validated);
-
-        // Fetch updated orders and return the view
-        $orders = Order::with('customer')->get();
+    
         return redirect()->back()->with('success', 'Refund request submitted successfully!');
-    }
+    }    
 
     public function editDetails($order_id)
     {

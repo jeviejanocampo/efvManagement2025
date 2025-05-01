@@ -72,6 +72,7 @@
 // });
 
 
+
 function showBrandId(id) {
     document.getElementById('selectedBrandId').textContent = id;
 }
@@ -299,12 +300,18 @@ function formatCurrency(amount) {
 
 
 const POSUtils = (() => {
+
+    function formatCurrency(amount) {
+        return '₱' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+
     function renderModelCard(data, type, modelId = null) {
         if (type === 'variant') {
             return `
                 <div class="bg-white rounded-lg p-4 text-center border flex flex-col h-full">
                     <img src="/product-images/${data.variant_image}" class="h-24 w-24 object-cover mx-auto mb-2">
                     <h3 class="text-sm font-semibold">${data.product_name}</h3>
+                    <h3 class="text-sm font-semibold text-green-600 hidden">${data.brand_name}</h3>
                     <p class="text-green-600 font-medium mt-1">${formatCurrency(data.price)}</p>
                     <p class="text-sm hidden">Model ID: ${data.model_id}</p>
                     <p class="text-sm hidden">Part ID: ${data.part_id}</p>
@@ -317,7 +324,8 @@ const POSUtils = (() => {
                         data-type="variant"
                         data-model-id="${data.model_id}"
                         data-stocks="${data.stocks_quantity}"
-                        data-part-id="${data.part_id}">
+                        data-part-id="${data.part_id}"
+                        data-brand-name="${data.brand_name}">
                         <i class="fas fa-plus text-white"></i> 
                     </button>
                 </div>
@@ -325,10 +333,12 @@ const POSUtils = (() => {
         } else {
             const stockQuantity = data.products.reduce((sum, p) => sum + parseInt(p.stocks_quantity), 0);
             const partIds = data.products.map(p => p.m_part_id).filter(Boolean).join(', ');
+            const brandName = data.products[0]?.brand_name || 'Unknown Brand';
             return `
                 <div class="bg-white rounded-lg p-4 text-center border flex flex-col h-full">
                     <img src="/product-images/${data.model_img}" class="h-24 w-24 object-cover mx-auto mb-2">
                     <h2 class="text-sm font-semibold">${data.model_name}</h2>
+                    <h3 class="text-sm font-semibold text-green-600 hidden">${brandName}</h3>
                     <p class="text-green-600 font-medium mt-1">${formatCurrency(data.price)}</p>
                     <p class="text-sm hidden">Model ID: ${data.model_id}</p>
                     <p class="text-sm hidden">Part ID: ${partIds}</p>
@@ -338,7 +348,8 @@ const POSUtils = (() => {
                         data-id="${data.model_id}"
                         data-type="model"
                         data-stocks="${stockQuantity}"
-                        data-part-id="${partIds}">
+                        data-part-id="${partIds}"
+                        data-brand-name="${brandName}">
                         <i class="fas fa-plus text-white"></i> 
                     </button>
                 </div>
@@ -346,9 +357,6 @@ const POSUtils = (() => {
         }
     }
     
-    function formatCurrency(amount) {
-        return '₱' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-    }
     
 
     return {
@@ -375,6 +383,7 @@ const POSUtils = (() => {
         const modelId = button.getAttribute('data-model-id');
         const partId = button.getAttribute('data-part-id');
         const stocks = parseInt(button.getAttribute('data-stocks'));
+        const brandName = button.getAttribute('data-brand-name');
         const idLabel = type === 'variant' ? 'Variant ID' : 'Model ID';
     
         const exists = orderList.querySelector(`[data-order-id="${id}"]`);
@@ -387,11 +396,14 @@ const POSUtils = (() => {
             item.innerHTML = `
                 <div class="mb-2">
                     <p class="font-medium text-lg">${name}</p>
+                    <p class="text-sm text-gray-700 italic">Brand: ${brandName}</p> 
                     <p class="text-green-600 text-lg">${formatCurrency(price)}</p>
                     <p class="text-gray-500 text-lg hidden">${idLabel}: ${id}</p>
                     <p class="text-gray-500 text-lg hidden">Part ID: ${partId}</p>
                     ${type === 'variant' ? `<p class="text-gray-500 text-lg hidden">Model ID: ${modelId}</p>` : ''}
-                    <p class="text-red-700 font-semibold text-sm stock-info mt-1 ">Stocks left: ${stocks - 1}</p>
+                    <p class="text-red-700 font-semibold text-sm stock-info mt-1">
+                    Stocks left: ${ (stocks - 1).toLocaleString() }
+                    </p>
                 </div>
 
                 <div class="flex justify-between items-end mt-2">
@@ -430,7 +442,7 @@ const POSUtils = (() => {
         if (!li) return;
 
         if (e.target.closest('.remove-item')) {
-            const price = parseFloat(li.querySelector('.text-green-600').textContent.replace('₱', ''));
+            const price = parseFloat(li.querySelector('.text-green-600').textContent.replace(/[₱,]/g, ''));
             totalAmount -= price;  // Subtract the price of the removed item
             totalItems -= parseInt(li.querySelector('.quantity').textContent);  // Subtract quantity from total items
             li.remove();
@@ -439,9 +451,9 @@ const POSUtils = (() => {
 
         const qtyEl = li.querySelector('.quantity');
         const stockEl = li.querySelector('.stock-info');
-        subtotalEl.textContent = formatCurrency(subtotal);
+        const subtotalEl = li.querySelector('.subtotal');
         const originalStocks = parseInt(li.querySelector('.stock-info').textContent.split(': ')[1]) + parseInt(qtyEl.textContent);
-        const price = parseFloat(li.querySelector('.text-green-600').textContent.replace('₱', ''));
+        const price = parseFloat(li.querySelector('.text-green-600').textContent.replace(/[₱,]/g, ''));
 
         let qty = parseInt(qtyEl.textContent);
 
@@ -458,7 +470,7 @@ const POSUtils = (() => {
 
         // Update subtotal and total
         const subtotal = price * qty;
-        subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
+        subtotalEl.textContent = formatCurrency(subtotal);
         totalAmount = calculateTotal(); // Recalculate the total when quantity changes
         totalItems = calculateTotalItems();  // Update the total items
         updateTotal();
@@ -475,7 +487,7 @@ const POSUtils = (() => {
         let total = 0;
         const items = orderList.querySelectorAll('li');
         items.forEach(item => {
-            const price = parseFloat(item.querySelector('.text-green-600').textContent.replace('₱', ''));
+            const price = parseFloat(item.querySelector('.text-green-600').textContent.replace(/[₱,]/g, ''));
             const qty = parseInt(item.querySelector('.quantity').textContent);
             total += price * qty;
         });
@@ -570,6 +582,10 @@ function saveOrder() {
     const customerSelect = document.getElementById('customerSelect');
     const imageInput = document.getElementById('imageInput'); // Assuming you have an input for the image
 
+    function formatCurrency(amount) {
+        return '₱' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+    
     if (!customerId) {
         customerId = 0;
     }
@@ -666,7 +682,6 @@ function saveOrder() {
         body: JSON.stringify(payload)
     })
     .then(response => response.json())
-    
 
     .then(data => {
         if (data.success) {
@@ -685,25 +700,29 @@ function saveOrder() {
                 let amountValue = isTransferPayment ? data.order.total_price : data.order.cash_received;
 
                 const vatAmountDisplay = (data.order.total_price * 0.12).toFixed(2);
-                const vatableSalesDisplay = (data.order.total_price - (data.order.total_price * 0.12)).toFixed(2);
+                const vatableSalesDisplay = (data.order.total_price - (data.order.total_price * 0.12)).toFixed(2);            
 
         
                 // Create a custom HTML structure for the order details report
                 let orderDetailsHTML = `
-                    <h2 class="text-lg font-bold mb-4">Order Summary</h2>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <h2 class="text-sm font-bold mb-4">
+                        EFV AUTO PARTS MERCHANDISE<br>
+                        Diversion Road, Sibulan, Dumaguete City
+                        Negros Oriental
+                        </h2>
+
+                      <br>
+
+                      <h2 class="text-sm font-bold mb-4">Order Summary</h2>
+
+                    </div>
                     <table style="width: 100%; border-collapse: collapse;" class="text-sm">
                         <tr>
                         <td><strong>Reference ID:</strong></td>
                             <td>${data.order.order_reference.reference_id}</td>
                         </tr>
-                         <tr>
-                            <td><strong>Created:</strong></td>
-                            <td>${new Date(data.order.created_at).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}</td>
-                        </tr>
+                        
                         <tr>
                             <td><strong>Cash Received:</strong></td>
                             <td>${formatCurrency(data.order.cash_received)}</td>
@@ -714,7 +733,10 @@ function saveOrder() {
                         </tr>
                         <tr>
                             <td><strong>Payment Method:</strong></td>
-                            <td>${data.order.payment_method}</td>
+                            <td>
+                                ${data.order.payment_method} 
+                                ${data.order.payment_method.toLowerCase() === 'cash' ? '(WALK-IN)' : '(Online)'}
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>Order Status:</strong></td>
@@ -738,8 +760,8 @@ function saveOrder() {
                                     <td class="border px-4 py-2">${item.product_name}</td>
                                     <td class="border px-4 py-2">${item.brand_name}</td>
                                     <td class="border px-4 py-2">${item.quantity}</td>
-                                    <td class="border px-4 py-2">${formatCurrency(item.price)}</td>
-                                    <td class="border px-4 py-2">${formatCurrency(item.total_price)}</td>
+                                    <td class="border px-4 py-2">₱${item.price}</td>
+                                    <td class="border px-4 py-2">₱${item.total_price}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -749,10 +771,6 @@ function saveOrder() {
                         <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                             <div><strong>Total Items:</strong></div>
                             <div>${data.order.total_items}</div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <div><strong>Sub Total:</strong></div>
-                            <div>${formatCurrency(data.order.total_price)}</div>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                             <div><strong>VAT Amount (12%):</strong></div>
@@ -768,13 +786,33 @@ function saveOrder() {
                         </div>
                         <div style="display: flex; justify-content: space-between;">
                             <div><strong>Change:</strong></div>
-                            <div>${formatCurrency(data.order.customers_change)}</div>
+                            <div>₱${data.order.customers_change}</div>
+                        </div>
+                         <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <div><strong>TOTAL:</strong></div>
+                            <div>${formatCurrency(data.order.total_price)}</div>
                         </div>
                     </div>
 
 
                     <hr class="my-4" />
-                    <h4 class="text-center font-semibold">Thank you for your purchase!</h4>
+
+                   <div style="text-align: center; margin-top: 20px;">
+                        <p class="font-semibold text-sm">
+                            Operated By
+                        </p>
+                         <p class="font-semibold text-sm">EFV AUTO PARTS MANAGEMENT SYSTEM </p>
+                         <p class="font-semibold text-sm"> Thank you for your purchase! </p>
+                        </p>
+                         <tr>
+                            <td><strong>Printed On:</strong></td>
+                            <td>${new Date(data.order.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })}</td>
+                        </tr>
+                    </div>
                 `;
         
                 // Show the order details in SweetAlert2 modal
@@ -811,11 +849,6 @@ function saveOrder() {
             });
         }
     });
-
-    function formatCurrency(amount) {
-        return '₱' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-      }
-      
     
     
 

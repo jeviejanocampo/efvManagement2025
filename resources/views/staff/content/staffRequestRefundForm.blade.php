@@ -194,7 +194,7 @@
                             @endif
                         </div>
 
-                        <button onclick="openModal()" class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-2">Edit Refund Method</button>
+                        <button onclick="openModal()" class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-2">Refund Payment Method</button>
 
                         <!-- Display GCash Payment Status -->
                         @if(strtolower($refund->refund_method) === 'gcash')
@@ -240,7 +240,7 @@
                 <!-- Modal -->
                 <div id="editRefundMethodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
                 <div class="bg-white p-8 rounded-lg w-full max-w-md">
-                    <h2 class="text-2xl font-semibold mb-4">Edit Refund Method</h2>
+                    <h2 class="text-2xl font-semibold mb-4">Refund Payment Method</h2>
                     <form action="{{ route('staff.updateRefundMethod') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="order_id" value="{{ $refund->order_id }}">
