@@ -273,6 +273,20 @@
                     <p class="text-1xl">Total Items</p>
                     <p id="totalItems" class="text-1xl font-medium text-blue-600">0</p>
                 </div>
+                <div class="flex justify-between mt-2">
+                    <p class="text-1xl">Sub Total</p>
+                    <p id="subTotal" class="text-1xl font-medium text-blue-600">₱0.00</p>
+                </div>
+                <div class="flex justify-between mt-2">
+                    <p class="text-1xl">VAT Amount (12%)</p>
+                    <p id="vatAmount" class="text-1xl font-medium text-blue-600">₱0.00</p>
+                </div>
+
+                <!-- VATable Sales -->
+                <div class="flex justify-between mt-2 border-b border-gray pb-2">
+                    <p class="text-1xl">VATable Sales</p>
+                    <p id="vatableSales" class="text-1xl font-medium text-blue-600">₱0.00</p>
+                </div>
                 <!-- <div class="flex justify-between mt-2">
                     <p class="text-1xl">Discount</p>
                     <p class="text-1xl font-medium text-blue-600">₱0.00</p>
@@ -290,6 +304,20 @@
                     <p id="totalAmount" class="text-2xl font-medium text-blue-600">₱0.00</p>
                 </div>
             </div>
+            <script>
+                function updateSummary(total) {
+                    const totalAmount = parseFloat(total);
+
+                    const vatAmount = totalAmount * 0.12;
+                    const vatableSales = totalAmount - vatAmount;
+
+                    document.getElementById("subTotal").textContent = `₱${totalAmount.toFixed(2)}`;
+                    document.getElementById("vatAmount").textContent = `₱${vatAmount.toFixed(2)}`;
+                    document.getElementById("vatableSales").textContent = `₱${vatableSales.toFixed(2)}`;
+                    document.getElementById("totalAmount").textContent = `₱${totalAmount.toFixed(2)}`;
+                }
+            </script>
+
 
             <!-- Customer Select Error -->
             <p id="customerError" class="text-red-600 text-sm mt-2 hidden">Please select a customer.</p>

@@ -131,11 +131,17 @@
             </button>
         </div>
         <table class="w-full border-collapse border border-gray-300 text-left">
+        <p class="italic text-gray-600 text-sm mt-4">
+            Each product's unit price has been calculated to include a 12% VAT and a markup based on the original cost price, ensuring appropriate pricing for resale.
+        </p>
             <thead class="bg-gray-100">
                 <tr>
                     <th class="border border-gray-300 px-4 py-2">REFERENCE ID</th>
                     <th class="border border-gray-300 px-4 py-2">PRODUCT NAME</th>
-                    <th class="border border-gray-300 px-4 py-2">UNIT PRICE</th>
+                    <th class="border border-gray-300 px-4 py-2 hidden">MARKUP</th>
+                    <th class="border border-gray-300 px-4 py-2 hidden">MODEL ID</th>
+                    <th class="border border-gray-300 px-4 py-2 hidden">VARIANT ID</th>
+                    <th class="border border-gray-300 px-4 py-2">PRICE</th>
                     <th class="border border-gray-300 px-4 py-2">QUANTITY</th>
                     <th class="border border-gray-300 px-4 py-2">TOTAL</th>
                 </tr>
@@ -147,6 +153,9 @@
                     {{ $detail->reference_id }}
                     </td>
                     <td class="border border-gray-300 px-4 py-2">{{ $detail->product_name }}</td>
+                    <td class="border border-gray-300 px-4 py-2 hidden">{{ $detail->markup_percentage }}%</td>
+                    <td class="border border-gray-300 px-4 py-2 hidden">{{ $detail->model_id }}</td>
+                    <td class="border border-gray-300 px-4 py-2 hidden">{{ $detail->variant_id }}</td>
                     <td class="border border-gray-300 px-4 py-2">₱{{ number_format($detail->price, 2) }}</td>
                     <td class="border border-gray-300 px-4 py-2">{{ $detail->quantity }}</td>
                     <td class="border border-gray-300 px-4 py-2">₱{{ number_format($detail->total_price, 2) }}</td>
@@ -162,25 +171,78 @@
         <!-- Summary Section -->
         <div class="flex justify-end mt-6">
             <div class="w-1/3 text-right">
-                <div class="border-gray-300 pt-4">
-                    <p class="flex justify-between mb-6">
+            <div style="margin-top: 20px; width: 250px; margin-left: auto; font-size: 0.875rem;">
+            <p class="flex justify-between mb-6">
                         <strong>SUMMARY</strong> 
                     </p>
-                    <p class="flex justify-between">
-                        <strong>SALES AMOUNT:</strong> 
-                        <span>₱{{ number_format($salesAmount, 2) }}</span>
-                    </p>
-                    <p class="flex justify-between">
-                        <strong>TOTAL ITEMS:</strong> 
-                        <span>{{ number_format($salesTotal, 0) }}</span>
-                    </p>
-                    <div class="border-t border-gray-300 pt-4 mt-4">
-                        <p class="flex justify-between">
-                            <strong>SALES TOTAL:</strong> 
-                            <span>₱{{ number_format($salesAmount, 2) }}</span>
-                        </p>
-                    </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <div><strong>Total Items:</strong></div>
+                    <div>{{ number_format($salesTotal, 0) }}</div>
                 </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <div><strong>Total:</strong></div>
+                    <div>₱{{ number_format($salesAmount, 2) }}</div>
+                </div>
+
+                <br>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <div><strong>VAT Amount (12%):</strong></div>
+                    <div>₱{{ number_format($salesAmount * 0.12, 2) }}</div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <div><strong>VATable Sales:</strong></div>
+                    <div>₱{{ number_format($salesAmount - ($salesAmount * 0.12), 2) }}</div>
+                </div>
+
+                @php
+                    $vatAmount = $salesAmount * 0.12;
+                    $vatableSales = $salesAmount - $vatAmount;
+
+
+                    // Determine effective average markup rate
+                    $markupIncome = 0;
+
+                    foreach ($orderDetails as $detail) {
+                        $markupRate = 0;
+
+                        if ($detail->price >= 1 && $detail->price <= 500) {
+                            $markupRate = 0.02;
+                        } elseif ($detail->price >= 501 && $detail->price <= 1000) {
+                            $markupRate = 0.05;
+                        } elseif ($detail->price > 1000) {
+                            $markupRate = 0.10;
+                        }
+
+                        // Cost before VAT and markup
+                        $cost = $detail->price / (1 + $markupRate) / 1.12;
+
+                        // Revenue = total_price
+                        $total = $detail->total_price;
+
+                        // VAT = 12% of price
+                        $vat = $detail->price * 0.12;
+
+                        // Income = markup only
+                        $incomePerUnit = $detail->price - ($cost + $vat);
+                        $markupIncome += $incomePerUnit * $detail->quantity;
+                    }
+                @endphp
+
+                <br>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <div><strong>Revenue:</strong></div>
+                    <div>₱{{ number_format($salesAmount, 2) }}</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <div><strong>Income:</strong></div>
+                    <div>₱{{ number_format($markupIncome, 2) }}</div>
+                </div>
+
+        
             </div>
         </div>
 

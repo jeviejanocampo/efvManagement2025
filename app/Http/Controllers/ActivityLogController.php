@@ -408,20 +408,46 @@ class ActivityLogController extends Controller
         foreach ($orderDetails as $detail) {
             // Extract first 3 letters of brand_name (if available)
             $brand = isset($detail->brand_name) ? strtoupper(substr($detail->brand_name, 0, 3)) : 'N/A';
-
+        
             // Get part_id
             $partId = $detail->part_id ?? 'N/A';
-
+        
             // Get order_detail_id
             $orderDetailId = $detail->order_detail_id;
-
+        
             // Construct formatted reference_id
             $detail->reference_id = "{$brand}-{$partId}{$orderDetailId}";
+        
+            // Fetch markup_percentage and vat_inclusive depending on variant or product
+            if (!empty($detail->variant_id) && $detail->variant_id != 0) {
+                // Fetch from Variant table
+                $variant = \App\Models\Variant::find($detail->variant_id);
+        
+                if ($variant) {
+                    $detail->markup_percentage = $variant->markup_percentage ?? 0;
+                    $detail->vat_inclusive = $variant->vat_inclusive ?? 0;
+                } else {
+                    $detail->markup_percentage = 0;
+                    $detail->vat_inclusive = 0;
+                }
+            } else {
+                // Fetch from Products table using model_id
+                $product = \App\Models\Products::where('model_id', $detail->model_id)->first();
+        
+                if ($product) {
+                    $detail->markup_percentage = $product->markup_percentage ?? 0;
+                    $detail->vat_inclusive = $product->vat_inclusive ?? 0;
+                } else {
+                    $detail->markup_percentage = 0;
+                    $detail->vat_inclusive = 0;
+                }
+            }
         }
+        
 
         // Calculate totals
         $salesAmount = $orderDetails->sum('total_price');
-        $salesTotal = $orderDetails->count();
+        $salesTotal = $orderDetails->sum('quantity');
 
         return view('admin.content.AdminGenerateReport', compact('orderDetails', 'salesAmount', 'salesTotal'));
     }

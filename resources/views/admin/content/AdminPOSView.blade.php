@@ -142,19 +142,25 @@
             <div class="pt-2 border-b border-gray pb-4">
                 <h3 for="customerSelect" class="font-semibold text-1xl mb-2">Select Customer</h3>
                 <div class="flex items-center gap-2">
-
                     <select id="customerSelect" class="w-full border px-3 py-2">
-                        <option value="" disabled selected>Select a customer</option>
+                        <option value="">Select a customer</option> {{-- No `disabled`, no `selected` --}}
                         @foreach($customers as $customer)
                             <option value="{{ $customer->id }}" data-name="{{ $customer->full_name }}">{{ $customer->full_name }}</option>
                         @endforeach
                     </select>
 
+                    <!-- Add Customer Button -->
                     <button class="bg-black text-white px-3 py-3 flex items-center justify-center" title="Add Customer" onclick="document.getElementById('addCustomerModal').classList.remove('hidden')">
                         <i class="fas fa-plus"></i>
                     </button>
+
+                    <!-- Remove Customer Button -->
+                    <button class="bg-gray-600 text-white px-3 py-3 flex items-center justify-center" title="Remove Customer" onclick="removeCustomerSelection()">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
+
 
             <div id="chosen" class="hidden">
                 <p class="font-medium text-md">Chosen Customer:</p>
@@ -276,6 +282,20 @@
                     <p class="text-1xl">Total Items</p>
                     <p id="totalItems" class="text-1xl font-medium text-blue-600">0</p>
                 </div>
+                <div class="flex justify-between mt-2">
+                    <p class="text-1xl">Sub Total</p>
+                    <p id="subTotal" class="text-1xl font-medium text-blue-600">₱0.00</p>
+                </div>
+                <div class="flex justify-between mt-2">
+                    <p class="text-1xl">VAT Amount (12%)</p>
+                    <p id="vatAmount" class="text-1xl font-medium text-blue-600">₱0.00</p>
+                </div>
+
+                <!-- VATable Sales -->
+                <div class="flex justify-between mt-2 border-b border-gray pb-2">
+                    <p class="text-1xl">VATable Sales</p>
+                    <p id="vatableSales" class="text-1xl font-medium text-blue-600">₱0.00</p>
+                </div>
                 <!-- <div class="flex justify-between mt-2">
                     <p class="text-1xl">Discount</p>
                     <p class="text-1xl font-medium text-blue-600">₱0.00</p>
@@ -293,6 +313,43 @@
                     <p id="totalAmount" class="text-2xl font-medium text-blue-600">₱0.00</p>
                 </div>
             </div>
+            <script>
+               function updateSummaryFromTotalAmount() {
+                    const totalAmountElement = document.getElementById("totalAmount");
+
+                    if (!totalAmountElement) return;
+
+                    let totalAmountText = totalAmountElement.textContent.replace('₱', '').replace(/,/g, '').trim();
+                    let totalAmount = parseFloat(totalAmountText);
+
+                    if (isNaN(totalAmount)) totalAmount = 0;
+
+                    const vatAmount = totalAmount * 0.12;
+                    const vatableSales = totalAmount - vatAmount;
+
+                    // ✅ Use toLocaleString for formatting with commas
+                    document.getElementById("subTotal").textContent = `₱${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    document.getElementById("vatAmount").textContent = `₱${vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    document.getElementById("vatableSales").textContent = `₱${vatableSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                }
+
+
+                // MutationObserver to watch totalAmount changes
+                const totalAmountObserver = new MutationObserver(() => {
+                    updateSummaryFromTotalAmount();
+                });
+
+                const totalAmountTarget = document.getElementById("totalAmount");
+
+                if (totalAmountTarget) {
+                    totalAmountObserver.observe(totalAmountTarget, { childList: true, characterData: true, subtree: true });
+                }
+
+                // Also run once on page load
+                window.onload = updateSummaryFromTotalAmount;
+            </script>
+
+
 
             <!-- Customer Select Error -->
             <p id="customerError" class="text-red-600 text-sm mt-2 hidden">Please select a customer.</p>
@@ -353,7 +410,7 @@
 
 
 <script>
-    new TomSelect("#customerSelect", {
+    window.customerSelectInstance = new TomSelect("#customerSelect", {
         placeholder: "Select a customer",
         allowEmptyOption: true,
         maxOptions: 100,
@@ -363,6 +420,34 @@
             direction: "asc"
         }
     });
+</script>
+<script>
+function removeCustomerSelection() {
+    if (window.customerSelectInstance) {
+        customerSelectInstance.clear(); // Reset TomSelect
+    }
+
+    // Clear chosen customer UI
+    document.getElementById('chosen').classList.add('hidden');
+    document.getElementById('chosenCustomerId').textContent = 'ID: N/A';
+    document.getElementById('chosenCustomer').textContent = 'None';
+
+    // ✅ Confirmation prompt
+    if (window.Swal) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Customer Removed',
+            text: 'The selected customer has been successfully removed.',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    } else {
+        alert('Customer successfully removed.');
+    }
+}
+
+</script>
+
 </script>
 <script>
     function confirmSaveOrder() {

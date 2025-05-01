@@ -45,11 +45,25 @@
             <input type="text" name="brand_name" value="{{ $product->brand_name }}" class="px-3 py-2 border rounded-lg w-full">
         </div>
 
+        <!-- Markup Percentage -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Markup Percentage</label>
+            <input type="number" name="markup_percentage" id="markup_percentage" value="{{ $product->markup_percentage ?? '' }}" readonly class="px-3 py-2 border rounded-lg w-full">
+        </div>
+
+        <!-- VAT Inclusive Price -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">VAT Inclusive Price (After Markup)</label>
+            <input type="number" name="vat_inclusive" id="vat_inclusive" value="{{ $product->vat_inclusive ?? '' }}" readonly class="px-3 py-2 border rounded-lg w-full">
+        </div>
+
+
         <!-- Price -->
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Price:</label>
-            <input type="number" name="price" value="{{ $product->price }}" class="px-3 py-2 border rounded-lg w-full">
+            <input type="number" name="price" id="price" value="{{ $product->price }}" oninput="calculateMarkupAndVAT()" class="px-3 py-2 border rounded-lg w-full">
         </div>
+
 
         <!-- Description -->
         <div class="mb-4">
@@ -132,10 +146,12 @@
             <p class="px-3 py-2 border bg-gray-100 rounded-lg">{{ $product->brand_name }}</p>
         </div>
 
+       <!-- Cost Price (Original Supplier Price) -->
         <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Price:</label>
-            <p class="px-3 py-2 border bg-gray-100 rounded-lg">{{ $product->price }}</p>
+            <label class="block text-sm font-medium text-gray-700">Cost Price </label>
+            <input type="number" name="price" id="price" value="{{ $product->cost_price ?? '' }}" oninput="calculateMarkupAndVAT()" class="px-3 py-2 border rounded-lg w-full">
         </div>
+
 
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Description:</label>
@@ -154,6 +170,56 @@
     </div>
 </div>
 
+    
+<script>
+    function calculateMarkupAndVAT() {
+        const priceInput = document.getElementById('price');
+        const markupInput = document.getElementById('markup_percentage');
+        const vatInclusiveInput = document.getElementById('vat_inclusive');
+
+        const price = parseFloat(priceInput.value);
+
+        if (!price || price <= 0) {
+            markupInput.value = '';
+            vatInclusiveInput.value = '';
+            return;
+        }
+
+        let markup = 0;
+
+        // Set markup based on price range
+        if (price >= 1 && price <= 500) {
+            markup = 2;
+        } else if (price >= 501 && price <= 1000) {
+            markup = 5;
+        } else if (price > 1000) {
+            markup = 10;
+        }
+
+        markupInput.value = markup; // Update markup input
+
+        // Calculate selling price after markup
+        const sellingPrice = price * (1 + (markup / 100));
+
+        // Calculate VAT inclusive (12% VAT)
+        const vatInclusivePrice = sellingPrice * 1.12;
+
+        // Smart rounding
+        let mod5 = vatInclusivePrice % 5;
+        let mod10 = vatInclusivePrice % 10;
+        let roundedPrice = vatInclusivePrice;
+
+        if (mod10 <= 2) {
+            roundedPrice = vatInclusivePrice - mod10 - 1; // move to .99 style
+        } else if (mod5 <= 2.5) {
+            roundedPrice = vatInclusivePrice - mod5;
+        } else {
+            roundedPrice = vatInclusivePrice - mod5;
+        }
+
+        vatInclusiveInput.value = Math.round(roundedPrice);
+    }
+</script>
 <script>
     const decreaseButton = document.getElementById("decreaseQuantity");
     const increaseButton = document.getElementById("increaseQuantity");

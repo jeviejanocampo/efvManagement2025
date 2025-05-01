@@ -44,9 +44,22 @@
             <input type="text" name="part_id" value="{{ $variant->part_id }}" class="w-full px-3 py-2 border rounded-lg">
         </div>
 
+        <!-- Markup Percentage -->
         <div class="mb-4">
-            <label class="block text-gray-700">Price</label>
-            <input type="number" name="price" value="{{ $variant->price }}" class="w-full px-3 py-2 border rounded-lg">
+            <label class="block text-gray-700">Markup Percentage</label>
+            <input type="number" name="markup_percentage" id="markup_percentage" value="{{ $variant->markup_percentage ?? '' }}" readonly class="w-full px-3 py-2 border rounded-lg">
+        </div>
+
+        <!-- VAT Inclusive Price -->
+        <div class="mb-4">
+            <label class="block text-gray-700">VAT Inclusive Price (After Markup)</label>
+            <input type="number" name="vat_inclusive" id="vat_inclusive" value="{{ $variant->vat_inclusive ?? '' }}" readonly class="w-full px-3 py-2 border rounded-lg">
+        </div>
+
+
+        <div class="mb-4">
+            <label class="block text-gray-700">Cost Price</label>
+            <input type="number" name="price" id="price" value="{{ $variant->price }}" class="w-full px-3 py-2 border rounded-lg" oninput="calculateVariantMarkupVAT()">
         </div>
 
         <div class="mb-4">
@@ -83,6 +96,61 @@
     </form>
 </div>
 
+<script>
+    window.onload = function() {
+        @if (session('success'))
+            alert("{{ session('success') }}");
+        @endif
+
+        @if (session('error'))
+            alert("{{ session('error') }}");
+        @endif
+    };
+</script>
+<script>
+    function calculateVariantMarkupVAT() {
+        const priceInput = document.getElementById('price');
+        const markupInput = document.getElementById('markup_percentage');
+        const vatInclusiveInput = document.getElementById('vat_inclusive');
+
+        const price = parseFloat(priceInput.value);
+
+        if (!price || price <= 0) {
+            markupInput.value = '';
+            vatInclusiveInput.value = '';
+            return;
+        }
+
+        let markup = 0;
+
+        if (price >= 1 && price <= 500) {
+            markup = 2;
+        } else if (price >= 501 && price <= 1000) {
+            markup = 5;
+        } else if (price > 1000) {
+            markup = 10;
+        }
+
+        markupInput.value = markup;
+
+        const sellingPrice = price * (1 + (markup / 100));
+        const vatInclusivePrice = sellingPrice * 1.12;
+
+        let mod5 = vatInclusivePrice % 5;
+        let mod10 = vatInclusivePrice % 10;
+        let roundedPrice = vatInclusivePrice;
+
+        if (mod10 <= 2) {
+            roundedPrice = vatInclusivePrice - mod10 - 1;
+        } else if (mod5 <= 2.5) {
+            roundedPrice = vatInclusivePrice - mod5;
+        } else {
+            roundedPrice = vatInclusivePrice - mod5;
+        }
+
+        vatInclusiveInput.value = Math.round(roundedPrice);
+    }
+</script>
 <script>
     function confirmUpdate() {
         if (confirm('Are you sure you want to update this variant?')) {

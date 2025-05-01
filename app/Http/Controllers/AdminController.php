@@ -677,7 +677,7 @@ class AdminController extends Controller
         try {
             // Create the order first (without reference_id generation yet)
             $order = Order::create([
-                'user_id' => $request->customerId,
+                'user_id' => $request->customerId ?? null,
                 'reference_id' => $request->referenceId, // reference_id is still passed here but will be replaced later
                 'total_items' => $request->totalItems,
                 'total_price' => $request->totalPrice,
@@ -902,32 +902,36 @@ class AdminController extends Controller
         $request->validate([
             'product_name' => 'required|string|max:255',
             'part_id' => 'required|string|max:255',
-            'price' => 'required|numeric',
+            'price' => 'required|numeric', // cost price now
+            'markup_percentage' => 'required|numeric',
+            'vat_inclusive' => 'required|numeric',
             'specification' => 'required|string|max:500',
             'description' => 'required|string',
             'stocks_quantity' => 'required|integer',
             'status' => 'required|in:active,inactive',
+            'variant_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
-    
+
         $variant = Variant::where('model_id', $model_id)
-                          ->where('variant_id', $variant_id)
-                          ->first();
-    
+                        ->where('variant_id', $variant_id)
+                        ->first();
+
         if (!$variant) {
             return redirect()->back()->with('error', 'Variant not found.');
         }
-    
-        // Handle Image Upload
+
         if ($request->hasFile('variant_image')) {
-            $imageName = $request->file('variant_image')->getClientOriginalName(); // Get original file name only
+            $imageName = $request->file('variant_image')->getClientOriginalName();
             $request->file('variant_image')->move(public_path('product-images/'), $imageName);
             $variant->variant_image = $imageName;
         }
-    
-        // Update Variant Details
+
         $variant->product_name = $request->product_name;
         $variant->part_id = $request->part_id;
-        $variant->price = $request->price;
+        $variant->cost_price = $request->price; // ✅ Now saving cost price separately
+        $variant->price = $request->vat_inclusive; // ✅ VAT Inclusive becomes official selling price
+        $variant->markup_percentage = $request->markup_percentage;
+        $variant->vat_inclusive = $request->vat_inclusive;
         $variant->specification = $request->specification;
         $variant->description = $request->description;
         $variant->stocks_quantity = $request->stocks_quantity;
@@ -935,11 +939,10 @@ class AdminController extends Controller
 
         ActivityLog::create([
             'user_id' => Auth::id(),
-            'role' => Auth::user()->role, // Get user's role
+            'role' => Auth::user()->role,
             'activity' => "Updated variant #$variant_id of model #$model_id",
         ]);
 
-    
         if ($variant->save()) {
             return redirect()->route('admin.variantsView', ['model_id' => $model_id])->with('success', 'Variant updated successfully.');
         } else {
@@ -979,67 +982,65 @@ class AdminController extends Controller
     public function AdminupdateProduct(Request $request, $model_id)
     {
         try {
-            // Validate the input
             $request->validate([
                 'model_name' => 'required|string|max:255',
                 'brand_name' => 'required|string|max:255',
                 'price' => 'required|numeric',
+                'markup_percentage' => 'required|numeric',
+                'vat_inclusive' => 'required|numeric',
                 'description' => 'nullable|string',
                 'm_part_id' => 'nullable|string',
                 'stocks_quantity' => 'required|integer',
                 'status' => 'required|string',
-                'model_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048' // Image validation
+                'model_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
             ]);
-
-            // Find the product by model_id
+    
             $product = Products::where('model_id', $model_id)->firstOrFail();
-
-            // Track changes
+            $model = Models::where('model_id', $model_id)->firstOrFail();
+    
             $changes = [];
-            foreach (['model_name', 'brand_name', 'price', 'description', 'm_part_id', 'stocks_quantity', 'status'] as $field) {
+            foreach (['model_name', 'brand_name', 'vat_inclusive', 'markup_percentage', 'description', 'm_part_id', 'stocks_quantity', 'status'] as $field) {
                 if ($product->$field != $request->$field) {
                     $changes[] = ucfirst(str_replace('_', ' ', $field)) . " changed from '{$product->$field}' to '{$request->$field}'";
                 }
             }
-
-            // Handle image upload
+    
             if ($request->hasFile('model_img')) {
                 $image = $request->file('model_img');
-                $imageName = $image->getClientOriginalName(); // Keep original filename
+                $imageName = $image->getClientOriginalName();
                 $image->move(public_path('product-images/'), $imageName);
                 $changes[] = "Model image updated";
-
-                // Update model_img field in database
                 $product->model_img = $imageName;
             }
-
-            // Update the product details
+    
             $product->update([
                 'model_name' => $request->model_name,
                 'brand_name' => $request->brand_name,
-                'price' => $request->price,
+                'cost_price' => $request->price, // ✅ Save the entered base cost price here
+                'price' => $request->vat_inclusive, // ✅ Save the computed VAT inclusive here
+                'markup_percentage' => $request->markup_percentage,
+                'vat_inclusive' => $request->vat_inclusive,
                 'description' => $request->description,
                 'm_part_id' => $request->m_part_id,
                 'stocks_quantity' => $request->stocks_quantity,
                 'status' => $request->status,
             ]);
-
-            // Save updated product
-            $product->save();
-
-            // Insert activity log with specific details
+    
+            $model->update([
+                'price' => $request->vat_inclusive,
+            ]);
+    
             ActivityLog::create([
                 'user_id' => Auth::id(),
-                'role' => Auth::user()->role, // Get user's role
-                'activity' => "Updated product #$model_id details: " . implode(', ', $changes),
+                'role' => Auth::user()->role,
+                'activity' => "Updated product and model #$model_id details: " . implode(', ', $changes),
             ]);
-
-            // Return success alert and reload the page
+    
             return "<script>alert('Product updated successfully!'); window.location.href='" . route('admin.viewDetails', ['model_id' => $model_id]) . "';</script>";
         } catch (\Exception $e) {
             return "<script>alert('Error: " . $e->getMessage() . "'); window.history.back();</script>";
         }
-    }
+    }    
 
     public function AdminaddDetails($model_id)
     {

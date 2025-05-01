@@ -35,6 +35,7 @@
                     <th class="border-b px-2 py-1">Part ID</th>
                     <th class="border-b px-2 py-1"></th>
                     <th class="border-b px-2 py-1">Variant Name</th>
+                    <th class="border-b px-2 py-1">Cost Price</th>
                     <th class="border-b px-2 py-1">Unit Price</th>
                     <th class="border-b px-2 py-1">Stock Quantity</th>
                     <th class="border-b px-2 py-1">Status</th>
@@ -51,6 +52,7 @@
                             <img src="{{ asset('product-images/' . $variant->variant_image) }}" alt="Variant Image" class="w-16 h-16 object-cover rounded">
                         </td>
                         <td class="border-b px-2 py-1">{{ $variant->product_name }}</td>
+                        <td class="border-b px-2 py-1">{{ $variant->cost_price }}</td>
                         <td class="border-b px-2 py-1">{{ $variant->price }}</td>
                         <td class="border-b px-2 py-1">{{ $variant->stocks_quantity }}</td>
                         <td class="border-b px-2 py-1 text-center

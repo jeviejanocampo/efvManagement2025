@@ -305,7 +305,7 @@ const POSUtils = (() => {
                 <div class="bg-white rounded-lg p-4 text-center border flex flex-col h-full">
                     <img src="/product-images/${data.variant_image}" class="h-24 w-24 object-cover mx-auto mb-2">
                     <h3 class="text-sm font-semibold">${data.product_name}</h3>
-                    <p class="text-green-600 font-medium mt-1">₱${parseFloat(data.price).toFixed(2)}</p>
+                    <p class="text-green-600 font-medium mt-1">${formatCurrency(data.price)}</p>
                     <p class="text-sm hidden">Model ID: ${data.model_id}</p>
                     <p class="text-sm hidden">Part ID: ${data.part_id}</p>
                     <p class="text-sm hidden">Stocks: ${data.stocks_quantity}</p>
@@ -329,7 +329,7 @@ const POSUtils = (() => {
                 <div class="bg-white rounded-lg p-4 text-center border flex flex-col h-full">
                     <img src="/product-images/${data.model_img}" class="h-24 w-24 object-cover mx-auto mb-2">
                     <h2 class="text-sm font-semibold">${data.model_name}</h2>
-                    <p class="text-green-600 font-medium mt-1">₱${parseFloat(data.price).toFixed(2)}</p>
+                    <p class="text-green-600 font-medium mt-1">${formatCurrency(data.price)}</p>
                     <p class="text-sm hidden">Model ID: ${data.model_id}</p>
                     <p class="text-sm hidden">Part ID: ${partIds}</p>
                     <button class="add-to-order mt-auto bg-black text-white px-3 py-1 flex items-center justify-center gap-2 pt-2 w-full"
@@ -346,6 +346,9 @@ const POSUtils = (() => {
         }
     }
     
+    function formatCurrency(amount) {
+        return '₱' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
     
 
     return {
@@ -384,7 +387,7 @@ const POSUtils = (() => {
             item.innerHTML = `
                 <div class="mb-2">
                     <p class="font-medium text-lg">${name}</p>
-                    <p class="text-green-600 text-lg">₱${price.toFixed(2)}</p>
+                    <p class="text-green-600 text-lg">${formatCurrency(price)}</p>
                     <p class="text-gray-500 text-lg hidden">${idLabel}: ${id}</p>
                     <p class="text-gray-500 text-lg hidden">Part ID: ${partId}</p>
                     ${type === 'variant' ? `<p class="text-gray-500 text-lg hidden">Model ID: ${modelId}</p>` : ''}
@@ -436,7 +439,7 @@ const POSUtils = (() => {
 
         const qtyEl = li.querySelector('.quantity');
         const stockEl = li.querySelector('.stock-info');
-        const subtotalEl = li.querySelector('.subtotal');
+        subtotalEl.textContent = formatCurrency(subtotal);
         const originalStocks = parseInt(li.querySelector('.stock-info').textContent.split(': ')[1]) + parseInt(qtyEl.textContent);
         const price = parseFloat(li.querySelector('.text-green-600').textContent.replace('₱', ''));
 
@@ -559,7 +562,7 @@ function savePNBImage() {
 function saveOrder() {
     const items = document.querySelectorAll('#orderList li');
     const orderData = [];
-    const customerId = document.getElementById('customerSelect').value;
+    let customerId = document.getElementById('customerSelect').value;
     const customerName = document.getElementById('chosenCustomer').textContent;
     const total = parseFloat(document.getElementById('totalAmount').textContent.replace('₱', '').replace(/,/g, '')) || 0;
     const cashInput = document.getElementById('cashInput');
@@ -567,10 +570,8 @@ function saveOrder() {
     const customerSelect = document.getElementById('customerSelect');
     const imageInput = document.getElementById('imageInput'); // Assuming you have an input for the image
 
-    if (!customerSelect.value) {
-        alert('Please select a customer before saving the order.');
-        customerSelect.focus();
-        return;
+    if (!customerId) {
+        customerId = 0;
     }
 
     // ✅ Cash vs Total validation
@@ -619,8 +620,7 @@ function saveOrder() {
         let brandPart = brandName.substring(0, 3).toUpperCase();
         let partSuffix = (partId || mPartId || "000000").slice(-6);
 
-        referenceId = brandPart;
-
+        referenceId = brandPart + partSuffix;
 
         orderData.push({
             model_id: modelId,
@@ -657,7 +657,7 @@ function saveOrder() {
     };
 
     // Send data to Laravel backend via fetch
-    fetch('/save-order-pos', {
+    fetch('/admin-save-order-pos', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -666,6 +666,7 @@ function saveOrder() {
         body: JSON.stringify(payload)
     })
     .then(response => response.json())
+    
 
     .then(data => {
         if (data.success) {
@@ -682,6 +683,10 @@ function saveOrder() {
                 let isTransferPayment = ['gcash', 'pnb'].includes(data.order.payment_method.toLowerCase());
                 let amountLabel = isTransferPayment ? "Amount Transferred" : "Amount Paid";
                 let amountValue = isTransferPayment ? data.order.total_price : data.order.cash_received;
+
+                const vatAmountDisplay = (data.order.total_price * 0.12).toFixed(2);
+                const vatableSalesDisplay = (data.order.total_price - (data.order.total_price * 0.12)).toFixed(2);
+
         
                 // Create a custom HTML structure for the order details report
                 let orderDetailsHTML = `
@@ -701,11 +706,11 @@ function saveOrder() {
                         </tr>
                         <tr>
                             <td><strong>Cash Received:</strong></td>
-                            <td>₱${data.order.cash_received}</td>
+                            <td>${formatCurrency(data.order.cash_received)}</td>
                         </tr>
                         <tr>
                             <td><strong>Change:</strong></td>
-                            <td>₱${data.order.customers_change}</td>
+                            <td>${formatCurrency(data.order.customers_change)}</td>
                         </tr>
                         <tr>
                             <td><strong>Payment Method:</strong></td>
@@ -733,32 +738,40 @@ function saveOrder() {
                                     <td class="border px-4 py-2">${item.product_name}</td>
                                     <td class="border px-4 py-2">${item.brand_name}</td>
                                     <td class="border px-4 py-2">${item.quantity}</td>
-                                    <td class="border px-4 py-2">₱${item.price}</td>
-                                    <td class="border px-4 py-2">₱${item.total_price}</td>
+                                    <td class="border px-4 py-2">${formatCurrency(item.price)}</td>
+                                    <td class="border px-4 py-2">${formatCurrency(item.total_price)}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     </table>
 
                   <div style="margin-top: 20px; width: 250px; margin-left: auto; font-size: 0.875rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <div><strong>Total Items:</strong></div>
-                        <div>${data.order.total_items}</div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <div><strong>Total Items:</strong></div>
+                            <div>${data.order.total_items}</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <div><strong>Sub Total:</strong></div>
+                            <div>${formatCurrency(data.order.total_price)}</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <div><strong>VAT Amount (12%):</strong></div>
+                            <div>${formatCurrency(vatAmountDisplay)}</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <div><strong>VATable Sales:</strong></div>
+                            <div>${formatCurrency(vatableSalesDisplay)}</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <div><strong>${amountLabel}:</strong></div>
+                            <div>${formatCurrency(amountValue)}</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <div><strong>Change:</strong></div>
+                            <div>${formatCurrency(data.order.customers_change)}</div>
+                        </div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <div><strong>Total Price:</strong></div>
-                        <div>₱${data.order.total_price}</div>
-                    </div>
-                    
-                     <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <div><strong>${amountLabel}:</strong></div>
-                        <div>₱${amountValue}</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <div><strong>Change:</strong></div>
-                        <div>₱${data.order.customers_change}</div>
-                    </div>
-                </div>
+
 
                     <hr class="my-4" />
                     <h4 class="text-center font-semibold">Thank you for your purchase!</h4>
@@ -798,6 +811,11 @@ function saveOrder() {
             });
         }
     });
+
+    function formatCurrency(amount) {
+        return '₱' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+      }
+      
     
     
 
