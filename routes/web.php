@@ -87,6 +87,8 @@ Route::middleware(['staff'])->group(function () {
     Route::get('/refund-report-details-view/{order_id}/{reference_id?}', [RefundOrderController::class, 'RefundDetailsView'])->name('refund.view.details');
 
     Route::get('/staff/payment-image/{order_id}/{payment_method}', [OrderController::class, 'StaffgetPaymentImage']);
+
+    Route::get('/staff/payment-image/{order_id}/{payment_method}', [RefundOrderController::class, 'StaffgetPaymentImage']);
     
 
 });
@@ -175,7 +177,7 @@ Route::post('/staff/signup', [StaffController::class, 'signup'])->name('staff.si
 Route::post('/staff/login', [StaffController::class, 'StaffLogin'])->name('staff.login.submit');
 
 Route::get('/staff/dashboard', function () {
-    return view('staff.dashboard.staffMain');
+    return view('staff.dashboard.StaffMain');
 })->name('staff.dashboard');
 
 
@@ -586,6 +588,7 @@ Route::get('/stock-clerk/main/dashboard', function () {
 
     Route::get('/manager/export-sales-report', [ActivityLogController::class, 'exportSalesReport'])->name('manager.exportSalesReport');
 
+    Route::get('/manager/refund-log', [RefundOrderController::class, 'ManagerviewRefundLog'])->name('manager.refund.log');
 
 });
 //

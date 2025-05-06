@@ -26,9 +26,32 @@
         
             <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
 
-            <div class="flex justify-center items-center text-2xl font-bold">
-            <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" style="width: 128px;" class="ml-2 rounded-full">
-                <!-- <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Admin Panel</a></p> -->
+            <div class="flex items-center space-x-3 text-white font-bold bg-gray-600 p-3 rounded-lg">
+                <!-- Profile Image -->
+                <img class="w-12 h-12 rounded-full" src="{{ asset('product-images/adminlogo.png') }}" alt="Profile">
+
+                <!-- Name and Manager -->
+                <div class="flex flex-col leading-tight">
+                    <span class="text-sm">{{ Auth::user()->name ?? 'Guest' }}</span>
+
+                    <!-- Manager + Dropdown -->
+                    <div class="flex items-center space-x-1">
+                        <span class="text-sm">Admin</span>
+                        <button onclick="toggleDropdown()" class="text-sm">
+                            &#9662;
+                        </button>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div id="dropdownMenu" class="absolute mt-12 bg-white text-black rounded shadow-md hidden z-50">
+                        <form action="{{ route('admin.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-gray-200 text-sm">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
             <!-- Navigation -->
             <nav class="space-y-7">
@@ -166,21 +189,7 @@
                     </div>                </div>
 
                 <div class="relative flex items-center space-x-4">
-                        <!-- Greeting -->
-                        <div class="text-white">
-                            <h2 class="text-lg font-semibold">
-                                Good day, {{ Auth::user()->name ?? 'Guest' }}!
-                            </h2>
-                        </div>
-
-                        <!-- Profile Button -->
-                        <button onclick="toggleDropdown()" class="flex items-center space-x-2 focus:outline-none">
-                            <img class="w-8 h-8 rounded-full" src="{{ asset('product-images/adminlogo.png') }}" alt="Profile">
-                            <!-- <span class="hidden sm:inline">Profile</span> -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5.292 7.292a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0-01-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
+                        
 
                         <!-- Dropdown -->
                         <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg  hidden opacity-0 transform scale-95 transition-all duration-200">
@@ -201,7 +210,7 @@
         </div>
     </div>
 
-    <script>
+<script>
     document.addEventListener("DOMContentLoaded", function () {
         const navLinks = document.querySelectorAll("#sidebar nav a");
 

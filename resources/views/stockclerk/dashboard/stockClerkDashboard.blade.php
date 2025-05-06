@@ -30,9 +30,34 @@
             <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
             <div class="text-2xl font-bold">
 
-            <div class="flex justify-center items-center text-2xl font-bold">
-                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-32 ml-1 rounded-full">
+            <div class="flex items-center space-x-3 text-white font-bold p-3 rounded-lg bg-gray-600 ">
+                <!-- Profile Image -->
+                <img class="w-12 h-12 rounded-full" src="{{ asset('product-images/adminlogo.png') }}" alt="Profile">
+
+                <!-- Name and Manager -->
+                <div class="flex flex-col leading-tight">
+                    <span class="text-sm">{{ Auth::user()->name ?? 'Guest' }}</span>
+
+                    <!-- Manager + Dropdown -->
+                    <div class="flex items-center space-x-1">
+                        <span class="text-sm">Stock Clerk</span>
+                        <button onclick="toggleDropdown()" class="text-sm">
+                            &#9662;
+                        </button>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div id="dropdownMenu" class="absolute mt-12 bg-white text-black rounded shadow-md hidden z-50">
+                        <form action="{{ route('stockclerk.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-gray-200 text-sm">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
+            
                 <!-- <p style="margin-top: 8px; text-align: center"><a href="#" class="text-white">Stock Clerk Panel</a></p> -->
                 <!-- <p class="border-b border-b-[1px] border-white mt-2">
                      Your content here 
@@ -40,18 +65,18 @@
             </div>
             
             <!-- Navigation -->
-            <nav class="space-y-4">
+            <nav class="space-y-6">
                 <p class="text-white text-1xl font-bold">Main</p>
 
-                <a href="{{ route('stockclerk.dashboard.page') }}" class="flex items-center text-white hover:text-white gap-2">
-                <span class="bg-gray-600 p-2 rounded-lg">
+                <!-- <a href="{{ route('stockclerk.dashboard.page') }}" class="flex items-center text-white hover:text-white gap-2">
+                <span class="p-2 rounded-lg">
                     <i class="fas fa-bars"></i>
                 </span>
                     Dashboard
-                </a>
+                </a> -->
                 
                 <a href="{{ route('stockoverView') }}" class="flex items-center text-white hover:text-white relative gap-2 ">
-                    <span class="bg-gray-600 p-2 rounded-lg">
+                    <span class="p-2 rounded-lg">
                         <i class="fas fa-box"></i> 
                     </span>
                     Requests
@@ -75,20 +100,22 @@
                 </a> -->
 
                 <div class="">
-                    <button onclick="toggleProducts()" class="flex items-center justify-between w-full text-white hover:text-white focus:outline-none">
-                        <div class="flex items-center  gap-2">
-                        <span class="bg-gray-600 p-2 rounded-lg">
-                            <i class="fas fa-eye"></i>
+                    <button onclick="toggleProducts()" class="flex items-center ml-2 mb-4 justify-between w-full text-white hover:text-white focus:outline-none">
+                        <div class="flex items-center">
+                        <span class="rounded-lg">
+                            <i class="fas fa-eye mr-1"></i>
+                            View
+
                         </span>
-                             View
                         </div>
                             <i id="products-arrow" class="fas fa-chevron-down transition-transform duration-300"></i>
                     </button>
 
                     <!-- Submenu -->
-                    <div id="products-submenu" class="ml-2 mt-2 space-y-8 overflow-hidden max-h-0 transition-all duration-300">
-                            <a href="{{ route('productsView') }}" class="flex items-center text-sm text-white hover:text-white mt-2 ">
-                            <i class="fas fa-box mr-2"></i>
+                    <div id="products-submenu" class="ml-3 mt-2 space-y-6 mb-4 overflow-hidden max-h-0 transition-all duration-300">
+
+                            <a href="{{ route('productsView') }}" class="flex items-center text-sm text-white hover:text-white ">
+                            <i class="fas fa-box mr-3"></i>
                                  Products
                             </a>
                             <!-- <a href="{{ route('add.product') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
@@ -100,17 +127,17 @@
                             <!-- <a href="{{ route('stockclerk.add.category') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
                                 <i class="fas fa-folder-plus mr-2"></i> Add Category
                             </a> -->
-                            <a href="{{ route('stockclerk.view.brands') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
+                            <a href="{{ route('stockclerk.view.brands') }}" class="flex items-center text-sm text-white hover:text-white">
                                 <i class="fas fa-eye mr-2"></i> View Brands
                             </a>
-                            <a href="{{ route('stockclerk.view.category') }}" class="flex items-center text-sm text-white hover:text-white mt-6 ">
+                            <a href="{{ route('stockclerk.view.category') }}" class="flex items-center text-sm text-white hover:text-white  ">
                                 <i class="fas fa-eye mr-2"></i> View Categories
                             </a>
                     </div>
                 </div>
 
                 <a href="{{ route('stockclerkLow') }}" class="flex items-center text-white hover:text-white  gap-2">
-                    <span class="bg-gray-600 p-2 rounded-lg">
+                    <span class="p-2 rounded-lg">
                         <i class="fas fa-exclamation-triangle"></i>
                     </span>
                     Low Stocks
@@ -127,7 +154,7 @@
 
                 <p class="text-white text-1xl font-bold">Activity</p>
                 <a href="{{ route('Stocklogs') }}" class="flex items-center text-white hover:text-white gap-2">
-                <span class="bg-gray-600 p-2 rounded-lg">
+                <span class="p-2 rounded-lg">
                     <i class="fas fa-book"></i>
                 </span>
                     Stock Clerk Log
@@ -162,13 +189,12 @@
                     </div>
                 </div>
                 <div class="relative flex items-center space-x-4">
-                    <!-- Greeting -->
-                    <div class="text-white">
+
+                    <!-- <div class="text-white">
                         <h2 class="text-1xl font-semibold text-right">{{ Auth::user()->name ?? 'Guest' }}</h2>
                         <h2 class="text-1xl font-semibold">Stock Clerk</h2>
                     </div>
 
-                    <!-- Profile Button -->
                     <button onclick="toggleDropdown()" class="flex items-center space-x-2 focus:outline-none">
                         <img class="w-10 h-10 rounded-full" src="{{ asset('product-images/adminlogo.png') }}" alt="Profile">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-6" viewBox="0 0 20 20" fill="currentColor">
@@ -177,14 +203,14 @@
                         </svg>
                     </button>
 
-                    <!-- Dropdown -->
                     <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg hidden opacity-0 transform scale-95 transition-all duration-200">
                     <form action="{{ route('stockclerk.logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-gray-200">
                             Logout
                         </button>
-                    </form>                    </div>
+                    </form>                    
+                    </div> -->
                 </div>
             </header>
 

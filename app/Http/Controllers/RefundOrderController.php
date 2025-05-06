@@ -10,6 +10,8 @@ use App\Models\RefundOrder;
 use App\Models\OrderReference;
 use App\Models\RefundLog;
 use App\Models\OrderDetail;
+use App\Models\GcashPayment;
+use App\Models\PnbPayment;
 use Illuminate\Http\Request;
 
 class RefundOrderController extends Controller
@@ -20,6 +22,24 @@ class RefundOrderController extends Controller
         $orders = Order::with('customer')->get();
 
         return view('staff.content.RequestForm', compact('orders'));
+    }
+
+    public function StaffgetPaymentImage($order_id, $payment_method)
+    {
+        if ($payment_method == 'gcash') {
+            $payments = \App\Models\GcashPayment::where('order_id', $order_id)->get();
+        } elseif ($payment_method == 'pnb') {
+            $payments = \App\Models\PnbPayment::where('order_id', $order_id)->get();
+        } else {
+            return response()->json(['success' => false]);
+        }
+
+        if ($payments->isNotEmpty()) {
+            $images = $payments->pluck('image'); // Collect only image names
+            return response()->json(['success' => true, 'images' => $images]);
+        }
+
+        return response()->json(['success' => false]);
     }
 
     public function store(Request $request)
@@ -180,6 +200,12 @@ class RefundOrderController extends Controller
     {
         $logs = RefundLog::with('user')->orderBy('refunded_at', 'desc')->paginate(11); // 10 items per page
         return view('staff.content.RefundLog', compact('logs'));
+    }
+
+    public function ManagerviewRefundLog()
+    {
+        $logs = RefundLog::with('user')->orderBy('refunded_at', 'desc')->paginate(11); // 10 items per page
+        return view('manager.content.ManagerRefundLog', compact('logs'));
     }
     
 

@@ -31,11 +31,24 @@
         <img id="preview" class="w-32 h-32 object-cover rounded-lg" alt="Image Preview">
     </div>
 
-    <!-- SRP -->
+  <!-- Unit Price -->
     <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700">Unit Price</label>
-        <input type="number" name="price" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" required>
+        <label class="block text-sm font-medium text-gray-700">Unit Price (Cost Price)</label>
+        <input type="number" name="price" id="price" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" required oninput="calculateMarkupAndVAT()">
     </div>
+
+    <!-- Auto-calculated Markup Percentage -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Markup Percentage</label>
+        <input type="number" name="markup_percentage" id="markup_percentage" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" readonly>
+    </div>
+
+    <!-- Auto-calculated VAT Inclusive Price -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">VAT Inclusive Price (After Markup)</label>
+        <input type="number" name="vat_inclusive" id="vat_inclusive" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" readonly>
+    </div>
+
 
      <!-- Select Brand -->
      <div class="mb-4">
@@ -76,6 +89,61 @@
 </form>
 
 </div>
+
+
+<script>
+    function calculateMarkupAndVAT() {
+        const priceInput = document.getElementById('price');
+        const markupInput = document.getElementById('markup_percentage');
+        const vatInclusiveInput = document.getElementById('vat_inclusive');
+
+        const price = parseFloat(priceInput.value);
+
+        if (!price || price <= 0) {
+            markupInput.value = '';
+            vatInclusiveInput.value = '';
+            return;
+        }
+
+        let markup = 0;
+
+        // Set markup based on price range
+        if (price >= 1 && price <= 500) {
+            markup = 2;
+        } else if (price >= 501 && price <= 1000) {
+            markup = 5;
+        } else if (price > 1000) {
+            markup = 10;
+        }
+
+        markupInput.value = markup; // Set markup %
+
+        // Calculate selling price after markup
+        const sellingPrice = price * (1 + (markup / 100));
+
+        // Add VAT
+        const vatInclusivePrice = sellingPrice * 1.12;
+
+        // Now custom rounding logic
+        let roundedPrice = 0;
+        const mod5 = vatInclusivePrice % 5;
+        const mod10 = vatInclusivePrice % 10;
+
+        if (mod10 <= 2) {
+            // example 701, 711
+            roundedPrice = vatInclusivePrice - mod10 - 1; // move to nearest ending with 9 (like 699, 709, 719)
+        } else if (mod5 <= 2.5) {
+            // Close to lower 5
+            roundedPrice = vatInclusivePrice - mod5;
+        } else {
+            // Otherwise lower to nearest multiple of 5
+            roundedPrice = vatInclusivePrice - mod5;
+        }
+
+        vatInclusiveInput.value = Math.round(roundedPrice); // show whole number
+    }
+</script>
+
 
 <script>
     function previewImage(event) {

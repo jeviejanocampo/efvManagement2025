@@ -162,7 +162,7 @@
                             {{ $product->brand->brand_name ?? 'N/A' }}
                         </td>
                         <td class="border-b px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
-                        <td class="border-b px-2 py-1 text-center">₱ {{ $product->price }}</td>
+                        <td class="border-b px-2 py-1 text-center">₱ {{ number_format($product->price, 2) }}</td>
                         <td class="border-b px-2 py-1 relative text-center">
                             @php
                                 $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');

@@ -53,7 +53,7 @@
 
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Price:</label>
-            <p class="px-3 py-2 border bg-gray-100 rounded-lg">${{ $model->price }}</p>
+            <p class="px-3 py-2 border bg-gray-100 rounded-lg">₱ {{ $model->price }}</p>
         </div>
 
         <div class="mb-4">

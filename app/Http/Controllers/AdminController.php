@@ -1409,8 +1409,8 @@ class AdminController extends Controller
         return view('admin.content.AdminRequestForm', compact('orders'));
     }
 
-     public function AdminstoreForm(Request $request)
-     {
+    public function AdminstoreForm(Request $request)
+    {
         // Set user_id to 0 if null
         $request->merge([
             'user_id' => $request->input('user_id') ?? 0,

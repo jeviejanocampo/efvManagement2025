@@ -1,4 +1,4 @@
-@extends('staff.dashboard.staffMain')
+@extends('staff.dashboard.StaffMain')
 
 @section('content')
 <style>

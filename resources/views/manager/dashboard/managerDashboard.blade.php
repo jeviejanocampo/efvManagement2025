@@ -25,8 +25,33 @@
 
 
             <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
-            <div class="flex justify-center items-center text-2xl font-bold">
-                <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-32 ml-2 rounded-full">
+
+            <div class="flex items-center space-x-3 text-white font-bold bg-gray-600 p-3 rounded-lg">
+                <!-- Profile Image -->
+                <img class="w-12 h-12 rounded-full" src="{{ asset('product-images/adminlogo.png') }}" alt="Profile">
+
+                <!-- Name and Manager -->
+                <div class="flex flex-col leading-tight">
+                    <span class="text-sm">{{ Auth::user()->name ?? 'Guest' }}</span>
+
+                    <!-- Manager + Dropdown -->
+                    <div class="flex items-center space-x-1">
+                        <span class="text-sm">Manager</span>
+                        <button onclick="toggleDropdown()" class="text-sm">
+                            &#9662;
+                        </button>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div id="dropdownMenu" class="absolute mt-12 bg-white text-black rounded shadow-md hidden z-50">
+                        <form action="{{ route('manager.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-gray-200 text-sm">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
 
@@ -117,6 +142,12 @@
                     <i class="fas fa-clipboard-list mr-3"></i>
                     <span class="text-sm"> Activity Log </span>
                 </a>
+
+                <a href="{{ route('manager.refund.log') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
+                        <i class="fa-solid fa-book text-gray-200 ml-1"></i>
+                    <span class="text-sm">  Refund Activity Log </span>
+                </a>
+                
             </nav>
         </div>
 
@@ -143,20 +174,11 @@
                     </div>
                 </div>
                 <div class="relative flex items-center space-x-4">
-                    <!-- Greeting -->
-                    <div class="text-white">
-                        <h2 class="text-sm font-Regular text-right">{{ Auth::user()->name ?? 'Guest' }}</h2>
-                        <h2 class="text-sm font-semibold">Manager</h2>
-                    </div>
+                    
+                    <!-- <img src="{{ asset('product-images/efvlogo.png') }}" alt="EFV Logo" class="w-14 ml-2 rounded-full"> -->
 
-                    <!-- Profile Button -->
-                    <button onclick="toggleDropdown()" class="flex items-center space-x-2 focus:outline-none">
-                        <img class="w-10 h-10 rounded-full" src="{{ asset('product-images/adminlogo.png') }}" alt="Profile">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-6" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5.292 7.292a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 
-                            1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0-01-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
+                    <!-- Greeting -->
+                   
 
                     <!-- Dropdown -->
                     <div id="dropdownMenu" class="absolute right-0 mt-20 w-48 bg-white text-gray-900 rounded-lg hidden opacity-0 transform scale-95 transition-all duration-200">
@@ -209,21 +231,30 @@
     document.addEventListener("DOMContentLoaded", function () {
         const navLinks = document.querySelectorAll("#sidebar nav a");
 
-        // Function to update active link state
         function setActiveLink(clickedLink) {
             navLinks.forEach(link => {
-                link.classList.remove("text-white", "bg-gray-100", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
-                link.classList.add("text-white", "hover:text-white"); // Add hover effect back to non-active links
+                link.classList.remove("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+                link.classList.add("text-white", "hover:text-white"); 
+
+                const icon = link.querySelector("i");
+                if (icon) {
+                    icon.classList.remove("text-black");
+                    icon.classList.add("text-white");
+                }
             });
 
-            clickedLink.classList.add("text-black", "bg-gray-100", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
-            clickedLink.classList.remove("text-white", "hover:text-white"); // Remove hover effect from active link
+            clickedLink.classList.add("text-white", "bg-gray-600", "shadow-md", "scale-105", "font-bold", "rounded-[12px]", "p-4");
+            clickedLink.classList.remove("text-white", "hover:text-white");
 
-            // Store the active link in localStorage to persist highlight
+            const activeIcon = clickedLink.querySelector("i");
+            if (activeIcon) {
+                activeIcon.classList.remove("text-white");
+                activeIcon.classList.add("text-white");
+            }
+
             localStorage.setItem("activeNav", clickedLink.getAttribute("href"));
         }
 
-        // Check if there is a stored active link in localStorage
         const storedActiveLink = localStorage.getItem("activeNav");
         if (storedActiveLink) {
             const activeElement = [...navLinks].find(link => link.getAttribute("href") === storedActiveLink);
@@ -232,7 +263,6 @@
             }
         }
 
-        // Add click event listener to each nav link
         navLinks.forEach(link => {
             link.addEventListener("click", function () {
                 setActiveLink(this);

@@ -281,9 +281,24 @@
                     $completedTotal = $orderDetails->where('product_status', 'Completed')->sum(function ($detail) {
                         return $detail->quantity * $detail->price;
                     });
+
+                    
+                    $vatRate = 0.12;
+                    $vatableSales = $completedTotal / (1 + $vatRate);
+                    $vatAmount = $completedTotal - $vatableSales;
+
+
                 @endphp
 
+                <div class="flex justify-between">
+                    <span class="text-gray-400 mr-24">VATable Sales:</span>
+                    <span class="text-gray-700">₱ {{ number_format($vatableSales, 2) }}</span>
+                </div>
 
+                <div class="flex justify-between border-b border-gray pb-4">
+                    <span class="text-gray-400">VAT (12%):</span>
+                    <span class="text-gray-700">₱ {{ number_format($vatAmount, 2) }}</span>
+                </div>
 
                 <div class="flex justify-between">
                     <span class="text-gray-800">Updated Total Amount:</span>
