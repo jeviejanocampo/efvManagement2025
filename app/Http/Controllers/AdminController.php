@@ -324,26 +324,29 @@ class AdminController extends Controller
 
     public function Admindetails($order_id, Request $request)
     {
-        // Fetch the order by ID
         $order = Order::find($order_id);
         if (!$order) {
             abort(404, 'Order not found');
         }
 
-        // Fetch the reference_id from the reference_order table based on the order_id
         $reference_order = OrderReference::where('order_id', $order_id)->first();
         $reference_id = $reference_order ? $reference_order->reference_id : null;
 
-        // Fetch order details
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
-
-        // Fetch the model image for each order detail
         foreach ($orderDetails as $detail) {
             $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
         }
-    
 
-        return view('admin.content.AdminOverviewDetails', compact('order', 'orderDetails', 'reference_id'));
+        $gcashPayment = GcashPayment::where('order_id', $order_id)->first();
+        $pnbPayment = PnbPayment::where('order_id', $order_id)->first();
+
+        return view('admin.content.AdminOverviewDetails', compact(
+            'order', 
+            'orderDetails', 
+            'reference_id', 
+            'gcashPayment', 
+            'pnbPayment'
+        ));
     }
     
     public function getPaymentImage($order_id, $payment_method)
@@ -364,8 +367,41 @@ class AdminController extends Controller
         return response()->json(['success' => false]);
     }
 
-        
+    public function AdminupdatePaymentStatus(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,order_id',
+            'status' => 'required|string|in:Cancelled,Inactive,Active,Completed',
+        ]);
+    
+        // Use where('order_id', ...) since 'order_id' is not the primary key
+        $order = Order::where('order_id', $request->order_id)->first();
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order not found.');
+        }
+    
+        $paymentMethod = strtolower($order->payment_method);
+    
+        if ($paymentMethod === 'gcash') {
+            $payment = GcashPayment::where('order_id', $order->order_id)->first();
+        } elseif ($paymentMethod === 'pnb') {
+            $payment = PnbPayment::where('order_id', $order->order_id)->first();
+        } else {
+            return redirect()->back()->with('error', 'Unsupported payment method.');
+        }
+    
+        if (!$payment) {
+            return redirect()->back()->with('error', 'Payment record not found.');
+        }
+    
+        $payment->status = $request->status;
+        $payment->save();
+    
+        return redirect()->back()->with('success', 'Payment status updated successfully.');
+    }
+    
 
+        
     public function AdmineditDetails($order_id)
     {
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();

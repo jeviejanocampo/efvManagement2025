@@ -278,10 +278,12 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/admin/refund-log', [AdminController::class, 'AdminviewRefundLog'])->name('admin.refund.log');
     
     Route::get('/admin/payment-image/{order_id}/{payment_method}', [AdminController::class, 'getPaymentImage']);
-
+    
 
 
 });
+
+Route::post('/admin/update-payment-status', [AdminController::class, 'AdminupdatePaymentStatus'])->name('admin.updatePaymentStatus');
 
 Route::post('/admin/save-gcash-payment', [AdminController::class, 'saveGcashPayment'])->name('admin.saveGcashPayment');
 

@@ -870,26 +870,29 @@ class OrderController extends Controller
 
     public function details($order_id, Request $request)
     {
-        // Fetch the order by ID
         $order = Order::find($order_id);
         if (!$order) {
             abort(404, 'Order not found');
         }
 
-        // Fetch the reference_id from the reference_order table based on the order_id
         $reference_order = OrderReference::where('order_id', $order_id)->first();
         $reference_id = $reference_order ? $reference_order->reference_id : null;
 
-        // Fetch order details
         $orderDetails = OrderDetail::where('order_id', $order_id)->get();
-
-        // Fetch the model image for each order detail
         foreach ($orderDetails as $detail) {
             $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
         }
 
-        // Pass the data to the view
-        return view('staff.content.staffOverviewDetails', compact('order', 'orderDetails', 'reference_id'));
+        $gcashPayment = GcashPayment::where('order_id', $order_id)->first();
+        $pnbPayment = PnbPayment::where('order_id', $order_id)->first();
+
+        return view('staff.content.staffOverviewDetails', compact(
+            'order', 
+            'orderDetails', 
+            'reference_id', 
+            'gcashPayment', 
+            'pnbPayment'
+        ));
     }
 
 

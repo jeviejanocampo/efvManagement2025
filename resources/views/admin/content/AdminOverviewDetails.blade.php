@@ -7,6 +7,9 @@
      font-size: 12px;
     }
     @media print {
+        body{
+            zoom: 70%;
+        }
         .no-print {
             display: none !important;
         }
@@ -111,7 +114,7 @@
     } else {
         $formattedRefId = 'N/A';
     }
-@endphp -->
+    @endphp -->
 
              @if ($latestOrderDetail)
                 <p style="font-size: 18px; font-weight: 700;">
@@ -162,7 +165,8 @@
         <div class="mt-4 grid grid-cols-2 gap-6">
         <!-- Left Grid - User Details and Payment Method -->
 
-        <div class="space-y-6 no-print">
+        <div class="space-y-4 no-print">
+
             <p style="font-size: 14px">
                 USER DETAILS:
                 <a href="#" 
@@ -174,31 +178,81 @@
 
             <p style="font-size: 14px; padding-top: 4px;"> 
                 <div class="flex items-center space-x-4">
-                    PAYMENT METHOD: {{ $order->payment_method }}
-                    
-                    <!-- Conditional Image Display for Payment Method -->
+                    <span class="font-semibold">PAYMENT METHOD: {{ $order->payment_method }}</span>
+
                     @php
                         $paymentMethod = Str::lower($order->payment_method);
                     @endphp
 
-                    @if($paymentMethod == 'gcash')
-                        <img src="{{ asset('product-images/gcashlogo.png') }}" alt="GCash Logo" style="width: 52px; height: 52px; margin-left: 10px;">
-                    @elseif($paymentMethod == 'pnb')
-                        <img src="{{ asset('product-images/pnblogo.png') }}" alt="PNB Logo" style="width: 52px; height: 52px; margin-left: 10px;">
-                    @endif
-
-                    <!-- Edit Payment Method Icon -->
-                    <span class="cursor-pointer" onclick="openPaymentMethodModal()" title="Edit Payment Method">
-                        <i class="fas fa-edit text-yellow-800"></i> 
-                    </span>
                 </div>
             </p>
+
+            @if($paymentMethod == 'gcash')
+
+                <img src="{{ asset('product-images/gcashlogo.png') }}" alt="GCash Logo" style="width: 52px; height: 52px; margin-left: 10px; margin-bottom: 12px">
+
+                @if(isset($gcashPayment))
+
+                    <span class="font-semibold">GCash Status:</span> 
+                    <span class="text-blue-800 font-medium">{{ $gcashPayment->status }}</span>
+
+                @endif
+
+            @elseif($paymentMethod == 'pnb')
+
+                <img src="{{ asset('product-images/pnblogo.png') }}" alt="PNB Logo" style="width: 52px; height: 52px; margin-left: 10px; margin-bottom: 12px">
+
+                @if(isset($pnbPayment))
+
+                    <span class="font-semibold">PNB Status:</span> 
+                    <span class="text-blue-800 font-medium">{{ $pnbPayment->status }}</span>
+                @endif
+
+            @endif
+
+            <!-- Edit Payment Method Icon -->
+            <span class="cursor-pointer" onclick="openPaymentMethodModal()" title="Edit Payment Method">
+                <i class="fas fa-edit text-yellow-800"></i>
+            </span>
+
+            <!-- Edit Payment Status Icon -->
+            <span class="cursor-pointer" onclick="document.getElementById('editStatusModal').classList.remove('hidden')" title="Edit Payment Status">
+                <i class="fas fa-pen text-red-600"></i>
+            </span>
+
+            <!-- Payment Status Modal -->
+            <div id="editStatusModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white p-6 rounded-lg w-full max-w-sm shadow-xl">
+                    <h2 class="text-lg font-semibold mb-4 text-gray-800">Update Payment Status</h2>
+
+                    <form method="POST" action="{{ route('admin.updatePaymentStatus') }}">
+                        @csrf
+                        <input type="hidden" name="order_id" value="{{ $order->order_id }}">
+
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Select Status:</label>
+                        <select name="status" id="status" class="w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Active">Active</option>
+                            <option value="Completed">Confirmed</option>
+                        </select>
+
+                        <div class="mt-6 flex justify-end space-x-4">
+                            <button type="button" onclick="document.getElementById('editStatusModal').classList.add('hidden')" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+
 
            
         </div>
 
         <!-- Right Grid - View Gcash/Pnb Payment Method -->
-        <div class="flex justify-end items-center">
+        <div class="flex justify-end items-center no-print">
             @php
                 $paymentMethod = Str::lower($order->payment_method);
             @endphp
@@ -293,7 +347,7 @@
     </div>
 
     <!-- Order Details Table -->
-    <div class ="bg-white p-4 border-b border-gray pb-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
+    <div class ="bg-white p-4 border-b border-gray pb-4 ">
 
         <div class="flex justify-between items-center">
             <h3 class="text-l font-semibold">Product Details</h3>
@@ -313,20 +367,20 @@
             <thead>
                 <thead>
                     <tr class="bg-gray-50 text-sm">
-                        <th class="border-b border-gray-300 px-2 py-1">Status</th>
-                        <th class="border-b border-gray-300 px-2 py-1"></th>
+                        <th class="border-b border-gray-300 px-2 py-1 no-print">Status</th>
+                        <th class="border-b border-gray-300 px-2 py-1 no-print"></th>
                         <th class="border-b border-gray-300 px-2 py-1">Product Name</th>
                         <th class="border-b border-gray-300 px-2 py-1">Brand</th>
                         <th class="border-b border-gray-300 px-2 py-1">Quantity</th>
                         <th class="border-b border-gray-300 px-2 py-1">Unit Price</th>
                         <th class="border-b border-gray-300 px-2 py-1">SubTotal</th>
-                        <th class="border-b border-gray-300 px-2 py-1">Action</th>
+                        <th class="border-b border-gray-300 px-2 py-1 no-print">Action</th>
                     </tr>
             </thead>
             <tbody>
                 @foreach ($orderDetails as $detail)
-                    <tr class="border border-white  ">
-                    <td class=" px-5 py-1">
+                    <tr class="border border-white">
+                    <td class=" px-5 py-1 no-print">
                             @if($detail->product_status === 'pending')
                                 <span class="bg-red-500 text-white px-5 py-1 rounded-full text-sm">Reserved</span>
                             @elseif($detail->product_status === 'pre-order')
@@ -344,7 +398,7 @@
                             @endif
                         <span style="display: none">{{ $detail->order_detail_id }}</span>
                     </td>
-                    <td class=" px-5 py-1">
+                    <td class=" px-5 py-1 no-print">
                         @if ($detail->model_image)
                             <img src="{{ asset('product-images/' . $detail->model_image) }}" alt="{{ $detail->product_name }}" width="100">
                         @else
@@ -380,51 +434,55 @@
 
     </div>
 
-    <div class="bg-white p-6 shadow-lg rounded-lg">
-        <div class="flex justify-end">
+    <div class="flex justify-end p-4 mt-4">  
+        <div class="space-y-4 gap-10">
 
-            <!-- Content inside the parent div -->
-            <div class="space-y-4 gap-10">
+            <div class="text-2xl font-bold text-gray-700 pb-2">Summary</div>
 
-                <div class="text-2xl font-bold text-black pb-2">Overview</div>
-
-
-                <div class="flex justify-between">
-                    <p class="text-lg font-semibold">
-                    <span class="text-black mr-28"> TOTAL ITEMS: </span>
-                    <span class="text-gray-700"> {{ $order->total_items }}</span>
-                    </p>
-                </div>
-
-                @if($order->status === 'Completed')
-                    <div class="flex justify-between">
-                        <p class="text-lg font-semibold">
-                        <span class="text-black mr-24"> Total: </span>
-                        <span class="text-gray-700"> ₱ {{ number_format($order->total_price, 2) }}</span>
-                        </p>
-                    </div>
-                @elseif($order->status === 'Cancelled')
-                    <div class="flex justify-between">
-                        <p class="text-lg">
-                            (Cancelled)
-                        </p>
-                    </div>
-                @else
-                    <div class="flex justify-between">
-                        <p class="text-lg font-semibold">
-                        <span class="text-gray-400 mr-24">   Total To Pay: </span>
-                        <span class="text-gray-700"> ₱ {{ number_format($order->total_price, 2) }}</span>
-                        </p>
-                    </div>
-                @endif
+            <!-- Total Items -->
+            <div class="flex justify-between">
+                <span class="text-gray-400 mr-24">Total Items:</span>
+                <span class="text-gray-700">{{ $order->total_items }}</span>
             </div>
+
+            @php
+                $completedTotal = $order->total_price;
+                $vatRate = 0.12;
+                $vatAmount = $completedTotal * $vatRate;
+                $vatableSales = $completedTotal - $vatAmount;
+            @endphp
+
+            <!-- Sub Total -->
+            <div class="flex justify-between">
+                <span class="text-gray-400 mr-24">Sub Total:</span>
+                <span class="text-gray-700">₱ {{ number_format($completedTotal, 2) }}</span>
+            </div>
+
+            <!-- VAT Amount -->
+            <div class="flex justify-between">
+                <span class="text-gray-400 mr-24">VAT Amount (12%):</span>
+                <span class="text-gray-700">₱ {{ number_format($vatAmount, 2) }}</span>
+            </div>
+
+            <!-- VATable Sales -->
+            <div class="flex justify-between border-b border-gray pb-4">
+                <span class="text-gray-400 mr-24">VATable Sales:</span>
+                <span class="text-gray-700">₱ {{ number_format($vatableSales, 2) }}</span>
+            </div>
+
+            <!-- Total -->
+            <div class="flex justify-between">
+                <span class="text-gray-800">Total:</span>
+                <span class="text-gray-700">₱ {{ number_format($completedTotal, 2) }}</span>
+            </div>
+
         </div>
     </div>
 
     <div class="flex justify-end mb-4 no-print mt-6">
         <button onclick="window.print()" 
             class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-            <i class="fas fa-print mr-1"></i> Print Orders
+            <i class="fas fa-print mr-1"></i> Print
         </button>
     </div>
 
