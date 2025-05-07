@@ -39,7 +39,10 @@
                 <!-- <div class="flex justify-between items-center mb-4">
                     <a href="#" class="text-sm text-gray-500 hover:text-gray-700">Forgot Password?</a>
                 </div> -->
-                <button type="submit" class="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700">Login</button>
+                <button type="submit" class="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700 mb-2">Login</button>
+                <a href="{{ url('/') }}" class="w-full inline-block text-center bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-800">
+                    Back to home
+                </a>
             </form>
 
             <!-- Browser Alerts -->
