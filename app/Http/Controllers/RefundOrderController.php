@@ -25,7 +25,7 @@ class RefundOrderController extends Controller
     }
 
     public function StaffgetPaymentImage($order_id, $payment_method)
-    {
+     {
         if ($payment_method == 'gcash') {
             $payments = \App\Models\GcashPayment::where('order_id', $order_id)->get();
         } elseif ($payment_method == 'pnb') {
@@ -89,6 +89,31 @@ class RefundOrderController extends Controller
         return view('staff.content.staffEditDetailsRefund', compact('orderDetails'));
     }
 
+    public function ManagereditDetails($order_id)
+    {
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+    
+        foreach ($orderDetails as $detail) {
+            // Try to find the product in Variant first
+            $variant = \App\Models\Variant::where('model_id', $detail->model_id)
+                                          ->where('product_name', $detail->product_name)
+                                          ->first();
+    
+            if ($variant) {
+                $detail->stocks_quantity = $variant->stocks_quantity;
+            } else {
+                // Fallback to Products table
+                $product = \App\Models\Products::where('model_id', $detail->model_id)
+                                               ->where('model_name', $detail->product_name)
+                                               ->first();
+    
+                $detail->stocks_quantity = $product ? $product->stocks_quantity : 0;
+            }
+        }
+    
+        return view('manager.content.ManagerEditDetailsRefund', compact('orderDetails'));
+    }
+
     public function updateOrderDetails(Request $request)
     {
         try {
@@ -135,6 +160,55 @@ class RefundOrderController extends Controller
     
             // Redirect back with error message
             return redirect()->route('edit.product', ['order_id' => $request->order_id])->with('error', 'Error updating order details: ' . $e->getMessage());
+        }
+    }
+
+    public function ManagerupdateOrderDetails(Request $request)
+    {
+        try {
+            // Start a transaction to ensure data consistency
+            \DB::beginTransaction();
+        
+            // Loop through the order details and update each one
+            foreach ($request->product_name as $orderDetailId => $productName) {
+                $orderDetail = OrderDetail::findOrFail($orderDetailId);
+        
+                // Update quantity and calculate new total_price (quantity * unit_price)
+                $quantity = $request->quantity[$orderDetailId];
+                $unitPrice = $orderDetail->price;
+                $totalPrice = $quantity * $unitPrice;
+        
+                // Update the order detail record
+                $orderDetail->update([
+                    'quantity' => $quantity,
+                    'total_price' => $totalPrice,
+                ]);
+            }
+        
+            // After updating all order details, update the total amount in the orders table
+            $orderId = $request->order_id;
+            $order = Order::findOrFail($orderId);
+        
+            // Recalculate the total amount to pay for the order
+            $totalAmount = OrderDetail::where('order_id', $orderId)->sum('total_price');
+            
+            // Update total_amount and original_total_amount in the orders table
+            $order->update([
+                'total_price' => $totalAmount,               // New total amount to pay
+                'original_total_amount' => $totalAmount,       // Assuming original_total_amount is also updated here
+            ]);
+        
+            // Commit the transaction
+            \DB::commit();
+    
+            // Redirect back with success message
+        return redirect()->route('manager.edit.product', ['order_id' => $orderId])->with('success', 'Order details updated successfully.');
+        } catch (\Exception $e) {
+            // Rollback in case of error
+            \DB::rollBack();
+    
+            // Redirect back with error message
+            return redirect()->route('manager.edit.product', ['order_id' => $request->order_id])->with('error', 'Error updating order details: ' . $e->getMessage());
         }
     }
 

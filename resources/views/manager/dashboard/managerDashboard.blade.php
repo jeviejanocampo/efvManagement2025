@@ -64,7 +64,7 @@
                    <span class="text-sm"> Dashboard </span>
                 </a>
 
-                <a href="{{ route('ManagerstockoverView') }}" class="flex items-center text-gray hover:text-white ml-2">
+                <a href="{{ route('manageroverView') }}" class="flex items-center text-gray hover:text-white ml-2">
                     <i class="fas fa-clipboard-list mr-3"></i>
                     <span class="ml-1 text-sm">Requests</span>
                     @if(session('pendingCount') && session('pendingCount') > 0)

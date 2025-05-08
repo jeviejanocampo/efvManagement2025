@@ -753,6 +753,30 @@ class OrderController extends Controller
         return view('staff.content.staffOrderOverview', compact('orders'));
     }
 
+    public function ManagerOrderOverview()
+    {
+        $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status', 'reference_id')
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+
+        foreach ($orders as $order) {
+            // Fetch the reference_id from OrderReference table based on order_id
+            $reference = \App\Models\OrderReference::where('order_id', $order->order_id)->first();
+
+            // If found, attach it to the order object
+            if ($reference) {
+                $order->custom_reference_id = $reference->reference_id;
+            } else {
+                $order->custom_reference_id = null; // optional: set null if no reference found
+            }
+        }
+
+        session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
+        session(['pendingRefundCount' => \App\Models\RefundOrder::where('status', 'Pending')->count()]);
+
+        return view('manager.content.ManagerstockOrderOverview', compact('orders'));
+    }
+
 
     
 
@@ -822,45 +846,24 @@ class OrderController extends Controller
 
     public function ManagerstockOrderOverview()
     {
-        $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status')
+        $orders = \App\Models\Order::select('order_id', 'user_id', 'total_items', 'total_price', 'created_at', 'status', 'payment_method', 'overall_status', 'reference_id')
             ->orderBy('created_at', 'desc')
-            ->paginate(14);
-    
+            ->paginate(10);
+
         foreach ($orders as $order) {
-            $orderDetails = OrderDetail::where('order_id', $order->order_id)
-                ->latest('order_detail_id')
-                ->take(2)
-                ->get(['part_id', 'variant_id', 'brand_name']);
-    
-            $cleanParts = collect();
-            $brandNames = collect();
-    
-            foreach ($orderDetails as $detail) {
-                if (!empty($detail->variant_id) && $detail->variant_id != 0) {
-                    $variantPartId = \App\Models\Variant::where('variant_id', $detail->variant_id)
-                        ->value('part_id');
-                    $cleanPart = $variantPartId ? substr(preg_replace('/[^A-Za-z0-9]/', '', $variantPartId), 0, 3) : '';
-                    $brandName = $detail->brand_name ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->brand_name), 0, 3)) : '';
-                    $brandNames->push($brandName);
-                } else {
-                    $cleanPart = substr(preg_replace('/[^A-Za-z0-9]/', '', $detail->part_id), 0, 4);
-                }
-                $cleanParts->push($cleanPart);
-            }
-    
-            $productBrandName = \App\Models\Products::whereIn('m_part_id', $orderDetails->pluck('part_id'))
-                ->value('brand_name');
-            $shortProductBrand = $productBrandName ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '-', $productBrandName), 0, 3)) : '';
-            $finalBrand = $brandNames->isNotEmpty() ? $brandNames->first() : $shortProductBrand;
-    
-            if ($cleanParts->count() === 2) {
-                $order->reference_id = $finalBrand . $cleanParts[0] . $cleanParts[1];
-            } elseif ($cleanParts->count() === 1) {
-                $order->reference_id = $finalBrand . $cleanParts[0];
+            // Fetch the reference_id from OrderReference table based on order_id
+            $reference = \App\Models\OrderReference::where('order_id', $order->order_id)->first();
+
+            // If found, attach it to the order object
+            if ($reference) {
+                $order->custom_reference_id = $reference->reference_id;
             } else {
-                $order->reference_id = $finalBrand;
+                $order->custom_reference_id = null; // optional: set null if no reference found
             }
         }
+
+        session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
+        session(['pendingRefundCount' => \App\Models\RefundOrder::where('status', 'Pending')->count()]);
     
         session(['pendingCount' => \App\Models\Order::where('status', 'Pending')->count()]);
     
@@ -895,6 +898,50 @@ class OrderController extends Controller
         ));
     }
 
+    public function Managerdetails($order_id, Request $request)
+    {
+        $order = Order::find($order_id);
+        if (!$order) {
+            abort(404, 'Order not found');
+        }
+
+        $reference_order = OrderReference::where('order_id', $order_id)->first();
+        $reference_id = $reference_order ? $reference_order->reference_id : null;
+
+        $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+        foreach ($orderDetails as $detail) {
+            $detail->model_image = Models::where('model_id', $detail->model_id)->pluck('model_img')->first();
+        }
+
+        $gcashPayment = GcashPayment::where('order_id', $order_id)->first();
+        $pnbPayment = PnbPayment::where('order_id', $order_id)->first();
+
+        return view('manager.content.managerstockOverviewDetails', compact(
+            'order', 
+            'orderDetails', 
+            'reference_id', 
+            'gcashPayment', 
+            'pnbPayment'
+        ));
+    }
+
+    public function ManagergetPaymentImage($order_id, $payment_method)
+    {
+        if ($payment_method == 'gcash') {
+            $payments = \App\Models\GcashPayment::where('order_id', $order_id)->get();
+        } elseif ($payment_method == 'pnb') {
+            $payments = \App\Models\PnbPayment::where('order_id', $order_id)->get();
+        } else {
+            return response()->json(['success' => false]);
+        }
+
+        if ($payments->isNotEmpty()) {
+            $images = $payments->pluck('image'); // Collect only image names
+            return response()->json(['success' => true, 'images' => $images]);
+        }
+
+        return response()->json(['success' => false]);
+    }
 
     public function stockDetails($order_id, Request $request)
     {

@@ -57,12 +57,12 @@
     
         <nav class="space-y-6">
             <p class="text-white text-1xl font-bold">Main</p>
-            <!-- <a href="{{ route('staff.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
+            <a href="{{ route('staff.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-bars text-gray-200"></i>
                 </span>
                 <span class="text-sm"> Dashboard </span>
-            </a> -->
+            </a>
             <a href="{{ route('overView') }}" class="flex items-center text-white hover:text-white ml-1 gap-2">
                 <span class="bg-gray-600 p-2 rounded-lg">
                     <i class="fa-solid fa-box text-gray-200"></i>

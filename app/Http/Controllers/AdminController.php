@@ -399,6 +399,40 @@ class AdminController extends Controller
     
         return redirect()->back()->with('success', 'Payment status updated successfully.');
     }
+
+    public function ManagerupdatePaymentStatus(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,order_id',
+            'status' => 'required|string|in:Cancelled,Inactive,Active,Completed',
+        ]);
+    
+        // Use where('order_id', ...) since 'order_id' is not the primary key
+        $order = Order::where('order_id', $request->order_id)->first();
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order not found.');
+        }
+    
+        $paymentMethod = strtolower($order->payment_method);
+    
+        if ($paymentMethod === 'gcash') {
+            $payment = GcashPayment::where('order_id', $order->order_id)->first();
+        } elseif ($paymentMethod === 'pnb') {
+            $payment = PnbPayment::where('order_id', $order->order_id)->first();
+        } else {
+            return redirect()->back()->with('error', 'Unsupported payment method.');
+        }
+    
+        if (!$payment) {
+            return redirect()->back()->with('error', 'Payment record not found.');
+        }
+    
+        $payment->status = $request->status;
+        $payment->save();
+    
+        return redirect()->back()->with('success', 'Payment status updated successfully.');
+    }
+    
     
 
         
@@ -1928,6 +1962,34 @@ class AdminController extends Controller
     }
 
     public function saveGcashPaymentNOW(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer',
+            'image' => 'required|file|mimes:jpeg,png,jpg,webp|max:5120', // Max 5MB
+        ]);
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $path = public_path('onlinereceipts/');
+
+            // Move file
+            $file->move($path, $filename);
+
+            // Save to database
+            GcashPayment::create([
+                'order_id' => $request->order_id,
+                'image' => $filename,
+                // status will automatically be "Cancelled" by default
+            ]);
+
+            return response()->json(['message' => 'Payment saved successfully'], 200);
+        }
+
+        return response()->json(['message' => 'No image uploaded'], 400);
+    }
+
+    public function ManagersaveGcashPaymentNOW(Request $request)
     {
         $request->validate([
             'order_id' => 'required|integer',

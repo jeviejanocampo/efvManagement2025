@@ -25,10 +25,8 @@
 </style>
 <body>
 
-    <h3 class="text-lg font-semibold pb-4 pl-2">Admin Dashboard</h3>
-
+    <!-- Main Cards 1 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-    
 
         <div class="card bg-white text-gray-900 p-6 rounded-2xl 
         hover:bg-gray-900 hover:text-white transition duration-300"
@@ -116,7 +114,6 @@
             </table>
         </div>
     </div>
-
 
 
     <script>

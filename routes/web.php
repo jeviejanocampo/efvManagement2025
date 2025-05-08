@@ -86,7 +86,7 @@ Route::middleware(['staff'])->group(function () {
 
     Route::get('/refund-report-details-view/{order_id}/{reference_id?}', [RefundOrderController::class, 'RefundDetailsView'])->name('refund.view.details');
 
-    Route::get('/staff/payment-image/{order_id}/{payment_method}', [OrderController::class, 'StaffgetPaymentImage']);
+    Route::get('/staff/payment-image-uploading/{order_id}/{payment_method}', [OrderController::class, 'StaffgetPaymentImage']);
 
     Route::get('/staff/payment-image/{order_id}/{payment_method}', [RefundOrderController::class, 'StaffgetPaymentImage']);
     
@@ -519,17 +519,22 @@ Route::get('/stock-clerk/main/dashboard', function () {
 
     Route::post('/manager/login', [StaffController::class, 'ManagerLogin'])->name('manager.login.submit');
 
+
+    Route::get('/manager/dashboard/orders-summary', [OrderController::class, 'ManagergetOrdersSummary']);
+
+
     //
     Route::middleware(['manager'])->group(function () {
 
-    Route::get('/manager/overview', [OrderController::class, 'ManagerstockOrderOverview'])
-    ->name('ManagerstockoverView');
+    Route::get('/manager/overview/details/{order_id}', [OrderController::class, 'Managerdetails'])->name('ManageroverViewDetails');
+
+    // Route::get('/manager/overview', [OrderController::class, 'ManagerstockOrderOverview'])
+    // ->name('ManagerstockoverView');
 
     Route::get('/manager/main/dashboard', function () {
         return view('manager.content.managerDashboard');
     })->name('manager.dashboard.page');
 
-    Route::get('/manager/dashboard/orders-summary', [OrderController::class, 'ManagergetOrdersSummary']);
 
     Route::get('/manager-add-category', [ProductController::class, 'ManagerViewAddBrand'])->name('manager.add.category');
 
@@ -546,7 +551,7 @@ Route::get('/stock-clerk/main/dashboard', function () {
 
     Route::post('/manager-add-brand/store', [ProductController::class, 'ManagerstoreBrand'])->name('manager.add.brand.store');
 
-    Route::get('/manager/overview/details/{order_id}', [OrderController::class, 'ManagerstockDetails'])->name('manageroverViewDetails');
+    // Route::get('/manager/overview/details/{order_id}', [OrderController::class, 'ManagerstockDetails'])->name('manageroverViewDetails');
 
     Route::get('/manager-low-units', [ProductController::class, 'lowUnitsProducts'])->name('managerLow');
 
@@ -591,9 +596,22 @@ Route::get('/stock-clerk/main/dashboard', function () {
     Route::get('/manager/export-sales-report', [ActivityLogController::class, 'exportSalesReport'])->name('manager.exportSalesReport');
 
     Route::get('/manager/refund-log', [RefundOrderController::class, 'ManagerviewRefundLog'])->name('manager.refund.log');
+    
 
 });
 //
+
+Route::post('/manager/update-payment-status', [AdminController::class, 'ManagerupdatePaymentStatus'])->name('manager.updatePaymentStatus');
+
+Route::post('/manager/save-gcash-payment', [AdminController::class, 'ManagersaveGcashPaymentNOW'])->name('manager.saveGcashPayment');
+
+Route::get('/manager-order/{order_id}/edit-details', [RefundOrderController::class, 'ManagereditDetails'])->name('manager.edit.product');
+
+Route::post('/manager-update-order-details', [RefundOrderController::class, 'ManagerupdateOrderDetails'])->name('manager.update.order.details.preorder');
+
+Route::get('/manager/payment-image/{order_id}/{payment_method}', [OrderController::class, 'ManagergetPaymentImage']);
+
+Route::get('/manager/overview', [OrderController::class, 'ManagerOrderOverview'])->name('manageroverView');
 
 Route::post('/manager-store-category', [ProductController::class, 'storeCategory'])->name('manager.store.category');
 
