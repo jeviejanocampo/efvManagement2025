@@ -1961,12 +1961,18 @@ class AdminController extends Controller
         }
     }
 
-    public function saveGcashPaymentNOW(Request $request)
+   public function saveGcashPaymentNOW(Request $request)
     {
         $request->validate([
             'order_id' => 'required|integer',
             'image' => 'required|file|mimes:jpeg,png,jpg,webp|max:5120', // Max 5MB
         ]);
+
+        // Check for existing payment
+        $existing = GcashPayment::where('order_id', $request->order_id)->first();
+        if ($existing) {
+            return response()->json(['message' => 'Payment already exists for this order'], 409); // HTTP 409 Conflict
+        }
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -2017,12 +2023,18 @@ class AdminController extends Controller
         return response()->json(['message' => 'No image uploaded'], 400);
     }
 
-    public function savePnbPaymentNOW(Request $request)
+   public function savePnbPaymentNOW(Request $request)
     {
         $request->validate([
             'order_id' => 'required|integer',
             'image' => 'required|file|mimes:jpeg,png,jpg,webp|max:5120', // Max 5MB
         ]);
+
+        // Check if a payment for this order_id already exists
+        $existing = PnbPayment::where('order_id', $request->order_id)->first();
+        if ($existing) {
+            return response()->json(['message' => 'Payment already submitted for this order.'], 409); // 409 Conflict
+        }
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -2036,7 +2048,6 @@ class AdminController extends Controller
             PnbPayment::create([
                 'order_id' => $request->order_id,
                 'image' => $filename,
-                // status will automatically be "Cancelled" by default
             ]);
 
             return response()->json(['message' => 'Payment saved successfully'], 200);
@@ -2044,6 +2055,7 @@ class AdminController extends Controller
 
         return response()->json(['message' => 'No image uploaded'], 400);
     }
+
 
 
 }

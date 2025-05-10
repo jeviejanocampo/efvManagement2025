@@ -679,7 +679,7 @@ class OrderController extends Controller
     
     
     
-    public function fetchPendingPayment(Request $request)
+   public function fetchPendingPayment(Request $request)
     {
         $orderId = $request->query('order_id');
         $method = strtolower($request->query('method')); // e.g., gcash or pnb
@@ -688,19 +688,23 @@ class OrderController extends Controller
             return response()->json(['message' => 'Missing order_id or method'], 400);
         }
 
+        \Log::info("Fetching payment status for order_id: $orderId, method: $method");
+
         $payment = null;
 
         if ($method === 'gcash') {
-            $payment = GcashPayment::where('order_id', $orderId)->first();
+            $payment = \App\Models\GcashPayment::where('order_id', $orderId)->first();
         } elseif ($method === 'pnb') {
-            $payment = PnbPayment::where('order_id', $orderId)->first();
+            $payment = \App\Models\PnbPayment::where('order_id', $orderId)->first();
         } else {
             return response()->json(['message' => 'Invalid payment method'], 400);
         }
 
         if ($payment) {
-            return response()->json($payment);
+            \Log::info("Found payment status: " . $payment->status);
+            return response()->json(['status' => $payment->status]);
         } else {
+            \Log::warning("No payment found for order_id: $orderId and method: $method");
             return response()->json(['message' => 'No payment found'], 404);
         }
     }
