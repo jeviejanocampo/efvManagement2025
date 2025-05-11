@@ -767,6 +767,26 @@ class AdminController extends Controller
                 'cash_received' => $request->cashReceived,
             ]);
 
+            $paymentMethod = strtolower($order->payment_method);
+            
+           // ✅ GCash image save
+            if ($paymentMethod === 'gcash' && !empty($request->image)) {
+                GcashPayment::create([
+                    'order_id' => $order->order_id,
+                    'image' => $request->image,
+                    'status' => 'Completed'
+                ]);
+            }
+
+            // ✅ PNB image save
+            if ($paymentMethod === 'pnb' && !empty($request->image)) {
+                PnbPayment::create([
+                    'order_id' => $order->order_id,
+                    'image' => $request->image,
+                    'status' => 'Completed'
+                ]);
+            }
+
             // ========== NEWLY ADDED PART ==========
             $paymentMethod = strtolower($order->payment_method);
             if (in_array($paymentMethod, ['gcash', 'pnb'])) {
@@ -1961,7 +1981,7 @@ class AdminController extends Controller
         }
     }
 
-   public function saveGcashPaymentNOW(Request $request)
+    public function saveGcashPaymentNOW(Request $request)
     {
         $request->validate([
             'order_id' => 'required|integer',
@@ -2023,18 +2043,13 @@ class AdminController extends Controller
         return response()->json(['message' => 'No image uploaded'], 400);
     }
 
+
    public function savePnbPaymentNOW(Request $request)
     {
         $request->validate([
             'order_id' => 'required|integer',
             'image' => 'required|file|mimes:jpeg,png,jpg,webp|max:5120', // Max 5MB
         ]);
-
-        // Check if a payment for this order_id already exists
-        $existing = PnbPayment::where('order_id', $request->order_id)->first();
-        if ($existing) {
-            return response()->json(['message' => 'Payment already submitted for this order.'], 409); // 409 Conflict
-        }
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -2048,6 +2063,7 @@ class AdminController extends Controller
             PnbPayment::create([
                 'order_id' => $request->order_id,
                 'image' => $filename,
+                // status will automatically be "Cancelled" by default
             ]);
 
             return response()->json(['message' => 'Payment saved successfully'], 200);

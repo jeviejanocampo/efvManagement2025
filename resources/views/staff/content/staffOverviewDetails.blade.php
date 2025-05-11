@@ -367,7 +367,9 @@
             <thead>
                 <thead>
                     <tr class="bg-gray-50 text-sm">
+                        @unless(strtolower($order->status) === 'cancelled')
                         <th class="border-b border-gray-300 px-2 py-1 no-print">Status</th>
+                        @endunless                        
                         <th class="border-b border-gray-300 px-2 py-1 no-print"></th>
                         <th class="border-b border-gray-300 px-2 py-1">Product Name</th>
                         <th class="border-b border-gray-300 px-2 py-1">Brand</th>
@@ -380,7 +382,8 @@
             <tbody>
                 @foreach ($orderDetails as $detail)
                     <tr class="border border-white">
-                    <td class=" px-5 py-1 no-print">
+                     @unless(strtolower($order->status) === 'cancelled')
+                        <td class=" px-5 py-1 no-print">
                             @if($detail->product_status === 'pending')
                                 <span class="bg-red-500 text-white px-5 py-1 rounded-full text-sm">Reserved</span>
                             @elseif($detail->product_status === 'pre-order')
@@ -396,8 +399,9 @@
                             @else
                                 <span class="bg-black text-white px-5 py-1 rounded-full text-sm" style="white-space: nowrap;">Unknown</span>
                             @endif
-                        <span style="display: none">{{ $detail->order_detail_id }}</span>
-                    </td>
+                            <span style="display: none">{{ $detail->order_detail_id }}</span>
+                        </td>
+                    @endunless
                     <td class=" px-5 py-1 no-print">
                         @if ($detail->model_image)
                             <img src="{{ asset('product-images/' . $detail->model_image) }}" alt="{{ $detail->product_name }}" width="100">

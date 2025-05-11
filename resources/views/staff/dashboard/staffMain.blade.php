@@ -15,7 +15,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50" >
+<body class="bg-gray-100" >
     <div class="flex h-screen" >
         
     <div id="sidebar" class="bg-gray-800 text-white w-64 space-y-8 px-4 transform -translate-x-full 

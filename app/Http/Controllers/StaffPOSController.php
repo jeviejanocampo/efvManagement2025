@@ -15,6 +15,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\OrderReference;
 use App\Models\GcashPayment;
+use App\Models\PnbPayment;
 use DB;
 
 
@@ -200,6 +201,26 @@ class StaffPOSController extends Controller
                 'customers_change' => (string) $request->changeAmount,
                 'cash_received' => $request->cashReceived,
             ]);
+
+             $paymentMethod = strtolower($order->payment_method);
+            
+           // ✅ GCash image save
+            if ($paymentMethod === 'gcash' && !empty($request->image)) {
+                GcashPayment::create([
+                    'order_id' => $order->order_id,
+                    'image' => $request->image,
+                    'status' => 'Completed'
+                ]);
+            }
+
+            // ✅ PNB image save
+            if ($paymentMethod === 'pnb' && !empty($request->image)) {
+                PnbPayment::create([
+                    'order_id' => $order->order_id,
+                    'image' => $request->image,
+                    'status' => 'Completed'
+                ]);
+            }
 
             // ========== NEWLY ADDED PART ==========
             $paymentMethod = strtolower($order->payment_method);

@@ -422,32 +422,31 @@
     });
 </script>
 <script>
-function removeCustomerSelection() {
-    if (window.customerSelectInstance) {
-        customerSelectInstance.clear(); // Reset TomSelect
-    }
+    function removeCustomerSelection() {
+        if (window.customerSelectInstance) {
+            customerSelectInstance.clear(); // Reset TomSelect
+        }
 
-    // Clear chosen customer UI
-    document.getElementById('chosen').classList.add('hidden');
-    document.getElementById('chosenCustomerId').textContent = 'ID: N/A';
-    document.getElementById('chosenCustomer').textContent = 'None';
+        // Clear chosen customer UI
+        document.getElementById('chosen').classList.add('hidden');
+        document.getElementById('chosenCustomerId').textContent = 'ID: N/A';
+        document.getElementById('chosenCustomer').textContent = 'None';
 
-    // ✅ Confirmation prompt
-    if (window.Swal) {
-        Swal.fire({
-            icon: 'success',
-            title: 'Customer Removed',
-            text: 'The selected customer has been successfully removed.',
-            timer: 1500,
-            showConfirmButton: false
-        });
-    } else {
-        alert('Customer successfully removed.');
+        // ✅ Confirmation prompt
+        if (window.Swal) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Customer Removed',
+                text: 'The selected customer has been successfully removed.',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } else {
+            alert('Customer successfully removed.');
+        }
     }
-}
 
 </script>
-
 </script>
 <script>
     function confirmSaveOrder() {

@@ -90,7 +90,7 @@
                     <tr class="border border-gray-300 transition-transform duration-300 hover:bg-gray-100">
                         <td class="border border-gray-300 px-4 py-2">{{ $order->reference_id ?? 'N/A' }}-{{ $order->order_id }}</td>
                         <td class="px-4 py-2">
-                            {{ $order->customer ? $order->customer->full_name : 'N/A' }}
+                            {{ $order->customer ? $order->customer->full_name : 'WALK-IN CUSTOMER' }}
                         </td>
                         <td class="border border-gray-300 px-4 py-2">{{ $order->total_items }}</td>
                         <td class="border border-gray-300 px-4 py-2">₱ {{ number_format ($order->total_price, 2) }}</td>

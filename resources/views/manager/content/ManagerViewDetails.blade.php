@@ -65,6 +65,7 @@
 
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Stocks Quantity:</label>
+            <p id="stockChangeLabel" class="text-sm text-gray-500 mb-1">No changes yet</p>
             <div class="flex items-center">
                 <!-- Minus Button -->
                 <button type="button" id="decreaseQuantity" 
@@ -75,7 +76,7 @@
                 <!-- Quantity Input -->
                 <input type="number" name="stocks_quantity" id="stocksQuantity" 
                     value="{{ $product->stocks_quantity }}" 
-                    class="px-3 py-2 border w-20 text-center">
+                    class="px-3 py-2 border w-20 text-center" readonly>
                 
                 <!-- Plus Button -->
                 <button type="button" id="increaseQuantity" 
@@ -83,6 +84,7 @@
                     +
                 </button>
             </div>
+            <input type="hidden" id="originalStock" value="{{ $product->stocks_quantity }}">
         </div>
 
 
@@ -154,6 +156,46 @@
     </div>
 </div>
 
+<script>
+    const decreaseButton = document.getElementById("decreaseQuantity");
+    const increaseButton = document.getElementById("increaseQuantity");
+    const quantityInput = document.getElementById("stocksQuantity");
+    const originalStock = parseInt(document.getElementById("originalStock").value);
+    const label = document.getElementById("stockChangeLabel");
+
+    function updateStockLabel(newVal) {
+        const diff = newVal - originalStock;
+
+        if (diff > 0) {
+            label.textContent = `Increased by +${diff}`;
+            label.className = "text-sm text-green-600 mb-1";
+        } else if (diff < 0) {
+            label.textContent = `Decreased by ${diff}`;
+            label.className = "text-sm text-red-600 mb-1";
+        } else {
+            label.textContent = "No changes yet";
+            label.className = "text-sm text-gray-500 mb-1";
+        }
+    }
+
+    // Decrease quantity
+    decreaseButton.addEventListener("click", function () {
+        let currentValue = parseInt(quantityInput.value);
+        if (currentValue > 0) {
+            currentValue -= 1;
+            quantityInput.value = currentValue;
+            updateStockLabel(currentValue);
+        }
+    });
+
+    // Increase quantity
+    increaseButton.addEventListener("click", function () {
+        let currentValue = parseInt(quantityInput.value);
+        currentValue += 1;
+        quantityInput.value = currentValue;
+        updateStockLabel(currentValue);
+    });
+</script>
 <script>
     const decreaseButton = document.getElementById("decreaseQuantity");
     const increaseButton = document.getElementById("increaseQuantity");

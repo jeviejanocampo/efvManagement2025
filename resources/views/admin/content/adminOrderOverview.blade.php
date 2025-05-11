@@ -105,7 +105,7 @@
 
 
                         <td class="px-4 py-3">
-                            {{ $order->customer ? $order->customer->full_name : 'N/A' }}
+                            {{ $order->customer ? $order->customer->full_name : 'WALK-IN CUSTOMER' }}
                         </td>
                         <td class="px-4 py-3">{{ $order->total_items }}</td>
                         <td class="px-4 py-3">₱ {{ number_format($order->total_price, 2) }}</td>
