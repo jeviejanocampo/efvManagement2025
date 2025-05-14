@@ -6,6 +6,9 @@
      text-align: center;
      font-size: 12px;
     }
+      #paymentImageContainer img:hover {
+        cursor: zoom-in;
+    }
     @media print {
         body{
             zoom: 70%;
@@ -55,16 +58,44 @@
       <h1 style="font-size: 24px; font-weight: bold">ORDER DETAILS</h1>
 
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
-        <div class="flex items-center no-print">
-            <label for="order_status" class="mr-3 text-md">Edit Status:</label>
-            <select class="bg-gray-100 text-black-200 px-5 py-2 " name="order_status" id="order_status" onchange="updateOrderStatus({{ $order->order_id }})">
-                <option value="pending">Pending</option>
-                <option value="Ready to Pickup">Ready to Pickup</option>
-                <option value="In Process">In Process</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-            </select>
+        <p class="text-md no-print">
+            Status:
+            <span onclick="openStatusModal()" class="cursor-pointer rounded-lg px-2 py-1 m-1 
+                @if($order->status === 'Pending') bg-yellow-500 text-white 
+                @elseif($order->status === 'In Process') bg-orange-500 text-white 
+                @elseif($order->status === 'Ready to Pickup' || $order->status === 'Completed') bg-green-500 text-white 
+                @elseif($order->status === 'Cancelled') text-red-700 
+                @else text-gray-700 
+                @endif">
+                {{ ucfirst($order->status) }}
+            </span>
+        </p>
+
+
+
+      <div id="statusDropdownModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded shadow-lg w-full max-w-sm relative">
+            <h2 class="text-xl font-bold mb-4">Update Order Status</h2>
+
+            <div class="flex items-center mb-4">
+                <label for="order_status" class="mr-3 text-md">Status:</label>
+                <select class="bg-gray-100 text-black-200 px-5 py-2" name="order_status" id="order_status" onchange="updateOrderStatus({{ $order->order_id }})">
+                    <option value="Pending">Pending</option>
+                    <option value="Ready to Pickup">Ready to Pickup</option>
+                    <option value="In Process">In Process</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+
+            <div class="text-right">
+                <button onclick="closeStatusModal()" class="text-sm text-gray-600 underline">Cancel</button>
+            </div>
         </div>
+    </div>
+
+
+
     </div>
 
     <div class ="bg-white p-4 " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1);">
@@ -126,39 +157,40 @@
             @else
                 <p style="font-size: 28px; font-weight: 700;">ORDER ID: N/A</p>
             @endif
-            <p class="text-md">
-                <!-- <strong>Status: </strong> -->
-                <span class="
-                    rounded-lg 
-                    @if($order->status === 'Pending')
-                        bg-yellow-500
-                        text-white
-                        m-1
-                    @elseif($order->status === 'In Process')
-                        bg-orange-500
-                        text-white
-                        m-1
-                    @elseif($order->status === 'Ready to Pickup')
-                        bg-green-500
-                        text-white
-                        m-1
-                    @elseif($order->status === 'Completed')
-                        bg-green-500
-                        text-white
-                        m-1
-                    @elseif($order->status === 'Cancelled')
-                        text-red-700
-                        m-1
-                    @else
-                        text-gray-700
-                        m-1
-                    @endif
-                    px-2 py-1
-                ">
+            <!-- <p class="text-md no-print">
+                <span onclick="openStatusModal()" class="cursor-pointer rounded-lg px-2 py-1 m-1 
+                    @if($order->status === 'Pending') bg-yellow-500 text-white 
+                    @elseif($order->status === 'In Process') bg-orange-500 text-white 
+                    @elseif($order->status === 'Ready to Pickup' || $order->status === 'Completed') bg-green-500 text-white 
+                    @elseif($order->status === 'Cancelled') text-red-700 
+                    @else text-gray-700 
+                    @endif">
                     {{ ucfirst($order->status) }}
                 </span>
-            </p>
+            </p> -->
         </div>
+
+        <div id="statusChangeModal" class="hidden fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+            <div class="bg-white p-6 rounded shadow-md w-full max-w-md relative">
+                <h3 class="text-xl font-bold mb-4">Update Order Status</h3>
+
+                <label for="order_status_modal" class="block mb-2">Select new status:</label>
+                <select class="w-full border px-4 py-2 rounded mb-4" id="order_status_modal">
+                    <option value="Pending">Pending</option>
+                    <option value="Ready to Pickup">Ready to Pickup</option>
+                    <option value="In Process">In Process</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+
+                <div class="flex justify-end gap-2">
+                    <button onclick="submitStatusChange({{ $order->order_id }})" class="bg-blue-600 text-white px-4 py-2 rounded">Update</button>
+                    <button onclick="closeStatusModal()" class="text-gray-600 underline">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+
         <p style="font-size: 12px">
             Created At: {{ \Carbon\Carbon::parse($order->created_at)->format('F d, Y h:i A') }}
         </p>
@@ -217,7 +249,7 @@
 
             <!-- Edit Payment Status Icon -->
             <span class="cursor-pointer" onclick="document.getElementById('editStatusModal').classList.remove('hidden')" title="Edit Payment Status">
-                <i class="fas fa-pen text-red-600"></i>
+                <i class="fas fa-tag text-red-600"></i>
             </span>
 
             <!-- Payment Status Modal -->
@@ -507,6 +539,8 @@
 
 </div>
 
+
+
 <script>
     function viewGcashPayment(order_id) {
         fetchPaymentImage(order_id, 'gcash');
@@ -533,7 +567,10 @@
                         let img = document.createElement('img');
                         img.src = `/onlinereceipts/${image}`;
                         img.alt = 'Payment Image';
-                        img.classList.add('w-80', 'h-80', 'object-contain', 'm-2', 'border', 'rounded');
+                       img.classList.add(
+                            'w-[42rem]', 'h-[42rem]', 'object-contain', 'm-2', 'border', 'rounded',
+                            'transition-transform', 'duration-300', 'hover:scale-125', 'z-10'
+                        );
                         container.appendChild(img);
                     });
 
@@ -545,7 +582,6 @@
     }
 
 </script>
-
 <script>
     function openPaymentMethodModal() {
         document.getElementById('paymentMethodModal').classList.remove('hidden');
@@ -601,132 +637,64 @@
         }
     }
 </script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         let referenceIdForOrder = "{{ $formattedRefId }}";
         console.log("REFERENCE ID:", referenceIdForOrder);
     });
 </script>
-
-
 <script>
-    function openModal(userId) {
-        // Fetch user details using the userId
-        fetch(`/users/${userId}`)
-            .then(response => response.json())
-            .then(data => {
-                const userDetailsContent = document.getElementById('userDetailsContent');
-                userDetailsContent.innerHTML = `
-                    <p><strong>Full Name:</strong> ${data.full_name}</p>
-                    <p><strong>Email:</strong> ${data.email}</p>
-                    <p><strong>Phone Number:</strong> ${data.phone_number}</p>
-                    <p><strong>Address:</strong> ${data.address}</p>
-                    <p><strong>City:</strong> ${data.city}</p>
-                    <p><strong>Status:</strong> ${data.status}</p>
-                `;
-                document.getElementById('userModal').classList.remove('hidden');
-            });
+    function openStatusModal() {
+        document.getElementById('statusDropdownModal').classList.remove('hidden');
     }
 
-    function closeModal() {
-        document.getElementById('userModal').classList.add('hidden');
+    function closeStatusModal() {
+        document.getElementById('statusDropdownModal').classList.add('hidden');
     }
 
     function updateOrderStatus(orderId) {
         const newStatus = document.getElementById('order_status').value;
         let referenceId = null;
 
-        // Get the referenceId from the Blade template
-        const referenceIdForOrder = "{{ $formattedRefId }}";
+        // Get the referenceId from the Blade template (adjust if needed)
+        const referenceIdForOrder = "{{ $formattedRefId ?? '' }}";
         console.log("REFERENCE ID:", referenceIdForOrder);
 
-        // If the status is "In Process", set the referenceId
         if (newStatus === "In Process") {
-            referenceId = referenceIdForOrder;  // Use the referenceId generated by Blade
+            referenceId = referenceIdForOrder;
         }
 
-        // Confirm the action
-        const confirmUpdate = confirm(`Are you sure you want to update the status to "${newStatus}"?`);
+        if (!confirm(`Are you sure you want to update the status to "${newStatus}"?`)) return;
 
-        if (confirmUpdate) {
-            // Send the update request via AJAX
-            fetch(`/admin-orders/update-status/${orderId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF token
-                },
-                body: JSON.stringify({
-                    status: newStatus,
-                    reference_id: referenceId // Send the reference_id if it's set
-                })
+        fetch(`/admin-orders/update-status/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                status: newStatus,
+                reference_id: referenceId
             })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message); // Display confirmation message from server
-                if (data.success) {
-                    // Optionally, you can update the page with the new status
-                    document.getElementById('order_status').value = newStatus; 
-
-                    // Refresh the page to reflect changes
-                    window.location.reload();
-                }
-            })
-            .catch(error => {
-                alert("An error occurred while updating the status.");
-            });
-        }
-    }
-
-    function updateProductStatus(orderDetailId) {
-        const newStatus = document.getElementById('edit_status_' + orderDetailId).value;
-
-        // Confirm the action
-        const confirmUpdate = confirm(`Are you sure you want to update the product status to "${newStatus}"?`);
-
-        if (confirmUpdate) {
-            // Send the update request via AJAX
-            fetch(`/orders/update-product-status/${orderDetailId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF token
-                },
-                body: JSON.stringify({
-                    status: newStatus
-                })
-            })
-            .then(response => {
-                // Check if the response is OK
-                if (!response.ok) {
-                    throw new Error('Network response was not ok.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    alert(data.message); // Display success message
-
-                    // Optional: Update the DOM element with the new status
-                    const statusSpan = document.getElementById('status_span_' + orderDetailId);
-                    if (statusSpan) {
-                        statusSpan.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1); // Capitalize first letter
-                    }
-
-                    // Refresh the page
-                    location.reload();
-                } else {
-                    alert(data.message); // Display error message
-                }
-            })
-            .catch(error => {
-                console.error("Error updating product status:", error); // Log detailed error in the console
-                alert("An error occurred while updating the status. Please try again.");
-            });
-        }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Network error");
+            return response.json();
+        })
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                closeStatusModal();
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            alert("An error occurred while updating the status.");
+        });
     }
 </script>
+
 
 @endsection
 

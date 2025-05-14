@@ -163,18 +163,24 @@
                         </td>
                         <td class="border-b px-2 py-1" style="text-align: center">{{ $product->model_name }}</td>
                         <td class="border-b px-2 py-1 text-center">₱ {{ number_format($product->price, 2) }}</td>
-                        <td class="border-b px-2 py-1 relative text-center">
-                            @php
-                                $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');
-                            @endphp
-                            {{ $stock }}
+                        @if (strtolower($product->w_variant) !== 'yes')
+                            <td class="border-b px-2 py-1 relative text-center">
+                                @php
+                                    $stock = Products::where('model_id', $product->model_id)->sum('stocks_quantity');
+                                @endphp
+                                {{ $stock }}
 
-                            @if ($stock <= 5 && !request()->routeIs('edit.product'))
-                                <span class="absolute right-12 bg-red-500 text-white font-semibold px-2 py-1 bottom-9 rounded-md" style="font-size:10px">
-                                    Low
-                                </span>
-                            @endif
-                        </td>
+                                @if ($stock <= 5 && !request()->routeIs('edit.product'))
+                                    <span class="absolute right-12 bg-red-500 text-white font-semibold px-2 py-1 bottom-9 rounded-md" style="font-size:10px">
+                                        Low
+                                    </span>
+                                @endif
+                            </td>
+                        @else
+                            <td class="border-b px-2 py-1 text-center text-gray-400 italic">
+                                —
+                            </td>
+                        @endif
 
                         <!-- <td class="border-b px-2 py-1" style="text-align: center">{{ $product->w_variant }}</td> -->
 

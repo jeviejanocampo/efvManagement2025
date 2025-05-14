@@ -217,7 +217,7 @@
 
             <!-- Edit Payment Status Icon -->
             <span class="cursor-pointer" onclick="document.getElementById('editStatusModal').classList.remove('hidden')" title="Edit Payment Status">
-                <i class="fas fa-pen text-red-600"></i>
+                <i class="fas fa-tag text-red-600"></i>
             </span>
 
             <!-- Payment Status Modal -->
@@ -533,7 +533,10 @@
                         let img = document.createElement('img');
                         img.src = `/onlinereceipts/${image}`;
                         img.alt = 'Payment Image';
-                        img.classList.add('w-80', 'h-80', 'object-contain', 'm-2', 'border', 'rounded');
+                        img.classList.add(
+                            'w-[42rem]', 'h-[42rem]', 'object-contain', 'm-2', 'border', 'rounded',
+                            'transition-transform', 'duration-300', 'hover:scale-125', 'z-10'
+                        );                              
                         container.appendChild(img);
                     });
 

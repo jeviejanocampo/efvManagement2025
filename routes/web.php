@@ -209,6 +209,10 @@ Route::middleware(['admin'])->group(function () {
 
     Route::get('/admin/users', [AdminController::class, 'adminUsers'])->name('admin.users');
 
+    Route::get('/admin/customers-view', [AdminController::class, 'adminCustomersView'])->name('admin.customers.view');
+
+    Route::post('/admin/customers/update-status', [AdminController::class, 'updateCustomerStatus'])->name('admin.customer.updateStatus');
+
     Route::get('/admin/main/dashboard', function () {
         return view('admin.content.adminDashboardPage');
     })->name('admin.dashboard.page');

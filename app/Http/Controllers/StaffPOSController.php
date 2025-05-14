@@ -325,27 +325,32 @@ class StaffPOSController extends Controller
     
     
     public function StaffCustomerStore(Request $request)
-    {
+     {
         // Validate the incoming request
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email',
+            'email' => 'nullable|email|unique:customers,email',
         ]);
-    
-        // Always assign the default password
+
+        // Set default if email is left blank
+        if (empty($validated['email'])) {
+        $validated['email'] = null; // ✅ this is actual SQL NULL
+        }
+
+        // Assign default password and active status
         $validated['password'] = bcrypt('customer123');
         $validated['status'] = 'active';
-    
+
         // Create the new customer
         $customer = Customer::create($validated);
-    
+
         // Log the creation for debugging
         Log::info('New customer created', [
             'id' => $customer->id,
             'full_name' => $customer->full_name,
             'email' => $customer->email
         ]);
-    
+
         // Redirect back with success message
         return Redirect::back()->with('success', 'Customer added successfully!');
     }

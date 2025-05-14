@@ -146,6 +146,10 @@
                     <span class="text-sm"> Users </span>
                 </a>
 
+                 <a href="{{ route('admin.customers.view') }}" class="flex items-center text-white hover:text-white ml-2">
+                    <i class="fas fa-user mr-3"></i>
+                    <span class="text-sm"> Customers </span>
+                </a>
 
             
                 <p class="text-white text-sm font-bold">Reports and Analytics</p>

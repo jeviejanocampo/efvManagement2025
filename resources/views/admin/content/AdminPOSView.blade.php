@@ -383,18 +383,16 @@
         <form id="addCustomerForm" method="POST" action="{{ route('admin.customers.store.new') }}">
             @csrf
             <div class="mb-3">
-                <label class="block font-medium mb-1">Full Name</label>
+                <label class="block font-medium mb-1">Customer's Name</label>
                 <input type="text" name="full_name" class="w-full border rounded px-3 py-2" required value="{{ old('full_name') }}">
                 @error('full_name')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
             <div class="mb-3">
-                <label class="block font-medium mb-1">Email</label>
-                <input type="email" name="email" class="w-full border rounded px-3 py-2" required value="{{ old('email') }}">
-                @error('email')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
+                <label class="block font-medium mb-1">Email (optional for new customers)</label>
+                <input type="email" name="email" class="w-full border rounded px-3 py-2" value="{{ old('email') }}">
+               
             </div>
             <div class="mb-3">
                 <label class="block font-medium mb-1">Password (default)</label>
@@ -403,7 +401,7 @@
                 <input type="hidden" name="password" value="customer123">
             </div>
             <button type="submit" class="bg-black text-white px-4 py-2 rounded">Save</button>
-            <button type="button"  class="bg-red-500 text-white px-4 py-2 rounded" id="closeModal" class="ml-2 text-gray-600" onclick="document.getElementById('addCustomerModal').classList.add('hidden')" >Cancel</button>
+            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded" id="closeModal" class="ml-2 text-gray-600" onclick="document.getElementById('addCustomerModal').classList.add('hidden')" >Cancel</button>
         </form>
     </div>
 </div>

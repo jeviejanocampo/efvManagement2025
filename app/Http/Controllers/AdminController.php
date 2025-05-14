@@ -238,6 +238,30 @@ class AdminController extends Controller
         return view('admin.content.adminUsers', compact('users'));
     }
 
+    public function adminCustomersView()
+    {
+        $users = Customer::paginate(20);
+        return view('admin.content.AdminCustomersView', compact('users'));
+    }
+
+    public function updateCustomerStatus(Request $request)
+    {
+        $request->validate([
+            'customer_id' => 'required|integer|exists:customers,id',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $customer = Customer::find($request->customer_id);
+        $customer->status = $request->status;
+        
+        if ($customer->save()) {
+            return response()->json(['success' => true, 'message' => 'Customer status updated successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Failed to update status.']);
+    }
+
+
     public function adminEditUser($id)
     {
         $user = \App\Models\User::findOrFail($id);
@@ -651,23 +675,28 @@ class AdminController extends Controller
         // Validate the incoming request
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email',
+            'email' => 'nullable|email|unique:customers,email',
         ]);
-    
-        // Always assign the default password
+
+        // Set default if email is left blank
+        if (empty($validated['email'])) {
+            $validated['email'] = 'null';
+        }
+
+        // Assign default password and active status
         $validated['password'] = bcrypt('customer123');
         $validated['status'] = 'active';
-    
+
         // Create the new customer
         $customer = Customer::create($validated);
-    
+
         // Log the creation for debugging
         Log::info('New customer created', [
             'id' => $customer->id,
             'full_name' => $customer->full_name,
             'email' => $customer->email
         ]);
-    
+
         // Redirect back with success message
         return Redirect::back()->with('success', 'Customer added successfully!');
     }
