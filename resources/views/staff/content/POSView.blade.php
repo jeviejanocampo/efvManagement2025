@@ -143,7 +143,7 @@
                 <h3 for="customerSelect" class="font-semibold text-1xl mb-2">Select Customer</h3>
                 <div class="flex items-center gap-2">
                     <select id="customerSelect" class="w-full border px-3 py-2">
-                        <option value="">Select a customer</option> {{-- No `disabled`, no `selected` --}}
+                        <option value="">GUEST</option> {{-- No `disabled`, no `selected` --}}
                         @foreach($customers as $customer)
                             <option value="{{ $customer->id }}" data-name="{{ $customer->full_name }}">{{ $customer->full_name }}</option>
                         @endforeach
@@ -409,7 +409,7 @@
 
 <script>
     window.customerSelectInstance = new TomSelect("#customerSelect", {
-        placeholder: "Select a customer",
+        placeholder: "GUEST",
         allowEmptyOption: true,
         maxOptions: 100,
         create: false,

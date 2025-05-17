@@ -64,103 +64,140 @@
 
     <!-- Sales Report Table -->
     <div>
-        <div class="flex justify-between items-center mb-4">
-        <form method="GET" action="{{ route('manager.generateReport') }}" class="flex items-center gap-2">
-            <!-- Start Date Filter -->
-            <div>
-                <label for="start_date" class="text-xs font-medium text-gray-700">Start</label>
-                <input type="date" name="start_date" id="start_date" 
-                    value="{{ request('start_date') }}" 
-                    class="mt-1 block w-full border-b rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+        <!-- Keyword Search Filter -->
+
+       <div class="flex justify-between items-start flex-wrap gap-4 mb-4">
+
+            <!-- LEFT: Search + Filters -->
+            <div class="flex flex-wrap items-end gap-3">
+
+                <!-- Search -->
+                <div>
+                    <label for="search" class="text-xs font-medium text-gray-700 block">Search</label>
+                    <input type="text" name="search" id="search"
+                        value="{{ request('search') }}"
+                        placeholder="Search reference, user, or product"
+                        class="block w-64 border border-gray-300 rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+                </div>
+
+                <!-- Filter Form -->
+                <form method="GET" action="{{ route('manager.generateReport') }}" class="flex flex-wrap items-end gap-3">
+                    <div>
+                        <label for="start_date" class="text-xs font-medium text-gray-700 block">Start</label>
+                        <input type="date" name="start_date" id="start_date" 
+                            value="{{ request('start_date') }}" 
+                            class="block w-full border border-gray-300 rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+                    </div>
+
+                    <div>
+                        <label for="end_date" class="text-xs font-medium text-gray-700 block">End</label>
+                        <input type="date" name="end_date" id="end_date" 
+                            value="{{ request('end_date') }}" 
+                            class="block w-full border border-gray-300 rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+                    </div>
+
+                    <div>
+                        <label for="month" class="text-xs font-medium text-gray-700 block">Month</label>
+                        <select name="month" id="month" 
+                            class="block w-full border border-gray-300 rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+                            <option value="">Select Month</option>
+                            @foreach(range(1, 12) as $month)
+                                <option value="{{ $month }}" {{ request('month') == $month ? 'selected' : '' }}>
+                                    {{ DateTime::createFromFormat('!m', $month)->format('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="year" class="text-xs font-medium text-gray-700 block">Year</label>
+                        <select name="year" id="year" 
+                            class="block w-full border border-gray-300 rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
+                            <option value="">Select Year</option>
+                            @foreach(range(date('Y') - 10, date('Y')) as $year)
+                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Filter Button -->
+                    <div>
+                        <button type="submit" 
+                            class="bg-blue-600 text-white px-3 py-1 text-sm rounded-md hover:bg-blue-700 transition duration-300 mt-1">
+                            Filter
+                        </button>
+                    </div>
+
+                    <!-- Export to Excel -->
+                    <div>
+                        <a href="{{ route('manager.exportSalesReport', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}"
+                            class="bg-green-600 text-white px-2 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-1 text-sm">
+                            Export to Excel
+                        </a>
+                    </div>
+                </form>
             </div>
 
-            <!-- End Date Filter -->
-            <div>
-                <label for="end_date" class="text-xs font-medium text-gray-700">End</label>
-                <input type="date" name="end_date" id="end_date" 
-                    value="{{ request('end_date') }}" 
-                    class="mt-1 block w-full border-b rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
-            </div>
-
-            <!-- Monthly Filter -->
-            <div>
-                <label for="month" class="text-xs font-medium text-gray-700">Month</label>
-                <select name="month" id="month" 
-                    class="mt-1 block w-full border-b rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
-                    <option value="">Select Month</option>
-                    @foreach(range(1, 12) as $month)
-                        <option value="{{ $month }}" {{ request('month') == $month ? 'selected' : '' }}>
-                            {{ DateTime::createFromFormat('!m', $month)->format('F') }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Yearly Filter -->
-            <div>
-                <label for="year" class="text-xs font-medium text-gray-700">Year</label>
-                <select name="year" id="year" 
-                    class="mt-1 block w-full border-b rounded-md shadow-sm p-1 text-sm focus:ring focus:ring-green-200">
-                    <option value="">Select Year</option>
-                    @foreach(range(date('Y') - 10, date('Y')) as $year)
-                        <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
-                            {{ $year }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="flex items-end mt-6">
-                <button type="submit" 
-                    class="bg-blue-600 text-white px-3 py-1 text-sm rounded-md hover:bg-blue-700 transition duration-300">
-                    Filter
+            <!-- RIGHT: Print Button -->
+            <div class="mt-6 sm:mt-0">
+                <button onclick="printReport()" 
+                    class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition duration-300 text-sm">
+                    Print Report
                 </button>
             </div>
 
-            <a href="{{ route('manager.exportSalesReport', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}"
-            class="bg-green-600 text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-6">
-             <p style="font-size: 14px; padding: 1px"> Export to Excel</p>
-            </a>
-        </form>
-
-
-
-            <button onclick="printReport()" 
-                class="bg-black text-white px-1 py-1 rounded-md hover:bg-green-700 transition duration-300 mt-2">
-               <p style="font-size: 14px; padding: 4px"> Print Report</p>
-            </button>
         </div>
-        <table class="w-full border-collapse border-b text-left">
-            <thead class="bg-gray-50">
+
+        <table class="w-full border-collapse border border-gray-300 text-left">
+        <p class="italic text-gray-600 text-sm mt-4">
+            Each product's unit price has been calculated to include a 12% VAT and a markup based on the original cost price, ensuring appropriate pricing for resale.
+        </p>
+            <thead class="bg-gray-100">
                 <tr>
-                    <th class="border-b px-4 py-2">REFERENCE ID</th>
-                    <th class="border-b px-4 py-2">PRODUCT NAME</th>
-                    <th class="border-b px-4 py-2">PRICE</th>
-                    <th class="border-b px-4 py-2">QUANTITY</th>
-                    <th class="border-b px-4 py-2">TOTAL</th>
+                    <th class="border border-gray-300 px-4 py-2">PRODUCT REFERENCE ID</th>
+                    <th class="border border-gray-300 px-4 py-2">USER</th>
+                    <th class="border border-gray-300 px-4 py-2">PRODUCT NAME</th>
+                    <th class="border border-gray-300 px-4 py-2 hidden">MARKUP</th>
+                    <th class="border border-gray-300 px-4 py-2 hidden">MODEL ID</th>
+                    <th class="border border-gray-300 px-4 py-2 hidden">VARIANT ID</th>
+                    <th class="border border-gray-300 px-4 py-2">CREATED</th>
+                    <th class="border border-gray-300 px-4 py-2">PRICE</th>
+                    <th class="border border-gray-300 px-4 py-2">QUANTITY</th>
+                    <th class="border border-gray-300 px-4 py-2">TOTAL</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($orderDetails as $detail)
                 <tr>
-                    <td class="border-b px-4 py-2">
-                    {{ $detail->reference_id }}
+                    <td class="border border-gray-300 px-4 py-2">
+                        {{ $detail->orderReference->reference_id ?? 'N/A' }}
                     </td>
-                    <td class="border-b px-4 py-2">{{ $detail->product_name }}</td>
-                    <td class="border-b px-4 py-2">₱{{ number_format($detail->price, 2) }}</td>
-                    <td class="border-b px-4 py-2">{{ $detail->quantity }}</td>
-                    <td class="border-b px-4 py-2">₱{{ number_format($detail->total_price, 2) }}</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        {{ $detail->order->customer->full_name ?? 'Guest' }}
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2">{{ $detail->product_name }}</td>
+                    <td class="border border-gray-300 px-4 py-2 hidden">{{ $detail->markup_percentage }}%</td>
+                    <td class="border border-gray-300 px-4 py-2 hidden">{{ $detail->model_id }}</td>
+                    <td class="border border-gray-300 px-4 py-2">
+                        {{ \Carbon\Carbon::parse($detail->created_at)->format('F j, Y, g:i A') }}
+                    </td>
+                    <td class="border border-gray-300 px-4 py-2 hidden">{{ $detail->variant_id }}</td>
+                    <td class="border border-gray-300 px-4 py-2">₱{{ number_format($detail->price, 2) }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ $detail->quantity }}</td>
+                    <td class="border border-gray-300 px-4 py-2">₱{{ number_format($detail->total_price, 2) }}</td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="border-b px-4 py-2 text-center">No completed orders found for the selected date range.</td>
+                    <td colspan="5" class="border border-gray-300 px-4 py-2 text-center">No completed orders found for the selected date range.</td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
 
-         <!-- Summary Section -->
-         <div class="flex justify-end mt-6">
+        <!-- Summary Section -->
+        <div class="flex justify-end mt-6">
             <div class="w-1/3 text-right">
             <div style="margin-top: 20px; width: 250px; margin-left: auto; font-size: 0.875rem;">
             <p class="flex justify-between mb-6">
@@ -243,14 +280,32 @@
     <div class="mt-8 text-gray-700 text-sm italic">
         <p>Note: Based on the summary, the sales amount represents the total revenue generated during the selected date range, while the total items sold indicates the overall quantity of products purchased by customers.</p>
         <div class="mt-4 text-right">
-            <p>Owner: __________________________</p>
+            <p>Owner: ___Ernany Fabor Verdadero__</p>
             <p>Printed By: {{ Auth::user()->name ?? 'Guest' }}</p>
         </div>
     </div>
 
 </div>
 
-<!-- JavaScript for Print Button -->    
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search');
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        searchInput.addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+
+            tableRows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                if (rowText.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
 <script>
     function printReport() {
         window.print();

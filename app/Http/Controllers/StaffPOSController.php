@@ -308,10 +308,17 @@ class StaffPOSController extends Controller
             // Fetch the latest order with details and return response
             $latestOrder = Order::with(['orderDetails', 'orderReference'])->find($order->order_id);
 
-            return response()->json([
+            $customer = Customer::find($latestOrder->user_id);
+
+            // Get logged-in user (processed by)
+            $processedBy = Auth::user()->name ?? 'Guest';
+
+           return response()->json([
                 'success' => true,
                 'message' => 'Order saved successfully!',
-                'order' => $latestOrder
+                'order' => $latestOrder,
+                'customer_full_name' => $customer ? $customer->full_name : 'GUEST',
+                'processed_by' => $processedBy,
             ]);
         } catch (\Exception $e) {
             // Rollback the transaction in case of an error
@@ -332,10 +339,10 @@ class StaffPOSController extends Controller
             'email' => 'nullable|email|unique:customers,email',
         ]);
 
-        // Set default if email is left blank
-        if (empty($validated['email'])) {
-        $validated['email'] = null; // ✅ this is actual SQL NULL
-        }
+        // // Set default if email is left blank
+        // if (empty($validated['email'])) {
+        // $validated['email'] = null; // ✅ this is actual SQL NULL
+        // }
 
         // Assign default password and active status
         $validated['password'] = bcrypt('customer123');

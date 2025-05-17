@@ -45,4 +45,15 @@ class OrderDetail extends Model
         return $this->belongsTo(Variant::class, 'variant_id', 'variant_id');
     }
 
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id', 'order_id');
+    }
+
+    public function orderReference()
+    {
+        return $this->hasOne(OrderReference::class, 'order_id', 'order_id');
+    }
+
+
 }

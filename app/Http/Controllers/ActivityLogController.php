@@ -355,19 +355,8 @@ class ActivityLogController extends Controller
         $orderDetails = $query->with('product')->get();
 
         // Modify each order detail to include formatted reference_id
-        foreach ($orderDetails as $detail) {
-            // Extract first 3 letters of brand_name (if available)
-            $brand = isset($detail->brand_name) ? strtoupper(substr($detail->brand_name, 0, 3)) : 'N/A';
+       $orderDetails = $query->with(['product', 'order.customer', 'orderReference'])->get();
 
-            // Get part_id
-            $partId = $detail->part_id ?? 'N/A';
-
-            // Get order_detail_id
-            $orderDetailId = $detail->order_detail_id;
-
-            // Construct formatted reference_id
-            $detail->reference_id = "{$brand}-{$partId}{$orderDetailId}";
-        }
 
         // Calculate totals
         $salesAmount = $orderDetails->sum('total_price');

@@ -48,13 +48,13 @@
 
         <p style="display: none">Logged in User ID: {{ Auth::id() }}</p>
         <div class="flex items-center">
-            <label for="order_status" class="mr-3 text-md">Edit Status:</label>
+            <label for="order_status" class="mr-3 text-md">Status:</label>
             <select class="bg-gray-100 text-black-200 px-5 py-2 " name="order_status" id="order_status" onchange="updateOrderStatus({{ $order->order_id }})">
-                <option value="pending">Pending</option>
+                <option value="pending">In Process</option>
                 <option value="Ready to Pickup">Ready to Pickup</option>
-                <option value="In Process">In Process</option>
+                <!-- <option value="In Process">In Process</option>
                 <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
+                <option value="Cancelled">Cancelled</option> -->
             </select>
         </div>
     </div>

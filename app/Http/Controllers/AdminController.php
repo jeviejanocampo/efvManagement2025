@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 
 class AdminController extends Controller
@@ -186,7 +187,18 @@ class AdminController extends Controller
         return back()->with('success', 'GCash payment saved successfully.');
     }
     
-    
+    public function AdmineditCustomer($id)
+    {
+        $customer = Customer::findOrFail($id); // Assuming you have a Customer model
+        return view('admin.content.AdminEditCustomer', compact('customer'));
+    }
+
+     public function ManagerneditCustomer($id)
+    {
+        $customer = Customer::findOrFail($id); // Assuming you have a Customer model
+        return view('manager.content.ManagerEditCustomer', compact('customer'));
+    }
+
     
     public function savePnbPayment(Request $request)
     {
@@ -229,6 +241,32 @@ class AdminController extends Controller
         return back()->with('success', 'PNB payment saved successfully.');
     }
 
+    public function AdminManageCustomer(Request $request)
+    {
+        try {
+            $customer = Customer::findOrFail($request->id);
+
+            $customer->full_name = $request->full_name;
+            $customer->email = $request->email;
+            $customer->phone_number = $request->phone_number;
+            $customer->second_phone_number = $request->second_phone_number;
+            $customer->address = $request->address;
+            $customer->city = $request->city;
+            $customer->status = $request->status;
+
+            // Only update password if provided
+            if (!empty($request->password)) {
+                $customer->password = Hash::make($request->password);
+            }
+
+            $customer->save();
+
+            return response()->json(['success' => true, 'message' => 'Customer updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to update customer: ' . $e->getMessage()]);
+        }
+    }
+
 
     
 
@@ -242,6 +280,12 @@ class AdminController extends Controller
     {
         $users = Customer::paginate(20);
         return view('admin.content.AdminCustomersView', compact('users'));
+    }
+
+     public function ManagerCustomersView()
+    {
+        $users = Customer::paginate(20);
+        return view('manager.content.ManagerCustomersView', compact('users'));
     }
 
     public function updateCustomerStatus(Request $request)
@@ -678,10 +722,7 @@ class AdminController extends Controller
             'email' => 'nullable|email|unique:customers,email',
         ]);
 
-        // Set default if email is left blank
-        if (empty($validated['email'])) {
-            $validated['email'] = 'null';
-        }
+    
 
         // Assign default password and active status
         $validated['password'] = bcrypt('customer123');
@@ -902,10 +943,17 @@ class AdminController extends Controller
             // Fetch the latest order with details and return response
             $latestOrder = Order::with(['orderDetails', 'orderReference'])->find($order->order_id);
 
-            return response()->json([
+            $customer = Customer::find($latestOrder->user_id);
+
+            // Get logged-in user (processed by)
+            $processedBy = Auth::user()->name ?? 'Guest';
+
+           return response()->json([
                 'success' => true,
                 'message' => 'Order saved successfully!',
-                'order' => $latestOrder
+                'order' => $latestOrder,
+                'customer_full_name' => $customer ? $customer->full_name : 'GUEST',
+                'processed_by' => $processedBy,
             ]);
         } catch (\Exception $e) {
             // Rollback the transaction in case of an error

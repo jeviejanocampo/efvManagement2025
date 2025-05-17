@@ -704,18 +704,20 @@ function saveOrder() {
 
         
                 // Create a custom HTML structure for the order details report
-                let orderDetailsHTML = `
-                    <div style="text-align: center; margin-top: 20px;">
-                        <h2 class="text-sm font-bold mb-4">
-                        EFV AUTO PARTS MERCHANDISE<br>
-                        Diversion Road, Sibulan, Dumaguete City
-                        Negros Oriental
+                 let orderDetailsHTML = `
+                   <div style="text-align: center; margin-top: 20px;">
+                        <img src="/product-images/EFVLOGOREPORT.jpg" alt="EFV Logo"
+                            style="width: 80px; height: auto; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;">
+                        <h2 class="text-sm font-bold">
+                            EFV AUTO PARTS MERCHANDISE<br>
+                            Diversion Road, Sibulan, Dumaguete City<br>
+                            Negros Oriental
                         </h2>
-
-                      <br>
-
-                      <h2 class="text-sm font-bold mb-4">Order Summary</h2>
-
+                        <p class="text-sm mb-4">
+                          TEL #035 277808 | CELL # 09267745314 | Email: imh.ksa@gmail.com
+                        </p>
+                        <br>
+                        <h2 class="text-sm font-bold mb-4">Order Summary</h2>
                     </div>
                     <table style="width: 100%; border-collapse: collapse;" class="text-sm">
                         <tr>
@@ -737,6 +739,14 @@ function saveOrder() {
                                 ${data.order.payment_method} 
                                 ${data.order.payment_method.toLowerCase() === 'cash' ? '(WALK-IN)' : '(Online)'}
                             </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Processed By:</strong></td>
+                            <td>${data.processed_by}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Order To:</strong></td>
+                            <td>${data.customer_full_name}</td>
                         </tr>
                         <tr>
                             <td><strong>Order Status:</strong></td>

@@ -264,8 +264,8 @@
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Select Status:</label>
                         <select name="status" id="status" class="w-full border-gray-300 rounded-md shadow-sm">
                             <option value="Cancelled">Cancelled</option>
-                            <option value="Inactive">Inactive</option>
-                            <option value="Active">Active</option>
+                            <!-- <option value="Inactive">Inactive</option>
+                            <option value="Active">Active</option> -->
                             <option value="Completed">Confirmed</option>
                         </select>
 

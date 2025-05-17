@@ -202,7 +202,8 @@ Route::post('/generate-qr', [QRCodeController::class, 'generate'])->name('genera
 //Admin
 Route::middleware(['admin'])->group(function () {
 
-    
+    Route::get('/admin/customer/edit/{id}', [AdminController::class, 'AdmineditCustomer'])->name('admin.customer.edit');
+
     Route::get('/admin-salesreport', [AdminController::class, 'AdminSalesReportIndex'])->name('admin.salesreport');
 
     Route::get('/admin/export-sales-report', [ActivityLogController::class, 'AdminexportSalesReport'])->name('admin.exportSalesReport');
@@ -286,6 +287,8 @@ Route::middleware(['admin'])->group(function () {
 
 
 });
+
+Route::post('/admin/customer/update', [AdminController::class, 'AdminManageCustomer'])->name('admin.customer.manage.update');
 
 Route::post('/admin/update-payment-status', [AdminController::class, 'AdminupdatePaymentStatus'])->name('admin.updatePaymentStatus');
 
@@ -530,6 +533,8 @@ Route::get('/stock-clerk/main/dashboard', function () {
     //
     Route::middleware(['manager'])->group(function () {
 
+    Route::get('/manager/customers-view', [AdminController::class, 'ManagerCustomersView'])->name('manager.customers.view');
+
     Route::get('/manager/overview/details/{order_id}', [OrderController::class, 'Managerdetails'])->name('ManageroverViewDetails');
 
     // Route::get('/manager/overview', [OrderController::class, 'ManagerstockOrderOverview'])
@@ -604,6 +609,8 @@ Route::get('/stock-clerk/main/dashboard', function () {
 
 });
 //
+
+    Route::get('/manager/customer/edit/{id}', [AdminController::class, 'ManagerneditCustomer'])->name('manager.customer.edit');
 
 Route::post('/manager/update-payment-status', [AdminController::class, 'ManagerupdatePaymentStatus'])->name('manager.updatePaymentStatus');
 

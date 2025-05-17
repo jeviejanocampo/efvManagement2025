@@ -56,7 +56,7 @@
 
 
             <!-- Navigation -->
-            <nav class="space-y-6">
+            <nav class="space-y-4">
                 <p class="text-white text-sm font-bold">Main</p>
 
                 <a href="{{ route('manager.dashboard.page') }}" class="flex items-center text-white hover:text-white ml-2">
@@ -135,6 +135,12 @@
                 <a href="{{ route('manager.salesreport') }}" class="flex items-center text-white hover:text-white ml-2">
                     <i class="fas fa-chart-line mr-3"></i>
                     <span class="text-sm"> Sales </span>
+                </a>
+
+                <p class="text-white text-sm font-bold">Users</p>
+                <a href="{{ route('manager.customers.view') }}" class="flex items-center text-white hover:text-white ml-2">
+                    <i class="fas fa-user mr-3"></i>
+                    <span class="text-sm"> Customers </span>
                 </a>
 
                 <p class="text-white text-sm font-bold">Activity</p>

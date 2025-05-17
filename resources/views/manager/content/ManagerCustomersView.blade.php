@@ -1,4 +1,4 @@
-@extends('admin.dashboard.adminDashboard')
+@extends('manager.dashboard.managerDashboard')
 
 @section('content')
 <div class="bg-white p-4 shadow-md">
@@ -57,7 +57,7 @@
                             </button>
                         </td>
                         <td class="px-4 py-2 border-b text-center">
-                            <a href="{{ route('admin.customer.edit', ['id' => $user->id]) }}" class="text-blue-500 hover:text-blue-700">
+                            <a href="{{ route('manager.customer.edit', ['id' => $user->id]) }}" class="text-blue-500 hover:text-blue-700">
                                 <i class="fas fa-edit"></i> {{-- Font Awesome edit icon --}}
                             </a>
                         </td>
