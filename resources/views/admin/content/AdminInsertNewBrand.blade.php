@@ -63,8 +63,8 @@
         <label for="status" class="block text-gray-700 font-semibold mb-2">Status</label>
         <select name="status" id="status" class="w-full border border-gray-300 rounded-lg p-2" required>
             <option value="">-- Select Status --</option>
-            <option value="Active" {{ old('status') == 'Active' ? 'selected' : '' }}>Active</option>
-            <option value="Inactive" {{ old('status') == 'Inactive' ? 'selected' : '' }}>Inactive</option>
+            <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
+            <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
         </select>
         @error('status')
             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

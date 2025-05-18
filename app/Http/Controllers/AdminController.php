@@ -28,6 +28,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use App\Models\GalleryImage;
+use App\Models\VariantImage;
+use Illuminate\Support\Str;
 
 
 class AdminController extends Controller
@@ -1050,26 +1053,28 @@ class AdminController extends Controller
         return redirect()->route('admin.add.variant', ['model_id' => $model_id])->with('success', 'Variant added successfully.');
     }
 
-    public function AdmineditVariant($model_id, $variant_id, Request $request)
+   public function AdmineditVariant($model_id, $variant_id, Request $request)
     {
         $variant = Variant::where('model_id', $model_id)->where('variant_id', $variant_id)->first();
-    
+
         if (!$variant) {
             return redirect()->back()->with('error', 'Variant not found.');
         }
-    
+
         // Store the previous URL in session
         session(['previous_url' => url()->previous()]);
 
-        // ✅ Log activity when a user accesses the edit variant page
+        // Log activity
         ActivityLog::create([
             'user_id' => Auth::id(),
-            'role' => Auth::user()->role, // Get user's role
+            'role' => Auth::user()->role,
             'activity' => "Accessed edit page for variant #$variant_id of model #$model_id",
         ]);
 
-    
-        return view('admin.content.AdminEditVariant', compact('variant', 'model_id', 'variant_id'));
+        // ✅ Fetch gallery images for the variant
+        $galleryImages = GalleryImage::where('variant_id', $variant_id)->get();
+
+        return view('admin.content.AdminEditVariant', compact('variant', 'model_id', 'variant_id', 'galleryImages'));
     }
 
     public function AdminupdateVariant(Request $request, $model_id, $variant_id)
@@ -1147,11 +1152,89 @@ class AdminController extends Controller
     {
         $product = Products::where('model_id', $model_id)->firstOrFail();
 
+        $galleryImages = GalleryImage::where('model_id', $model_id)->get();
+
         if (!$product) {
             return redirect()->back()->with('error', 'Product not found!');
         }
 
-        return view('admin.content.AdminViewDetails', compact('product', 'model_id'));
+        return view('admin.content.AdminViewDetails', compact('product', 'model_id', 'galleryImages'));
+    }
+
+    //For single products
+    public function AdminUploadGalleryImage(Request $request, $model_id)
+    {
+        if ($request->hasFile('gallery_image')) {
+            $file = $request->file('gallery_image');
+            $filename = Str::random(10) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('product-images'), $filename);
+
+            GalleryImage::create([
+                'model_id' => $model_id,
+                'variant_id' => null, // Set if needed
+                'image_url' => $filename
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Gallery image uploaded.');
+    }
+
+    public function AdminDeleteGalleryImage($id)
+    {
+        $image = GalleryImage::find($id);
+
+        if (!$image) {
+            return redirect()->back()->with('error', 'Image not found.');
+        }
+
+        $imagePath = public_path('product-images/' . $image->image_url);
+        if (file_exists($imagePath)) {
+            unlink($imagePath);
+        }
+
+        $image->delete();
+
+        return response()->json(['success' => true, 'message' => 'Gallery image deleted successfully.']);
+    }
+
+    //For variant products
+    public function AdminUploadVariantGalleryImage(Request $request, $variant_id)
+    {
+        if ($request->hasFile('gallery_image')) {
+            $file = $request->file('gallery_image');
+            $filename = $file->getClientOriginalName(); // Use original file name
+
+            $file->move(public_path('product-images'), $filename);
+
+            VariantImage::create([
+                'variant_id' => $variant_id,
+                'image' => $filename // ✅ match column name
+            ]);
+
+            return redirect()->back()->with('success', 'Variant image uploaded successfully.');
+        }
+
+        return redirect()->back()->with('error', 'No image was uploaded!');
+    }
+
+
+    public function AdminDeleteVariantGalleryImage($variant_id)
+    {
+        // Use variant_id to retrieve the gallery image (assuming one per variant)
+        $image = GalleryImage::where('variant_id', $variant_id)->first();
+
+        if (!$image) {
+            return response()->json(['success' => false, 'message' => 'Gallery image not found.'], 404);
+        }
+
+        $imagePath = public_path('product-images/' . $image->image_url);
+        if (file_exists($imagePath)) {
+            unlink($imagePath);
+        }
+
+        $image->delete();
+
+        return response()->json(['success' => true, 'message' => 'Gallery image deleted successfully.']);
     }
 
     public function AdminupdateProduct(Request $request, $model_id)
@@ -1422,7 +1505,7 @@ class AdminController extends Controller
             'category_id' => 'required|exists:categories,category_id',
             'brand_name' => 'required|string|max:255',
             'brand_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|in:Active,Inactive',
+            'status' => 'required|in:active,inactive',
         ]);
     
         $brand = new Brand();

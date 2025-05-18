@@ -3,6 +3,7 @@
 @section('content')
 <div class="container mx-auto p-6 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <!-- Back Button -->
+     
     <div class="mb-4">
         <a href="{{ route('admin.variantsView', ['model_id' => $model_id]) }}" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600">
             ← Back
@@ -22,6 +23,44 @@
     <div class="mb-4">
         <h3 class="text-lg font-semibold">Variant ID: {{ $variant_id }}</h3>
     </div>
+
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Variant Gallery:</label>
+        <div class="flex space-x-4 mt-2 overflow-x-auto">
+            @php
+                // Assuming you passed $galleryImages to the view:
+                // $galleryImages = GalleryImage::where('variant_id', $variant_id)->get();
+            @endphp
+            @forelse($galleryImages as $image)
+                <div class="relative w-32 h-32">
+                    <img src="{{ asset('product-images/' . $image->image_url) }}" 
+                        alt="Variant Gallery Image"
+                        class="w-full h-full object-cover border rounded-lg">
+                    <button 
+                        onclick="deleteVariantGalleryImage({{ $variant_id }})"
+                        class="absolute top-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded-bl hover:bg-red-700"
+                        title="Delete">
+                        ✕
+                    </button>
+                </div>
+            @empty
+                <p class="text-gray-500 italic">No variant gallery image available.</p>
+            @endforelse
+        </div>
+    </div>
+
+    <form action="{{ route('admin.uploadVariantGalleryImage', ['variant_id' => $variant_id]) }}" 
+        method="POST" enctype="multipart/form-data" class="mt-6">
+        @csrf
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Upload Variant Gallery Image (1 only):</label>
+            <input type="file" name="gallery_image" required class="px-3 py-2 border rounded-lg w-full">
+        </div>
+        <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600">
+            Upload Variant Gallery Image
+        </button>
+    </form>
+
 
     <!-- Edit Form -->
     <form id="editVariantForm" action="{{ route('admin.update.variant', ['model_id' => $model_id, 'variant_id' => $variant_id]) }}" method="POST" enctype="multipart/form-data">
@@ -120,6 +159,35 @@
 
 </div>
 
+<script>
+    function deleteVariantGalleryImage(variantId) {
+        if (confirm("Are you sure you want to delete this gallery image?")) {
+            fetch(`/admin-delete-variant-gallery-image/${variantId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Failed to delete variant gallery image.');
+            });
+        }
+    }
+</script>
 <script>
     let currentAction = 'add'; // 'add' or 'subtract'
 

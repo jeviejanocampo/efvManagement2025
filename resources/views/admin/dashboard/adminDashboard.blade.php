@@ -168,6 +168,11 @@
                     <i class="fas fa-clipboard-list mr-3"></i>
                     <span class="text-sm"> Replacement Activity Log </span>
                 </a>
+
+                <p class="flex items-center text-sm bg-gray-700 p-2 rounded-md text-center text-white hover:text-white ml-2">
+                    EFV Auto Parts Management System. 2025 All Rights Reserved
+                </p>
+
             </nav>
         </div>
 
@@ -210,7 +215,7 @@
             <!-- Dynamic Content -->
             <main class="p-6 sm: pt-2">
                 @yield('content')
-            </main>
+            </main> 
         </div>
     </div>
 

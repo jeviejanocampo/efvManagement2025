@@ -288,6 +288,17 @@ Route::middleware(['admin'])->group(function () {
 
 });
 
+Route::post('/admin-upload-gallery-image/{model_id}', [AdminController::class, 'AdminUploadGalleryImage'])->name('admin.uploadGalleryImage');
+
+Route::delete('/admin-delete-gallery-image/{id}', [AdminController::class, 'AdminDeleteGalleryImage'])
+    ->name('admin.deleteGalleryImage');
+
+Route::post('/admin-upload-variant-gallery-image/{variant_id}', [AdminController::class, 'AdminUploadVariantGalleryImage'])
+    ->name('admin.uploadVariantGalleryImage');
+
+Route::delete('/admin-delete-variant-gallery-image/{variant_id}', [AdminController::class, 'AdminDeleteVariantGalleryImage'])
+    ->name('admin.deleteVariantGalleryImage');
+
 Route::post('/admin/customer/update', [AdminController::class, 'AdminManageCustomer'])->name('admin.customer.manage.update');
 
 Route::post('/admin/update-payment-status', [AdminController::class, 'AdminupdatePaymentStatus'])->name('admin.updatePaymentStatus');

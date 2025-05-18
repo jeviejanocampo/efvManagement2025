@@ -1,6 +1,8 @@
 @extends('admin.dashboard.adminDashboard')
 
 @section('content')
+
+
 <div class="container mx-auto p-6 bg-white " style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
     <!-- Back Button -->
     <div class="mb-4">
@@ -19,6 +21,50 @@
     </div>
 
     <p style="font-size: 16px; margin-top: 4px; margin-bottom: 8px">To add stocks just simply click edit</p>
+
+    <!-- Gallery Upload Form -->
+    <form action="{{ route('admin.uploadGalleryImage', ['model_id' => $product->model_id]) }}" 
+        method="POST" enctype="multipart/form-data" class="mt-6">
+        @csrf
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Upload Gallery Image (1 only):</label>
+            <input type="file" name="gallery_image" required class="px-3 py-2 border rounded-lg w-full">
+        </div>
+        <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600">
+            Upload Gallery Image
+        </button>
+    </form>
+
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Gallery:</label>
+        <div class="flex space-x-4 mt-2 overflow-x-auto">
+            @forelse($galleryImages as $image)
+               <div class="relative w-32 h-32">
+                    <img src="{{ asset('product-images/' . $image->image_url) }}" 
+                        alt="Gallery Image"
+                        class="w-full h-full object-cover border rounded-lg">
+
+                    <button 
+                        onclick="deleteGalleryImage({{ $image->id }})"
+                        class="absolute top-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded-bl hover:bg-red-700"
+                        title="Delete">
+                        ✕
+                    </button>
+                </div>
+
+
+            @empty
+                <p class="text-gray-500 italic">No gallery images available.</p>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- Upload Gallery Image -->
+    <div class="mb-4">
+        <label class="block text-sm font-regular text-gray-700">Upload Gallery Image (1 only):</label>
+        <input type="file" name="gallery_image" class="px-3 py-2 border rounded-lg w-full">
+    </div>
+
 
 
     <!-- Product Form -->
@@ -172,7 +218,33 @@
     </div>
 </div>
 
-    
+<script>
+    function deleteGalleryImage(id) {
+        if (confirm("Are you sure you want to delete this image?")) {
+            fetch(`/admin-delete-gallery-image/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Image deleted successfully.');
+                    location.reload();
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Failed to delete image.');
+            });
+        }
+    }
+</script>
 <script>
     const decreaseButton = document.getElementById("decreaseQuantity");
     const increaseButton = document.getElementById("increaseQuantity");

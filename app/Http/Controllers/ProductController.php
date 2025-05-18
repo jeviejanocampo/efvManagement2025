@@ -11,7 +11,8 @@ use App\Models\Products;
 use App\Models\Brand;
 use App\Models\Variant; 
 use Illuminate\Support\Facades\Log;
-
+use App\Models\GalleryImage;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -716,11 +717,13 @@ class ProductController extends Controller
     {
         $product = Products::where('model_id', $model_id)->firstOrFail();
 
+        $galleryImages = GalleryImage::where('model_id', $model_id)->get();
+
         if (!$product) {
             return redirect()->back()->with('error', 'Product not found!');
         }
 
-        return view('manager.content.ManagerViewDetails', compact('product', 'model_id'));
+            return view('manager.content.ManagerViewDetails', compact('product', 'model_id', 'galleryImages'));
     }
 
     public function updateProduct(Request $request, $model_id)
@@ -1200,8 +1203,9 @@ class ProductController extends Controller
             'activity' => "Accessed edit page for variant #$variant_id of model #$model_id",
         ]);
 
+       $galleryImages = GalleryImage::where('variant_id', $variant_id)->get();
     
-        return view('manager.content.ManagerEditVariant', compact('variant', 'model_id', 'variant_id'));
+        return view('manager.content.ManagerEditVariant', compact('variant', 'model_id', 'variant_id', 'galleryImages'));
     }
     
 
