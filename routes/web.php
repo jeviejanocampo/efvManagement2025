@@ -202,6 +202,10 @@ Route::post('/generate-qr', [QRCodeController::class, 'generate'])->name('genera
 //Admin
 Route::middleware(['admin'])->group(function () {
 
+    Route::get('/admin-low-units', [ProductController::class, 'AdminlowUnitsProducts'])->name('adminLow');
+    
+    Route::get('/admin-low-items', [ProductController::class, 'AdminlowItems'])->name('adminLowItems');
+
     Route::get('/admin/customer/edit/{id}', [AdminController::class, 'AdmineditCustomer'])->name('admin.customer.edit');
 
     Route::get('/admin-salesreport', [AdminController::class, 'AdminSalesReportIndex'])->name('admin.salesreport');
@@ -424,6 +428,8 @@ Route::post('/update-model-status/{model_id}', [ProductController::class, 'updat
 //Stock Clerk
 Route::middleware(['stock-clerk'])->group(function () {
 
+    Route::get('/stockclerk-low-items', [ProductController::class, 'StockClerklowItemsView'])->name('stockclerkLowItems');
+
     Route::get('/stockclerk/overview/details/{order_id}', [OrderController::class, 'stockDetails'])->name('stockclerkoverViewDetails');
 
     Route::get('/stockclerk/overview', [OrderController::class, 'stockOrderOverview'])->name('stockoverView');
@@ -540,6 +546,7 @@ Route::get('/stock-clerk/main/dashboard', function () {
 
     Route::get('/manager/dashboard/orders-summary', [OrderController::class, 'ManagergetOrdersSummary']);
 
+    Route::get('/manager-low-items', [ProductController::class, 'ManagerlowItemsView'])->name('managerLowItems');
 
     //
     Route::middleware(['manager'])->group(function () {

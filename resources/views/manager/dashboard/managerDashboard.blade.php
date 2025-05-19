@@ -113,7 +113,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('managerLow') }}" class="flex items-center text-white hover:text-white ml-2 mt-2">
+                <a href="{{ route('managerLowItems') }}" class="flex items-center text-white hover:text-white ml-2 mt-2">
                     <i class="fas fa-exclamation-triangle mr-3"></i>
                     <span class="text-sm">  Low Units </span>
                     @if($lowStockCount > 0)

@@ -22,14 +22,13 @@
     <table class="min-w-full mt-2" id="productTable">
         <thead>
             <tr>
+                <th class="px-6 py-2 bg-gray-100 text-left">Image</th>
                 <th class="px-6 py-2 bg-gray-100 text-left">Reference ID</th>
                 
                 <!-- Conditional Variant/Non Variant Header -->
                 <th class="px-6 py-2 bg-gray-100 text-left">
                  Product Label
                 </th>
-
-                <th class="px-6 py-2 bg-gray-100 text-left">Image</th>
                 <th class="px-6 py-2 bg-gray-100 text-left">Product Name</th>
                 <th class="px-6 py-2 bg-gray-100 text-left">Brand Name</th>
                 <th class="px-6 py-2 bg-gray-100 text-left">Quantity</th>

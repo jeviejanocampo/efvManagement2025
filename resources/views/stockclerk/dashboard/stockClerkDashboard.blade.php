@@ -68,12 +68,12 @@
             <nav class="space-y-6">
                 <p class="text-white text-1xl font-bold">Main</p>
 
-                <!-- <a href="{{ route('stockclerk.dashboard.page') }}" class="flex items-center text-white hover:text-white gap-2">
+                <a href="{{ route('stockclerk.dashboard.page') }}" class="flex items-center text-white hover:text-white gap-2">
                 <span class="p-2 rounded-lg">
                     <i class="fas fa-bars"></i>
                 </span>
                     Dashboard
-                </a> -->
+                </a>
                 
                 <a href="{{ route('stockoverView') }}" class="flex items-center text-white hover:text-white relative gap-2 ">
                     <span class="p-2 rounded-lg">
@@ -136,16 +136,15 @@
                     </div>
                 </div>
 
-                <a href="{{ route('stockclerkLow') }}" class="flex items-center text-white hover:text-white  gap-2">
-                    <span class="p-2 rounded-lg">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </span>
-                    Low Stocks
+                <a href="{{ route('stockclerkLowItems') }}" class="flex items-center text-white hover:text-white ml-2 mt-2">
+                    <i class="fas fa-exclamation-triangle mr-3"></i>
+                    <span class="text-sm">  Low Units </span>
                     @if($lowStockCount > 0)
-                        <span class=" bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full ml-2">
+                        <span class="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
                             {{ $lowStockCount }}
                         </span>
                     @endif
+                    
                 </a>
 
                 <!-- <a href="{{ route('staffQueue') }}" class="flex items-center text-white hover:text-white">

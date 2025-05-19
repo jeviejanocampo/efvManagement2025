@@ -1163,12 +1163,23 @@ class OrderController extends Controller
         // Calculate total sales for today
         $totalSalesToday = Order::whereDate('created_at', $today)->sum('total_price');
 
-        // Fetch recent pending orders (only today's)
+        // Fetch recent pending orders with customer only
         $recentPendingOrders = Order::whereIn('status', ['Pending', 'pending'])
-            ->whereDate('created_at', $today)
-            ->with('customer') // Assuming 'customer' is related via user_id
+            ->whereDate('created_at', $today) // ← filter by today's date
             ->latest()
             ->get();
+
+        // Get all order IDs
+        $orderIds = $recentPendingOrders->pluck('order_id');
+
+        // Fetch matching reference IDs
+        $references = OrderReference::whereIn('order_id', $orderIds)->get()->keyBy('order_id');
+
+        // Merge reference_id manually into each order
+        $recentPendingOrders->transform(function ($order) use ($references) {
+            $order->reference_id = $references[$order->order_id]->reference_id ?? null;
+            return $order;
+        });
 
         return response()->json([
             'pending_orders' => $pendingOrders,

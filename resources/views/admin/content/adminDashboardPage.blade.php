@@ -25,6 +25,8 @@
 </style>
 <body>
 
+    <p class="text-3xl font-semibold mb-6">Dashboard</p>
+    
     <!-- Main Cards 1 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
 
@@ -94,8 +96,16 @@
         </div>
     </div>
 
-    <div class="mt-4 p-4" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
-        <h3 class="text-2xl font-semibold mb-2 border-b border-gray-200">Recent Pending</h3>
+    <div class="mt-4 p-4 bg-white" style="box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);">
+        <div class="flex justify-between items-center mb-2 border-b border-gray-200">
+            <h3 class="text-2xl font-semibold">Recent Pending</h3>
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search by customer or ref..."
+                class="border border-gray-300 px-3 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 mb-4"
+            />
+        </div>
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-300 mt-2">
                 <thead class="bg-gray-200">
@@ -124,29 +134,58 @@
                     document.getElementById("pendingOrders").textContent = data.pending_orders;
                     document.getElementById("onQueueOrders").textContent = data.on_queue_orders;
                     document.getElementById("inProcessOrders").textContent = data.in_process_orders;
-                    document.getElementById("totalSalesToday").textContent = `₱ ${data.total_sales_today.toFixed(2)}`;
 
-                    // Update Recent Pending Table
+                    let totalSales = parseFloat(data.total_sales_today) || 0;
+                    document.getElementById("totalSalesToday").textContent = `₱ ${totalSales.toFixed(2)}`;
+
                     let recentPendingTable = document.getElementById("recentPendingTable");
-                    recentPendingTable.innerHTML = ""; // Clear existing rows
 
-                    data.recent_pending_orders.forEach(order => {
-                        let row = `
-                            <tr class="bg-gray-100">
-                                <td class="px-4 py-2 border">#${order.order_id}</td>
-                                <td class="px-4 py-2 border">${order.customer ? order.customer.name : 'Unknown'}</td>
-                                <td class="px-4 py-2 border">${order.total_items}</td>
-                                <td class="px-4 py-2 border">₱${parseFloat(order.total_price).toFixed(2)}</td>
-                                <td class="px-4 py-2 border">${new Date(order.created_at).toLocaleDateString()}</td>
-                                <td class="px-4 py-2 border text-red-500 font-semibold">${order.status}</td>
-                            </tr>
-                        `;
-                        recentPendingTable.innerHTML += row;
+                    // Render initial full table
+                    renderPendingTable(data.recent_pending_orders, recentPendingTable);
+
+                    // Search filter
+                    const searchInput = document.getElementById("searchInput");
+                    searchInput.addEventListener("input", function () {
+                        const keyword = this.value.toLowerCase();
+
+                        const filteredOrders = data.recent_pending_orders.filter(order => {
+                            const name = order.customer?.full_name?.toLowerCase() || "";
+                            const reference = (order.reference_id || "").toLowerCase();
+                            return name.includes(keyword) || reference.includes(keyword);
+                        });
+
+                        renderPendingTable(filteredOrders, recentPendingTable);
                     });
                 })
                 .catch(error => console.error("Error fetching data:", error));
         });
+
+        function renderPendingTable(orders, tableElement) {
+            tableElement.innerHTML = ""; // Clear rows
+
+            orders.forEach(order => {
+                const referenceId = order.reference_id || order.order_id || "N/A";
+                const customerName = order.customer?.full_name || `User #${order.user_id}`;
+                const totalItems = order.total_items ?? "0";
+                const totalPrice = parseFloat(order.total_price || 0).toFixed(2);
+                const createdAt = new Date(order.created_at).toLocaleDateString();
+                const status = order.status || "N/A";
+
+                const row = `
+                    <tr class="bg-gray-100">
+                        <td class="px-4 py-2 border">${referenceId}</td>
+                        <td class="px-4 py-2 border">${customerName}</td>
+                        <td class="px-4 py-2 border">${totalItems}</td>
+                        <td class="px-4 py-2 border">₱${totalPrice}</td>
+                        <td class="px-4 py-2 border">${createdAt}</td>
+                        <td class="px-4 py-2 border text-red-500 font-semibold">${status}</td>
+                    </tr>
+                `;
+                tableElement.innerHTML += row;
+            });
+        }
     </script>
+
     <script>
         function highlightCard(card) {
             // Remove the 'highlighted' class from all cards

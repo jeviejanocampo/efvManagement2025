@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\GalleryImage;
 use Illuminate\Support\Str;
 use App\Models\VariantImage;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
@@ -99,6 +100,202 @@ class ProductController extends Controller
         // Pass the counts and other data to the view
         return view('manager.content.managerLowProductsView', compact('lowStockCount', 'brands', 'products', 'statuses'));
     }
+
+    public function AdminlowUnitsProducts() {
+        // Count the products with stocks_quantity between 0 and 5 from the 'products' table
+        $lowStockProductsCount = Products::whereBetween('stocks_quantity', [0, 5])->count();
+    
+        // Count the variants with stocks_quantity between 0 and 5 from the 'variants' table
+        $lowStockVariantsCount = Variant::whereBetween('stocks_quantity', [0, 5])->count();
+    
+        // Combine the counts from both tables
+        $lowStockCount = $lowStockProductsCount + $lowStockVariantsCount;
+    
+        // Fetch brands and their categories (assuming relationship exists)
+        $brands = Brand::pluck('brand_name'); 
+    
+        // Fetch products with their related brand and category
+        $products = Models::with(['brand.category'])->paginate(15);
+    
+        // Fetch unique product statuses from the 'products' table
+        $statuses = Products::distinct()->pluck('status');
+        
+        // Pass the counts and other data to the view
+        return view('admin.content.AdminLowProductsView', compact('lowStockCount', 'brands', 'products', 'statuses'));
+    }
+
+    public function AdminlowItems()
+    {
+        // Low stock Products
+        $lowProducts = Products::where('stocks_quantity', '<', 10)
+            ->select('model_name', 'brand_name', 'price', 'model_img', 'stocks_quantity')
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'type' => 'Single Product',
+                    'name' => $product->model_name,
+                    'brand' => $product->brand_name,
+                    'price' => $product->price,
+                    'image' => $product->model_img,
+                    'stocks_quantity' => $product->stocks_quantity,
+                ];
+            });
+
+        // Low stock Variants + resolving brand via model → brand
+        $lowVariants = Variant::where('stocks_quantity', '<', 10)
+            ->select('variant_id', 'model_id', 'product_name', 'price', 'variant_image', 'stocks_quantity')
+            ->get()
+            ->map(function ($variant) {
+                $brandName = '-';
+
+                if ($variant->model_id) {
+                    $model = Models::with('brand')->find($variant->model_id);
+                    if ($model && $model->brand) {
+                        $brandName = $model->brand->brand_name;
+                    }
+                }
+
+                return [
+                    'type' => 'Variant Product',
+                    'name' => $variant->product_name,
+                    'brand' => $brandName,
+                    'price' => $variant->price,
+                    'image' => $variant->variant_image,
+                    'stocks_quantity' => $variant->stocks_quantity,
+                ];
+            });
+
+        // Merge and paginate
+        $merged = $lowProducts->concat($lowVariants)->values();
+
+        $perPage = 10;
+        $currentPage = request()->get('page', 1);
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $merged->forPage($currentPage, $perPage),
+            $merged->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return view('admin.content.AdminLowItems', ['items' => $paginated]);
+    }
+
+
+    public function ManagerlowItemsView()
+    {
+        // Low stock Products
+        $lowProducts = Products::where('stocks_quantity', '<', 10)
+            ->select('model_name', 'brand_name', 'price', 'model_img', 'stocks_quantity')
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'type' => 'Single Product',
+                    'name' => $product->model_name,
+                    'brand' => $product->brand_name,
+                    'price' => $product->price,
+                    'image' => $product->model_img,
+                    'stocks_quantity' => $product->stocks_quantity,
+                ];
+            });
+
+        // Low stock Variants + resolving brand via model → brand
+        $lowVariants = Variant::where('stocks_quantity', '<', 10)
+            ->select('variant_id', 'model_id', 'product_name', 'price', 'variant_image', 'stocks_quantity')
+            ->get()
+            ->map(function ($variant) {
+                $brandName = '-';
+
+                if ($variant->model_id) {
+                    $model = Models::with('brand')->find($variant->model_id);
+                    if ($model && $model->brand) {
+                        $brandName = $model->brand->brand_name;
+                    }
+                }
+
+                return [
+                    'type' => 'Variant Product',
+                    'name' => $variant->product_name,
+                    'brand' => $brandName,
+                    'price' => $variant->price,
+                    'image' => $variant->variant_image,
+                    'stocks_quantity' => $variant->stocks_quantity,
+                ];
+            });
+
+        // Merge and paginate
+        $merged = $lowProducts->concat($lowVariants)->values();
+
+        $perPage = 10;
+        $currentPage = request()->get('page', 1);
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $merged->forPage($currentPage, $perPage),
+            $merged->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return view('manager.content.ManagerLowItems', ['items' => $paginated]);
+    }
+
+     public function StockClerklowItemsView()
+    {
+        // Low stock Products
+        $lowProducts = Products::where('stocks_quantity', '<', 10)
+            ->select('model_name', 'brand_name', 'price', 'model_img', 'stocks_quantity')
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'type' => 'Single Product',
+                    'name' => $product->model_name,
+                    'brand' => $product->brand_name,
+                    'price' => $product->price,
+                    'image' => $product->model_img,
+                    'stocks_quantity' => $product->stocks_quantity,
+                ];
+            });
+
+        // Low stock Variants + resolving brand via model → brand
+        $lowVariants = Variant::where('stocks_quantity', '<', 10)
+            ->select('variant_id', 'model_id', 'product_name', 'price', 'variant_image', 'stocks_quantity')
+            ->get()
+            ->map(function ($variant) {
+                $brandName = '-';
+
+                if ($variant->model_id) {
+                    $model = Models::with('brand')->find($variant->model_id);
+                    if ($model && $model->brand) {
+                        $brandName = $model->brand->brand_name;
+                    }
+                }
+
+                return [
+                    'type' => 'Variant Product',
+                    'name' => $variant->product_name,
+                    'brand' => $brandName,
+                    'price' => $variant->price,
+                    'image' => $variant->variant_image,
+                    'stocks_quantity' => $variant->stocks_quantity,
+                ];
+            });
+
+        // Merge and paginate
+        $merged = $lowProducts->concat($lowVariants)->values();
+
+        $perPage = 10;
+        $currentPage = request()->get('page', 1);
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $merged->forPage($currentPage, $perPage),
+            $merged->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return view('stockclerk.content.StockClerkLowItems', ['items' => $paginated]);
+    }
+
 
     public function StockClerklowUnitsProducts() {
         // Count the products with stocks_quantity between 0 and 5 from the 'products' table
