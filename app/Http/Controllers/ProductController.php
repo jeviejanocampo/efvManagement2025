@@ -13,6 +13,7 @@ use App\Models\Variant;
 use Illuminate\Support\Facades\Log;
 use App\Models\GalleryImage;
 use Illuminate\Support\Str;
+use App\Models\VariantImage;
 
 class ProductController extends Controller
 {
@@ -1185,27 +1186,28 @@ class ProductController extends Controller
         return view('stockclerk.content.editVariant', compact('variant', 'model_id', 'variant_id'));
     }
 
-    public function ManagereditVariant($model_id, $variant_id, Request $request)
+   public function ManagereditVariant($model_id, $variant_id, Request $request)
     {
         $variant = Variant::where('model_id', $model_id)->where('variant_id', $variant_id)->first();
-    
+
         if (!$variant) {
             return redirect()->back()->with('error', 'Variant not found.');
         }
-    
+
         // Store the previous URL in session
         session(['previous_url' => url()->previous()]);
 
-        // ✅ Log activity when a user accesses the edit variant page
+        // Log activity
         ActivityLog::create([
             'user_id' => Auth::id(),
-            'role' => Auth::user()->role, // Get user's role
+            'role' => Auth::user()->role,
             'activity' => "Accessed edit page for variant #$variant_id of model #$model_id",
         ]);
 
-       $galleryImages = GalleryImage::where('variant_id', $variant_id)->get();
-    
-        return view('manager.content.ManagerEditVariant', compact('variant', 'model_id', 'variant_id', 'galleryImages'));
+        // ✅ Fetch images from VariantImage model
+        $variantImages = VariantImage::where('variant_id', $variant_id)->get();
+
+        return view('manager.content.ManagerEditVariant', compact('variant', 'model_id', 'variant_id', 'variantImages'));
     }
     
 

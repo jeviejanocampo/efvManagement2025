@@ -15,12 +15,12 @@
     </div>
 
     <!-- Display Model ID -->
-    <div class="mb-4 hidden">
+    <div class="mb-4">
         <h3 class="text-lg font-semibold">Model ID: {{ $model_id }}</h3>
     </div>
 
     <!-- Display Variant ID -->
-    <div class="mb-4 hidden">
+    <div class="mb-4">
         <h3 class="text-lg font-semibold">Variant ID: {{ $variant_id }}</h3>
     </div>
 
@@ -31,20 +31,20 @@
                 // Assuming you passed $galleryImages to the view:
                 // $galleryImages = GalleryImage::where('variant_id', $variant_id)->get();
             @endphp
-            @forelse($galleryImages as $image)
+            @forelse($variantImages as $image)
                 <div class="relative w-32 h-32">
-                    <img src="{{ asset('product-images/' . $image->image_url) }}" 
-                        alt="Variant Gallery Image"
+                    <img src="{{ asset('product-images/' . $image->image) }}" 
+                        alt="Variant Image"
                         class="w-full h-full object-cover border rounded-lg">
                     <button 
-                        onclick="deleteVariantGalleryImage({{ $variant_id }})"
+                        onclick="deleteVariantGalleryImage({{ $image->id }})"
                         class="absolute top-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded-bl hover:bg-red-700"
                         title="Delete">
                         ✕
                     </button>
                 </div>
             @empty
-                <p class="text-gray-500 italic">No variant gallery image available.</p>
+                <p class="text-gray-500 italic">No variant images available.</p>
             @endforelse
         </div>
     </div>
@@ -160,9 +160,9 @@
 </div>
 
 <script>
-    function deleteVariantGalleryImage(variantId) {
-        if (confirm("Are you sure you want to delete this gallery image?")) {
-            fetch(`/admin-delete-variant-gallery-image/${variantId}`, {
+    function deleteVariantGalleryImage(imageId) {
+        if (confirm("Are you sure you want to delete this variant image?")) {
+            fetch(`/admin-delete-variant-gallery-image/${imageId}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -170,9 +170,7 @@
                 }
             })
             .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
+                if (response.ok) return response.json();
                 throw new Error('Network response was not ok.');
             })
             .then(data => {
@@ -183,7 +181,7 @@
             })
             .catch(error => {
                 console.error(error);
-                alert('Failed to delete variant gallery image.');
+                alert('Failed to delete variant image.');
             });
         }
     }

@@ -678,15 +678,22 @@ class AdminController extends Controller
 
     public function AdminDefectiveindexdDashboard()
     {
-        // Fetch defective products with pagination, ordered by the created_at field of the associated Order in descending order
-        $defectiveProducts = DefectiveProduct::with('orderReference', 'order')  // Load order relation too
-            ->paginate(7);
-        
+        // Fetch defective products with pagination and include related orders and references
+        $defectiveProducts = DefectiveProduct::with('orderReference', 'order')->paginate(7);
+
+        // Process and attach image path to each product
+        foreach ($defectiveProducts as $product) {
+            if ($product->variant_id && $product->variant_id != 0) {
+                $variant = \App\Models\Variant::find($product->variant_id);
+                $product->display_image = $variant ? $variant->variant_image : null;
+            } else {
+                $productModel = \App\Models\Products::where('model_id', $product->model_id)->first();
+                $product->display_image = $productModel ? $productModel->model_img : null;
+            }
+        }
+
         return view('admin.content.adminDefectiveProductsView', compact('defectiveProducts'));
     }
-    
-     
-
 
     public function AdminindexView(Request $request)
     {
@@ -1053,7 +1060,7 @@ class AdminController extends Controller
         return redirect()->route('admin.add.variant', ['model_id' => $model_id])->with('success', 'Variant added successfully.');
     }
 
-   public function AdmineditVariant($model_id, $variant_id, Request $request)
+    public function AdmineditVariant($model_id, $variant_id, Request $request)
     {
         $variant = Variant::where('model_id', $model_id)->where('variant_id', $variant_id)->first();
 
@@ -1072,9 +1079,9 @@ class AdminController extends Controller
         ]);
 
         // ✅ Fetch gallery images for the variant
-        $galleryImages = GalleryImage::where('variant_id', $variant_id)->get();
-
-        return view('admin.content.AdminEditVariant', compact('variant', 'model_id', 'variant_id', 'galleryImages'));
+        $variantImages = VariantImage::where('variant_id', $variant_id)->get();
+        
+        return view('admin.content.AdminEditVariant', compact('variant', 'model_id', 'variant_id', 'variantImages'));
     }
 
     public function AdminupdateVariant(Request $request, $model_id, $variant_id)
@@ -1218,23 +1225,22 @@ class AdminController extends Controller
     }
 
 
-    public function AdminDeleteVariantGalleryImage($variant_id)
+   public function AdminDeleteVariantGalleryImage($id)
     {
-        // Use variant_id to retrieve the gallery image (assuming one per variant)
-        $image = GalleryImage::where('variant_id', $variant_id)->first();
+        $image = VariantImage::find($id);
 
         if (!$image) {
-            return response()->json(['success' => false, 'message' => 'Gallery image not found.'], 404);
+            return response()->json(['success' => false, 'message' => 'Variant image not found.'], 404);
         }
 
-        $imagePath = public_path('product-images/' . $image->image_url);
+        $imagePath = public_path('product-images/' . $image->image);
         if (file_exists($imagePath)) {
             unlink($imagePath);
         }
 
         $image->delete();
 
-        return response()->json(['success' => true, 'message' => 'Gallery image deleted successfully.']);
+        return response()->json(['success' => true, 'message' => 'Variant image deleted successfully.']);
     }
 
     public function AdminupdateProduct(Request $request, $model_id)

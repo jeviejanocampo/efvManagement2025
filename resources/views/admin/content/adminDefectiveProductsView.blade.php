@@ -29,6 +29,7 @@
                  Product Label
                 </th>
 
+                <th class="px-6 py-2 bg-gray-100 text-left">Image</th>
                 <th class="px-6 py-2 bg-gray-100 text-left">Product Name</th>
                 <th class="px-6 py-2 bg-gray-100 text-left">Brand Name</th>
                 <th class="px-6 py-2 bg-gray-100 text-left">Quantity</th>
@@ -43,6 +44,13 @@
         <tbody>
             @foreach($defectiveProducts as $product)
                 <tr data-created-at="{{ $product->order->created_at->format('Y-m-d') }}" data-product-name="{{ $product->product_name }}">
+                    <td class="px-6 py-2 border-b">
+                        @if($product->display_image)
+                            <img src="{{ asset('product-images/' . $product->display_image) }}" alt="Product Image" class="w-24 h-24 object-cover rounded">
+                        @else
+                            <span class="text-gray-400 italic">No Image</span>
+                        @endif
+                    </td>
                     <td class="px-6 py-2 border-b">
                         @if($product->orderReference)
                             {{ $product->orderReference->reference_id }}

@@ -296,7 +296,7 @@ Route::delete('/admin-delete-gallery-image/{id}', [AdminController::class, 'Admi
 Route::post('/admin-upload-variant-gallery-image/{variant_id}', [AdminController::class, 'AdminUploadVariantGalleryImage'])
     ->name('admin.uploadVariantGalleryImage');
 
-Route::delete('/admin-delete-variant-gallery-image/{variant_id}', [AdminController::class, 'AdminDeleteVariantGalleryImage'])
+Route::delete('/admin-delete-variant-gallery-image/{id}', [AdminController::class, 'AdminDeleteVariantGalleryImage'])
     ->name('admin.deleteVariantGalleryImage');
 
 Route::post('/admin/customer/update', [AdminController::class, 'AdminManageCustomer'])->name('admin.customer.manage.update');
