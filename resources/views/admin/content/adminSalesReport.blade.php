@@ -69,12 +69,12 @@
 
         <div class="space-y-4">
         <div class="bg-white p-4 flex items-center relative">
-            <h1 class="absolute top-2 left-4 text-xl font-bold z-10 px-2">Total Orders</h1>
+            <h1 class="absolute top-1 left-4 text-xl font-bold z-10 px-2">Payment Distribution</h1>
             <br>
-            <div class="w-2/3 h-64">
-                <canvas id="totalOrdersChart"></canvas>
+            <div class="w-2/3 h-64 mt-6">
+                <canvas id="paymentMethodChart"></canvas>
             </div>
-            <div class="w-1/3 pl-4">
+            <!-- <div class="w-1/3 pl-4">
                 <h5 class="font-semibold mb-2">Order Breakdown</h5>
                 <ul class="space-y-2 text-sm ml-6">
                     <li><span class="text-green-600 font-bold">Completed:</span> {{ $orderStatuses['Completed'] }} orders</li>
@@ -82,7 +82,7 @@
                     <li><span class="text-red-600 font-bold">Cancelled:</span> {{ $orderStatuses['Cancelled'] }} orders</li>
                     <li><span class="text-blue-600 font-bold">In Process:</span> {{ $orderStatuses['In Process'] }} orders</li>
                 </ul>
-            </div>
+            </div> -->
         </div>
 
 
@@ -156,6 +156,12 @@
     </div>
 </div>
 
+
+
+<script>
+    const paymentLabels = {!! json_encode($paymentMethodSales->keys()) !!};
+    const paymentValues = {!! json_encode($paymentMethodSales->values()) !!};
+</script>
 
 
 <script>

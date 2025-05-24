@@ -197,6 +197,25 @@ class ActivityLogController extends Controller
         foreach ($period as $date) {
             $days->put($date->format('Y-m-d'), $dailySales->get($date->format('Y-m-d'), 0));
         }
+
+        $paymentMethodSales = Order::where('status', 'Completed')
+        ->get()
+        ->groupBy(function ($order) {
+            // Normalize method to uppercase keywords
+            $method = strtolower($order->payment_method);
+            if (str_contains($method, 'cash') && !str_contains($method, 'gcash')) {
+                return 'Cash';
+            } elseif (str_contains($method, 'gcash')) {
+                return 'GCASH';
+            } elseif (str_contains($method, 'pnb')) {
+                return 'PNB';
+            } else {
+                return 'Other';
+            }
+        })->map(function ($orders) {
+            return $orders->sum('total_price'); // Sum of sales per method
+        });
+
     
         // Pass the data to the view
         return view('manager.content.SalesReport', compact(
@@ -208,6 +227,7 @@ class ActivityLogController extends Controller
             'percentagePerWeek',
             'months',
             'days',
+            'paymentMethodSales',
             'salesData'
         ));
     }  
@@ -311,6 +331,24 @@ class ActivityLogController extends Controller
         foreach ($period as $date) {
             $days->put($date->format('Y-m-d'), $dailySales->get($date->format('Y-m-d'), 0));
         }
+
+        $paymentMethodSales = Order::where('status', 'Completed')
+        ->get()
+        ->groupBy(function ($order) {
+            // Normalize method to uppercase keywords
+            $method = strtolower($order->payment_method);
+            if (str_contains($method, 'cash') && !str_contains($method, 'gcash')) {
+                return 'Cash';
+            } elseif (str_contains($method, 'gcash')) {
+                return 'GCASH';
+            } elseif (str_contains($method, 'pnb')) {
+                return 'PNB';
+            } else {
+                return 'Other';
+            }
+        })->map(function ($orders) {
+            return $orders->sum('total_price'); // Sum of sales per method
+        });
     
         // Pass the data to the view
         return view('admin.content.adminSalesReport', compact(
@@ -322,6 +360,7 @@ class ActivityLogController extends Controller
             'percentagePerWeek',
             'months',
             'days',
+            'paymentMethodSales',
             'salesData'
         ));
     }  

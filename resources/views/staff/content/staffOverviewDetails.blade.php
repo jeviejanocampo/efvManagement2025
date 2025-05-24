@@ -37,7 +37,7 @@
 
 
 <div class="p-4 ">
-    <a href="{{ url('admin/overview') }}" 
+    <a href="{{ url('staff/overview') }}" 
     class="bg-gray-800 text-white px-2 py-1 rounded-full hover:bg-gray-700 mb-5 items-center gap-2">
     <i class="fas fa-arrow-left"></i> 
     </a>
@@ -210,8 +210,16 @@
 
             <p style="font-size: 14px; padding-top: 4px;"> 
                 <div class="flex items-center space-x-4">
-                    <span class="font-semibold">PAYMENT METHOD: {{ $order->payment_method }}</span>
-
+                <span class="font-semibold">
+                    PAYMENT METHOD: 
+                    @if ($gcashPayment && $gcashPayment->order_id == $order->order_id)
+                        GCash
+                    @elseif ($pnbPayment && $pnbPayment->order_id == $order->order_id)
+                        PNB
+                    @else
+                        {{ $order->payment_method }}
+                    @endif
+                </span>
                     @php
                         $paymentMethod = Str::lower($order->payment_method);
                     @endphp
@@ -289,11 +297,11 @@
                 $paymentMethod = Str::lower($order->payment_method);
             @endphp
 
-            @if($paymentMethod == 'gcash')
+           @if($paymentMethod == 'gcash' || ($gcashPayment && $gcashPayment->order_id == $order->order_id))
                 <button class="bg-blue-700 text-white font-bold px-2 py-1 hover:bg-blue-700 transition" onclick="viewGcashPayment({{ $order->order_id }})">
                     View Gcash Payment
                 </button>
-            @elseif($paymentMethod == 'pnb')
+            @elseif($paymentMethod == 'pnb' || ($pnbPayment && $pnbPayment->order_id == $order->order_id))
                 <button class="bg-blue-700 text-white font-bold px-2 py-1 hover:bg-blue-700 transition" onclick="viewPnbPayment({{ $order->order_id }})">
                     View PNB Payment
                 </button>
@@ -539,6 +547,55 @@
 
 </div>
 
+<script>
+     function updateProductStatus(orderDetailId) {
+        const newStatus = document.getElementById('edit_status_' + orderDetailId).value;
+
+        // Confirm the action
+        const confirmUpdate = confirm(`Are you sure you want to update the product status to "${newStatus}"?`);
+
+        if (confirmUpdate) {
+            // Send the update request via AJAX
+            fetch(`/orders/update-product-status/${orderDetailId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel CSRF token
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            })
+            .then(response => {
+                // Check if the response is OK
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert(data.message); // Display success message
+
+                    // Optional: Update the DOM element with the new status
+                    const statusSpan = document.getElementById('status_span_' + orderDetailId);
+                    if (statusSpan) {
+                        statusSpan.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1); // Capitalize first letter
+                    }
+
+                    // Refresh the page
+                    location.reload();
+                } else {
+                    alert(data.message); // Display error message
+                }
+            })
+            .catch(error => {
+                console.error("Error updating product status:", error); // Log detailed error in the console
+                alert("An error occurred while updating the status. Please try again.");
+            });
+        }
+    }
+</script>
 <script>
       function openModalUser(userId) {
         // Fetch user details using the userId

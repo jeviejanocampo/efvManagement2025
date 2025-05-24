@@ -178,8 +178,18 @@
 
             <p style="font-size: 14px; padding-top: 4px;"> 
                 <div class="flex items-center space-x-4">
-                    <span class="font-semibold">PAYMENT METHOD: {{ $order->payment_method }}</span>
-
+                    
+                <span class="font-semibold">
+                    PAYMENT METHOD: 
+                    @if ($gcashPayment && $gcashPayment->order_id == $order->order_id)
+                        GCash
+                    @elseif ($pnbPayment && $pnbPayment->order_id == $order->order_id)
+                        PNB
+                    @else
+                        {{ $order->payment_method }}
+                    @endif
+                </span>
+                
                     @php
                         $paymentMethod = Str::lower($order->payment_method);
                     @endphp
@@ -257,11 +267,11 @@
                 $paymentMethod = Str::lower($order->payment_method);
             @endphp
 
-            @if($paymentMethod == 'gcash')
+              @if($paymentMethod == 'gcash' || ($gcashPayment && $gcashPayment->order_id == $order->order_id))
                 <button class="bg-blue-700 text-white font-bold px-2 py-1 hover:bg-blue-700 transition" onclick="viewGcashPayment({{ $order->order_id }})">
                     View Gcash Payment
                 </button>
-            @elseif($paymentMethod == 'pnb')
+            @elseif($paymentMethod == 'pnb' || ($pnbPayment && $pnbPayment->order_id == $order->order_id))
                 <button class="bg-blue-700 text-white font-bold px-2 py-1 hover:bg-blue-700 transition" onclick="viewPnbPayment({{ $order->order_id }})">
                     View PNB Payment
                 </button>

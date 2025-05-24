@@ -121,31 +121,30 @@ document.addEventListener('DOMContentLoaded', () => {
 // Wait for DOM content to load
 document.addEventListener('DOMContentLoaded', () => {   
     // Donut Chart: Total Orders
-    const ordersCtx = document.getElementById('totalOrdersChart');
-    if (ordersCtx) {
-        new Chart(ordersCtx, {
-            type: 'doughnut',
+    const paymentCtx = document.getElementById('paymentMethodChart');
+    if (paymentCtx) {
+        new Chart(paymentCtx, {
+            type: 'pie',
             data: {
-                labels: ['Completed', 'Pending', 'Cancelled'],
+                labels: paymentLabels,
                 datasets: [{
-                    data: [120, 30, 10], // Example order stats
+                    data: paymentValues,
                     backgroundColor: [
-                        'rgba(75, 192, 192, 0.6)', // Green
-                        'rgba(255, 206, 86, 0.6)', // Yellow
-                        'rgba(255, 99, 132, 0.6)'  // Red
-                    ],
-                    hoverBackgroundColor: [
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(255, 206, 86, 0.8)',
-                        'rgba(255, 99, 132, 0.8)'
+                        '#10B981', // Cash - green
+                        '#6366F1', // GCASH - indigo
+                        '#F59E0B', // PNB - amber
+                        '#EF4444'  // Other - red
                     ]
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // Ensure the chart does not shrink
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false } // Disable the default legend
+                    legend: {
+                        display: true,
+                        position: 'right'
+                    }
                 }
             }
         });
