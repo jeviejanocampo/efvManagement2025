@@ -1445,36 +1445,40 @@ class ProductController extends Controller
     }
 
     public function updateVariant(Request $request, $model_id, $variant_id)
-    {
+   {
         $request->validate([
             'product_name' => 'required|string|max:255',
             'part_id' => 'required|string|max:255',
-            'price' => 'required|numeric',
+            'price' => 'required|numeric', // cost price now
+            'markup_percentage' => 'required|numeric',
+            'vat_inclusive' => 'required|numeric',
             'specification' => 'required|string|max:500',
             'description' => 'required|string',
             'stocks_quantity' => 'required|integer',
             'status' => 'required|in:active,inactive',
+            'variant_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
-    
+
         $variant = Variant::where('model_id', $model_id)
-                          ->where('variant_id', $variant_id)
-                          ->first();
-    
+                        ->where('variant_id', $variant_id)
+                        ->first();
+
         if (!$variant) {
             return redirect()->back()->with('error', 'Variant not found.');
         }
-    
-        // Handle Image Upload
+
         if ($request->hasFile('variant_image')) {
-            $imageName = $request->file('variant_image')->getClientOriginalName(); // Get original file name only
+            $imageName = $request->file('variant_image')->getClientOriginalName();
             $request->file('variant_image')->move(public_path('product-images/'), $imageName);
             $variant->variant_image = $imageName;
         }
-    
-        // Update Variant Details
+
         $variant->product_name = $request->product_name;
         $variant->part_id = $request->part_id;
-        $variant->price = $request->price;
+        $variant->cost_price = $request->price; // ✅ Now saving cost price separately
+        $variant->price = $request->vat_inclusive; // ✅ VAT Inclusive becomes official selling price
+        $variant->markup_percentage = $request->markup_percentage;
+        $variant->vat_inclusive = $request->vat_inclusive;
         $variant->specification = $request->specification;
         $variant->description = $request->description;
         $variant->stocks_quantity = $request->stocks_quantity;
@@ -1482,7 +1486,7 @@ class ProductController extends Controller
 
         ActivityLog::create([
             'user_id' => Auth::id(),
-            'role' => Auth::user()->role, // Get user's role
+            'role' => Auth::user()->role,
             'activity' => "Updated variant #$variant_id of model #$model_id",
         ]);
 

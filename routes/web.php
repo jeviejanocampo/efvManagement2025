@@ -551,7 +551,17 @@ Route::get('/stock-clerk/main/dashboard', function () {
     //
     Route::middleware(['manager'])->group(function () {
 
+    Route::get('/manager/users', [AdminController::class, 'ManagerUsers'])->name('manager.users');
+
+    Route::get('/manager/users/create', [AdminController::class, 'ManagercreateUser'])->name('manager.users.create');
+
+    Route::post('/manager/add-users', [AdminController::class, 'ManagerstoreUser'])->name('manager.users.store.user');
+
     Route::get('/manager/customers-view', [AdminController::class, 'ManagerCustomersView'])->name('manager.customers.view');
+
+    Route::get('/manager/users/edit/{id}', [AdminController::class, 'managerEditUser'])->name('manager.users.edit');
+
+    Route::put('/manager/users/update/{id}', [AdminController::class, 'ManagerupdateUser'])->name('manager.users.update');
 
     Route::get('/manager/overview/details/{order_id}', [OrderController::class, 'Managerdetails'])->name('ManageroverViewDetails');
 

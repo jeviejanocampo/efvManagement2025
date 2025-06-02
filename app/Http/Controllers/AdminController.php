@@ -279,6 +279,12 @@ class AdminController extends Controller
         return view('admin.content.adminUsers', compact('users'));
     }
 
+     public function ManagerUsers()
+    {
+        $users = \App\Models\User::paginate(16);
+        return view('manager.content.managerUsers', compact('users'));
+    }
+
     public function adminCustomersView()
     {
         $users = Customer::paginate(20);
@@ -315,6 +321,12 @@ class AdminController extends Controller
         return view('admin.content.adminEditUser', compact('user'));
     }
 
+     public function ManagerEditUser($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+        return view('manager.content.managerEditUser', compact('user'));
+    }
+
     public function updateUser(Request $request, $id)
     {
         try {
@@ -338,11 +350,40 @@ class AdminController extends Controller
         }
     }
 
+    public function ManagerupdateUser(Request $request, $id)
+    {
+        try {
+            $user = \App\Models\User::findOrFail($id);
+
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->status = $request->status;
+            $user->role = $request->role;
+
+            // Update password only if a new one is provided
+            if ($request->filled('password')) {
+                $user->password = bcrypt($request->password);
+            }
+
+            $user->save();
+
+            return redirect()->route('manager.users.edit', $id)->with('success', 'User updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('manager.users.edit', $id)->with('error', 'Failed to update user.');
+        }
+    }
+
     // In AdminController.php
     public function createUser()
     {
         return view('admin.content.addUser');  // This assumes the view is located at resources/views/admin/users/addUser.blade.php
     }
+
+     public function ManagercreateUser()
+    {
+        return view('manager.content.ManageraddUser');  // This assumes the view is located at resources/views/admin/users/addUser.blade.php
+    }
+
 
     // In AdminController.php
     public function storeUser(Request $request)
@@ -369,6 +410,32 @@ class AdminController extends Controller
 
         // Redirect with success message
         return redirect()->route('admin.users.create')->with('success', 'User created successfully!');
+    }
+
+     public function ManagerstoreUser(Request $request)
+    {
+        \Log::info('User creation request data:', $request->all()); // Log the incoming request data
+
+        // Validate the input data
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'role' => 'required|in:admin,staff,manager,stock-clerk',
+            'status' => 'required|in:active,inactive',
+            'password' => 'required|string|min:6',
+        ]);
+
+        // Create the new user
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+            'status' => $request->status,
+            'password' => bcrypt($request->password),
+        ]);
+
+        // Redirect with success message
+        return redirect()->route('manager.users.create')->with('success', 'User created successfully!');
     }
 
     public function AdminOrderOverview()

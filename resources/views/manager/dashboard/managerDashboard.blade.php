@@ -139,8 +139,13 @@
 
                 <p class="text-white text-sm font-bold">Users</p>
                 <a href="{{ route('manager.customers.view') }}" class="flex items-center text-white hover:text-white ml-2">
-                    <i class="fas fa-user mr-3"></i>
+                    <i class="fas fa-users mr-3"></i>
                     <span class="text-sm"> Customers </span>
+                </a>
+
+                 <a href="{{ route('manager.users') }}" class="flex items-center text-white hover:text-white ml-2">
+                    <i class="fas fa-user mr-3"></i>
+                    <span class="text-sm"> Management Users </span>
                 </a>
 
                 <p class="text-white text-sm font-bold">Activity</p>
